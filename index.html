@@ -5,7 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NO TROJAN® — NoT™ Meme Decoder</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
+<style> html,body{margin:0!important;padding:0!important;width:100%!important;overflow-x:hidden!important;background:#020c06!important;min-height:100vh!important;}
+.contact-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:16px;}
+.contact-overlay.open{display:flex;}
+.contact-modal{background:var(--surface);border:1px solid var(--border2);border-top:3px solid var(--green3);max-width:540px;width:100%;max-height:90vh;overflow-y:auto;padding:28px 24px;position:relative;}
+.contact-close{position:absolute;top:12px;right:16px;background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;line-height:1;}
+.contact-close:hover{color:var(--white);}
+.contact-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(0,255,106,0.07);border:1px solid var(--green3);padding:3px 11px;font-family:'Barlow Condensed',sans-serif;font-size:0.67rem;font-weight:800;letter-spacing:0.17em;color:var(--green2);margin-bottom:10px;text-transform:uppercase;}
+.contact-title{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;letter-spacing:0.06em;color:var(--green);margin-bottom:4px;}
+.contact-sub{font-size:0.83rem;color:var(--white2);line-height:1.6;margin-bottom:20px;}
+.cform-group{margin-bottom:14px;}
+.cform-label{display:block;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.14em;color:var(--green3);text-transform:uppercase;margin-bottom:5px;}
+.cform-input,.cform-select,.cform-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--white);font-family:'Barlow',sans-serif;font-size:0.9rem;padding:9px 12px;outline:none;transition:border 0.2s;}
+.cform-input:focus,.cform-select:focus,.cform-textarea:focus{border-color:var(--green3);}
+.cform-select{appearance:none;cursor:pointer;}
+.cform-textarea{resize:vertical;min-height:80px;}
+.cform-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.cform-optional{font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:var(--muted);margin-left:6px;letter-spacing:0.1em;}
+.cform-submit{width:100%;padding:13px;background:transparent;border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;margin-top:6px;}
+.cform-submit:hover{background:rgba(0,255,106,0.08);}
+.cform-submit:disabled{opacity:0.5;cursor:not-allowed;}
+.cform-success{display:none;text-align:center;padding:24px 0;}
+.cform-success-icon{font-size:2.5rem;margin-bottom:12px;}
+.cform-success-title{font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--green);margin-bottom:8px;}
+.cform-success-msg{font-size:0.85rem;color:var(--white2);line-height:1.6;}
+.cform-error{font-size:0.78rem;color:var(--red3);margin-top:4px;display:none;}  
 :root{
   --bg:#020c06;--bg2:#040f08;--surface:#071209;--surface2:#0b1a10;
   --border:#0f3020;--border2:#183d25;
@@ -446,7 +470,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     <div class="hdr-right">
       <div class="sys-pill"><span class="sdot"></span>NoT™ Meme Decoder</div>
       <div class="hdr-ig">
-        <a href="https://instagram.com/notrojan" target="_blank" class="ig-handle">📷 @no_trojancontent</a>
+        <a href="https://instagram.com/no_trojancontent" target="_blank" class="ig-handle">📷 @no_notrojancontent</a>
         <span class="ig-dot"></span>
         <a href="https://no-trojan-content.myshopify.com" target="_blank" class="ig-handle">🛍️ Store</a>
       </div>
@@ -461,10 +485,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     <button class="nav-btn" onclick="switchNav('whyNOT',this)">🔬 Why NoT™?</button>
     <button class="nav-btn" onclick="switchNav('howNOT',this)">📡 How NoT™?</button>
     <button class="nav-btn" onclick="switchNav('certify',this)">🏆 Certify &amp; Train</button>
-    <button class="nav-btn store-btn" onclick="window.open('https://no-trojan-content.myshopify.com','_blank')">🛍 Store ↗</button>
+    <a href="https://no-trojan-content.myshopify.com" target="_blank" class="nav-btn store-btn">🛍 Store ↗</a>
+    <button class="nav-btn" onclick="openContact()">📬 Contact</button>
   </div>
 </div>
-
 <div class="main">
 
 <!-- ══════════════════════════════════════
@@ -528,12 +552,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     <!-- RESULT TABS -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
-      <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+     <button class="print-btn" onclick="handlePrint()">🖨️ Print / Save as PDF</button>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
-      <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
-    </div>
+    
     <div class="rtabs" id="resultTabs">
       <button class="rtab active" id="tab1Btn" onclick="switchResult('rp-tab1',this)">loading...</button>
       <button class="rtab" id="tab2Btn" onclick="switchResult('rp-tab2',this)">loading...</button>
@@ -1493,7 +1514,7 @@ const MASKOFF_DATA={rubric:{E1:1,E2:1,E3:1,E4:1,E5:1,E6:2,S1:3,S2:2,S3:1,S4:1,S5
 
 
 // ── SCAN GATE ──
-const GHL_WEBHOOK = 'YOUR_GHL_WEBHOOK_URL_HERE'; // Replace with your GHL webhook
+const GHL_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/Jq1gaWassPDUjM2xFMxX/webhook-trigger/92a31df6-8472-4bf8-a9ad-a850e1cc606c';
 const TRIAL_LIMIT = 2;       // Free trial before registration
 const MEMBER_MONTHLY = 10;   // Free member scans per month
 
@@ -1612,7 +1633,7 @@ function showGate(score, ratingClass){
   box.innerHTML = '<div class="gate-badge">&#127807; NoT™ Green Community</div>'
     + '<div class="gate-title">Your scan is ready.</div>'
     + scoreHTML
-    + '<div class="gate-sub" style="margin-bottom:12px;">You have used your 3 free scans. Choose your membership to unlock your full report.</div>'
+    + '<div class="gate-sub" style="margin-bottom:12px;">You have used your 2 free scans. Join our free No Trojan Green Community to unlock your full report.</div>'
     + optionsHTML
     + loginHTML
     + noteHTML;
@@ -2906,6 +2927,160 @@ function renderResults(r){
 function renderPCards(id,pillars,color){
   document.getElementById(id).innerHTML=pillars.map(p=>`<div class="pcard"><div class="pcard-top"><div><div class="pcard-name">${p.full}</div><div class="pcard-name">(${p.n})</div></div><div><div class="pcard-score" style="color:${color}">${p.d.score}</div><div class="pcard-max">/ 100</div></div></div><div class="pcard-bar"><div class="pcard-fill" style="width:${p.d.score}%;background:${color}"></div></div>${(p.d.indicators||[]).map(i=>`<div class="pind ${i.status}"><span class="pico">${IMAP[i.status]||''}</span>${i.text}</div>`).join('')}</div>`).join('');
 }
+function openContact(){document.getElementById('contactOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeContact(){document.getElementById('contactOverlay').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('contactOverlay').addEventListener('click',function(e){if(e.target===this)closeContact();});
+
+async function submitContact(e){
+  e.preventDefault();
+  const btn=document.getElementById('cformBtn');
+  const err=document.getElementById('cformError');
+  btn.disabled=true;btn.textContent='Sending...';err.style.display='none';
+  const payload={
+    firstName:document.getElementById('cf_fname').value,
+    lastName:document.getElementById('cf_lname').value,
+    email:document.getElementById('cf_email').value,
+    phone:document.getElementById('cf_phone').value||'',
+    who:document.getElementById('cf_who').value,
+    interest:document.getElementById('cf_interest').value,
+    source:document.getElementById('cf_source').value,
+    message:document.getElementById('cf_message').value||''
+  };
+  try{
+    const res=await fetch('https://services.leadconnectorhq.com/hooks/Jq1gaWassPDUjM2xFMxX/webhook-trigger/92a31df6-8472-4bf8-a9ad-a850e1cc606c',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    if(res.ok){
+      document.getElementById('cformWrap').style.display='none';
+      document.getElementById('cformSuccess').style.display='block';
+    } else {throw new Error('error');}
+  } catch(ex){
+    err.style.display='block';
+    btn.disabled=false;
+    btn.textContent='⚡ Request More Info';
+  }
+}function openContact(){document.getElementById('contactOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeContact(){document.getElementById('contactOverlay').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('contactOverlay').addEventListener('click',function(e){if(e.target===this)closeContact();});
+
+async function submitContact(e){
+  e.preventDefault();
+  const btn=document.getElementById('cformBtn');
+  const err=document.getElementById('cformError');
+  btn.disabled=true;btn.textContent='Sending...';err.style.display='none';
+  const payload={
+    firstName:document.getElementById('cf_fname').value,
+    lastName:document.getElementById('cf_lname').value,
+    email:document.getElementById('cf_email').value,
+    phone:document.getElementById('cf_phone').value||'',
+    who:document.getElementById('cf_who').value,
+    interest:document.getElementById('cf_interest').value,
+    source:document.getElementById('cf_source').value,
+    message:document.getElementById('cf_message').value||''
+  };
+  try{
+    const res=await fetch('https://services.leadconnectorhq.com/hooks/Jq1gaWassPDUjM2xFMxX/webhook-trigger/92a31df6-8472-4bf8-a9ad-a850e1cc606c',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    if(res.ok){
+      document.getElementById('cformWrap').style.display='none';
+      document.getElementById('cformSuccess').style.display='block';
+    } else {throw new Error('error');}
+  } catch(ex){
+    err.style.display='block';
+    btn.disabled=false;
+    btn.textContent='⚡ Request More Info';
+  }
+}
+function handlePrint(){
+  if(isRegistered()){
+    window.print();
+  } else {
+    const pd=document.createElement('div');
+    pd.id='printGateDiv';
+    pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    pd.innerHTML='<div style="background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:400px;width:100%;padding:28px;text-align:center;"><div style="font-family:Barlow Condensed,sans-serif;font-size:1.3rem;font-weight:900;color:var(--green);margin-bottom:10px;">🌿 Join the NoT™ Green Community</div><div style="font-size:0.85rem;color:var(--white2);line-height:1.6;margin-bottom:20px;">Print & save reports is a community perk. Join free to unlock it.</div><div style="display:flex;gap:10px;justify-content:center;"><button onclick="document.getElementById(\'printGateDiv\').remove();" style="padding:10px 20px;background:transparent;border:1px solid var(--muted);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Maybe Later</button><button onclick="document.getElementById(\'printGateDiv\').remove();showGate(0,\'medium\');" style="padding:10px 20px;background:transparent;border:1px solid var(--green);color:var(--green);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Let\'s Do It!</button></div></div>';
+    document.body.appendChild(pd);
+  }
+}
 </script>
+<div class="contact-overlay" id="contactOverlay">
+  <div class="contact-modal">
+    <button class="contact-close" onclick="closeContact()">✕</button>
+    <div id="cformWrap">
+      <div class="contact-badge">🛡 No Trojan® Institute</div>
+      <div class="contact-title">Let's Connect</div>
+      <div class="contact-sub">Tell us a little about yourself and what you're looking for. We'll follow up with the right information for your situation.</div>
+      <form id="contactForm" onsubmit="submitContact(event)">
+        <div class="cform-group">
+          <label class="cform-label">What best describes you?</label>
+          <select class="cform-select" id="cf_who" required>
+            <option value="" disabled selected>Select one...</option>
+            <option value="K-12 Educator / Administrator">K-12 Educator / Administrator</option>
+            <option value="College / University">College / University</option>
+            <option value="Youth Nonprofit / Community Org">Youth Nonprofit / Community Org</option>
+            <option value="Corporate / Workforce Development">Corporate / Workforce Development</option>
+            <option value="Independent Creator / NIL Athlete">Independent Creator / NIL Athlete</option>
+            <option value="Parent or Guardian">Parent or Guardian</option>
+          </select>
+        </div>
+        <div class="cform-group">
+          <label class="cform-label">What are you most interested in?</label>
+          <select class="cform-select" id="cf_interest" required>
+            <option value="" disabled selected>Select one...</option>
+            <option value="Scanner & Certification">Scanner & Certification</option>
+            <option value="Curriculum & Training (NoT Ever Green Institute)">Curriculum & Training (NoT Ever Green Institute)</option>
+            <option value="School / Institutional Licensing">School / Institutional Licensing</option>
+            <option value="Partnership / Sponsorship">Partnership / Sponsorship</option>
+          </select>
+        </div>
+        <div class="cform-group">
+          <label class="cform-label">How did you hear about No Trojan®?</label>
+          <select class="cform-select" id="cf_source" required>
+            <option value="" disabled selected>Select one...</option>
+            <option value="Think Bold Conference">Think Bold Conference</option>
+            <option value="Social Media">Social Media</option>
+            <option value="Word of Mouth">Word of Mouth</option>
+            <option value="Web Search">Web Search</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="cform-row">
+          <div class="cform-group">
+            <label class="cform-label">First Name</label>
+            <input class="cform-input" type="text" id="cf_fname" placeholder="First" required>
+          </div>
+          <div class="cform-group">
+            <label class="cform-label">Last Name</label>
+            <input class="cform-input" type="text" id="cf_lname" placeholder="Last" required>
+          </div>
+        </div>
+        <div class="cform-group">
+          <label class="cform-label">Email</label>
+          <input class="cform-input" type="email" id="cf_email" placeholder="your@email.com" required>
+        </div>
+        <div class="cform-group">
+          <label class="cform-label">Phone <span class="cform-optional">// optional</span></label>
+          <input class="cform-input" type="tel" id="cf_phone" placeholder="(000) 000-0000">
+        </div>
+        <div class="cform-group">
+          <label class="cform-label">Message <span class="cform-optional">// optional</span></label>
+          <textarea class="cform-textarea" id="cf_message" placeholder="Tell us more about your goals or questions..."></textarea>
+        </div>
+        <div class="cform-error" id="cformError">Something went wrong. Please try again.</div>
+        <button class="cform-submit" type="submit" id="cformBtn">⚡ Request More Info</button>
+      </form>
+    </div>
+    <div class="cform-success" id="cformSuccess">
+      <div class="cform-success-icon">✅</div>
+      <div class="cform-success-title">You're on the radar.</div>
+      <div class="cform-success-msg">Thanks for reaching out. A member of the No Trojan® team will follow up with information tailored to your needs.<br><br>In the meantime, run a scan at <strong>notrojan.com/scanner</strong> — Let's raise Cultual Influence Intelligence for the health and wellness of youth and communities.</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
