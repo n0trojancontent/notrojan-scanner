@@ -1719,7 +1719,7 @@ function switchNav(id,btn){
     target.classList.add('active');
     target.style.display='block';
   }
-  btn.classList.add('active');
+  if(btn)btn.classList.add('active');
 }
 
 // Init on load
