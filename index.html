@@ -1742,7 +1742,7 @@ function switchResult(id,btn){
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
 }
-function openStore(){window.open('https://no-trojan-content.myshopify.com','_blank');}
+function goToTab(id){var panel=document.getElementById('tab-'+id);document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none';p.classList.remove('active');});if(panel){panel.style.display='block';panel.classList.add('active');}window.scrollTo({top:0,behavior:'smooth'});} function openStore(){window.open('https://no-trojan-content.myshopify.com','_blank');}
 
 async function runScan(){
   const input=document.getElementById('urlInput').value.trim();
