@@ -533,9 +533,18 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
       <!-- INLINE FORMULA EXPLANATION -->
       <div class="formula-why">
         <div class="fw-item">
-          <div class="fw-label">NoTrojan Score™ Methodology</div>
-          <div class="fw-text">Community health is the ultimate measure of any influence. A strong individual operating system that produces anti-social community outcomes still fails the test of citizenship. The community is the sum of its parts — <em style="color:var(--green2)">the community = Σ(IEOS)</em>. The NoTrojan Score™ is calculated across three weighted pillars — EOS, SI, and GC — using a proprietary scoring methodology. The weighting reflects established research in memetics, community psychology, and civic education traditions.</div>
-        
+          <div class="fw-label">Why GC is weighted highest (40%)</div>
+          <div class="fw-text">Community health is the ultimate measure of any influence. A strong individual operating system that produces anti-social community outcomes still fails the test of citizenship. The community is the sum of its parts — <em style="color:var(--green2)">the community = Σ(IEOS)</em>.</div>
+        </div>
+        <div class="fw-item">
+          <div class="fw-label">Why EOS and SI are each 30%</div>
+          <div class="fw-text">Individual ethical governance (EOS) and how influence spreads (SI) are both upstream of community outcomes — necessary foundations, but their value is measured by what they produce at the collective level.</div>
+        </div>
+        <div class="fw-brodie">
+          <div class="fw-brodie-lbl">📖 The Brodie Principle — Virus of the Mind (1996)</div>
+          Richard Brodie's memetics science established that ideas spread through populations like biological viruses — through individual operating systems first, then into culture at large. NoTrojan's formula reflects this: the IEOS is the unit of infection or immunity. The community is where the outcome is measured. GC scores whether this content is strengthening the community — or harming it.
+        </div>
+      </div>
     </div>
 
     <!-- TROY HEALTH INDEX -->
@@ -1733,7 +1742,7 @@ function switchResult(id,btn){
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
 }
-function goToTab(id){var panel=document.getElementById('tab-'+id);document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none';p.classList.remove('active');});if(panel){panel.style.cssText='display:block!important';panel.classList.add('active');}window.scrollTo({top:0,behavior:'smooth'});} function openStore(){window.open('https://no-trojan-content.myshopify.com','_blank');}
+function goToTab(id){var panel=document.getElementById('tab-'+id);document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none';p.classList.remove('active');});if(panel){panel.style.display='block';panel.classList.add('active');}window.scrollTo({top:0,behavior:'smooth'});} function openStore(){window.open('https://no-trojan-content.myshopify.com','_blank');}
 
 async function runScan(){
   const input=document.getElementById('urlInput').value.trim();
