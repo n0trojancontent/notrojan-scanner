@@ -107,7 +107,7 @@ header{background:#000;border-bottom:2px solid var(--red);position:relative;z-in
 .url-inp:focus{border-color:var(--green3);box-shadow:0 0 8px rgba(0,255,106,0.15);}
 .url-inp.pulsing-placeholder{border-color:var(--green3);box-shadow:0 0 12px rgba(0,255,106,0.2);}
 @keyframes placeholderPulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.url-inp::placeholder{color:var(--green2);animation:placeholderPulse 2.5s ease-in-out infinite;} @keyframes cursorBlink{0%,100%{opacity:1}49%{opacity:1}50%,99%{opacity:0}} .cursor-wrap{position:relative;flex:1;} .fake-cursor{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:2px;height:16px;background:var(--green);animation:cursorBlink 1s infinite;pointer-events:none;} .cursor-wrap.hide-cursor .fake-cursor{display:none;}
+.url-inp::placeholder{color:var(--green2);animation:placeholderPulse 2.5s ease-in-out infinite;} @keyframes cursorBlink{0%,100%{opacity:1}49%{opacity:1}50%,99%{opacity:0}} .cursor-wrap{position:relative;flex:1;display:flex;} .cursor-wrap input{flex:1;} .fake-cursor{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:2px;height:16px;background:var(--green);animation:cursorBlink 1s infinite;pointer-events:none;} .cursor-wrap.hide-cursor .fake-cursor{display:none;}
 
 .scan-btn{background:var(--green4);border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.86rem;font-weight:800;letter-spacing:0.2em;padding:11px 22px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;white-space:nowrap;}
 .scan-btn:hover:not(:disabled){background:rgba(0,255,106,0.1);}
