@@ -2854,8 +2854,8 @@ function renderResults(r){
   document.getElementById('certPct').textContent=cp+'%';
   document.getElementById('certVerdict').textContent=r.aside?.certificationVerdict||'';
   const pw=r.aside?.certificationPathway||[];
-  document.getElementById('certPath').innerHTML=pw.length?`<div class="cert-path-lbl">// Pathway to Certification</div>${pw.map(s=>`<div class="cert-step"><span>→</span><span>${s}</span></div>`).join('')}`:'';
-  document.getElementById('aDiag').innerHTML=`<div style="background:var(--bg2);border-left:3px solid var(--lime);padding:12px 15px;font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:var(--lime);line-height:1.8;font-weight:600;">${r.aside?.constructiveAssessment||''}</div>`;
+  document.getElementById('certPath').innerHTML=pw.length?`<div class="cert-path-lbl" style="color:${col};">// Pathway to Certification</div>${pw.map(s=>`<div class="cert-step" style="color:var(--white2);"><span style="color:${col};">→</span><span>${s}</span></div>`).join('')}`:'';
+  document.getElementById('aDiag').innerHTML=`<div style="background:var(--bg2);border-left:3px solid ${col};padding:12px 15px;font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:${col};line-height:1.8;font-weight:600;">${r.aside?.constructiveAssessment||''}</div>`;
 }
 function renderPCards(id,pillars,color){
   document.getElementById(id).innerHTML=pillars.map(p=>`<div class="pcard"><div class="pcard-top"><div><div class="pcard-name">${p.full}</div><div class="pcard-name">(${p.n})</div></div><div><div class="pcard-score" style="color:${color}">${p.d.score}</div><div class="pcard-max">/ 100</div></div></div><div class="pcard-bar"><div class="pcard-fill" style="width:${p.d.score}%;background:${color}"></div></div>${(p.d.indicators||[]).map(i=>`<div class="pind ${i.status}"><span class="pico">${IMAP[i.status]||''}</span>${i.text}</div>`).join('')}</div>`).join('');
