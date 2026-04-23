@@ -2824,11 +2824,11 @@ function renderResults(r){
   // Build HTML for GREEN SCORE panel
   const greenHTML = `
     <div class="pcards" id="aPillars"></div>
-    <div class="sec"><div class="sechd"><span>📐</span><span class="seclbl lime">Rubric — Dimensional Scoring</span></div><div class="secbody"><div id="rubricDetail"></div><div style="font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">* NoTrojan Score™ dimensional scoring methodology is proprietary to No Trojan®. Reg. No. 7,269,437.</div></div></div>
-    <div class="sec"><div class="sechd"><span>🔍</span><span class="seclbl lime">5 Media Literacy Questions (UNESCO / NAMLE)</span></div><div class="secbody"><div class="ml-grid" id="mlGrid"></div></div></div>
-    <div class="sec"><div class="sechd"><span>✅</span><span class="seclbl lime">Constructive Elements Identified</span></div><div class="secbody"><div id="strengthList"></div></div></div>
-    <div class="sec"><div class="sechd"><span>🏆</span><span class="seclbl lime">Certification Potential</span></div><div class="secbody"><div class="cert-meter"><div class="cert-lbl">// Certification Alignment Score</div><div class="cert-row"><div class="cert-bar"><div class="cert-fill" id="certFill"></div></div><div class="cert-pct" id="certPct"></div></div><div class="cert-verdict" id="certVerdict"></div><div id="certPath"></div></div></div></div>
-    <div class="sec"><div class="sechd"><span>🌱</span><span class="seclbl lime">Constructive Assessment</span></div><div class="secbody"><div class="diagbox" style="border-left-color:var(--green3)" id="aDiag"></div></div></div>`;
+    <div class="sec"><div class="sechd"><span>📐</span><span class="seclbl" style="color:${col}">Rubric — Dimensional Scoring</span></div><div class="secbody"><div id="rubricDetail"></div><div style="font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">* NoTrojan Score™ dimensional scoring methodology is proprietary to No Trojan®. Reg. No. 7,269,437.</div></div></div>
+    <div class="sec"><div class="sechd"><span>🔍</span><span class="seclbl" style="color:${col}">5 Media Literacy Questions (UNESCO / NAMLE)</span></div><div class="secbody"><div class="ml-grid" id="mlGrid"></div></div></div>
+    <div class="sec"><div class="sechd"><span>✅</span><span class="seclbl" style="color:${col}">Constructive Elements Identified</span></div><div class="secbody"><div id="strengthList"></div></div></div>
+    <div class="sec"><div class="sechd"><span>🏆</span><span class="seclbl" style="color:${col}">Certification Potential</span></div><div class="secbody"><div class="cert-meter"><div class="cert-lbl">// Certification Alignment Score</div><div class="cert-row"><div class="cert-bar"><div class="cert-fill" id="certFill"></div></div><div class="cert-pct" id="certPct"></div></div><div class="cert-verdict" id="certVerdict"></div><div id="certPath"></div></div></div></div>
+    <div class="sec"><div class="sechd"><span>🌱</span><span class="seclbl" style="color:${col}">Constructive Assessment</span></div><div class="secbody"><div class="diagbox" style="border-left-color:${col}" id="aDiag"></div></div></div>`;
 
 
   const greenLeads = r.score >= 75;
