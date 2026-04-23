@@ -2851,8 +2851,7 @@ function renderPCards(id,pillars,color){
 }
 function openContact(){document.getElementById('contactOverlay').classList.add('open');document.body.style.overflow='hidden';}
 function closeContact(){document.getElementById('contactOverlay').classList.remove('open');document.body.style.overflow='';}
-document.addEventListener('DOMContentLoaded',function(){document.addEventListener('DOMContentLoaded',function(){document.getElementById('contactOverlay').addEventListener('click',function(e){if(e.target===this)closeContact();});});});
-
+document.addEventListener('DOMContentLoaded',function(){document.getElementById('contactOverlay').addEventListener('click',function(e){if(e.target===this)closeContact();});});
 async function submitContact(e){
   e.preventDefault();
   const btn=document.getElementById('cformBtn');
