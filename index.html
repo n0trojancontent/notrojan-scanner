@@ -2827,6 +2827,9 @@ function renderResults(r){
 
     document.getElementById('diagHd').innerHTML=`<span>🧾</span><span class="seclbl" style="color:${col};">Final Diagnosis</span>`;
   }
+  const greenLeads = r.score >= 75;
+  document.getElementById('rp-tab1').innerHTML = greenLeads ? greenHTML + threatsHTML : threatsHTML + greenHTML;
+  document.getElementById('rp-tab2').innerHTML = '';
   renderPCards('aPillars',[{n:'EOS',full:'Ethical OS',d:r.aside?.eos||{score:0,indicators:[]}},{n:'SI',full:'Sustainable Influence',d:r.aside?.si||{score:0,indicators:[]}},{n:'GC',full:'Good Citizenship',d:r.aside?.gc||{score:0,indicators:[]}}],'#7fff00');
   const byP={EOS:[],SI:[],GC:[]};
   (r.aside?.rubricDimensions||[]).forEach(d=>{if(byP[d.pillar])byP[d.pillar].push(d);});
