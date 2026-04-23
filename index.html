@@ -1931,13 +1931,13 @@ Return ONLY valid JSON, no markdown, no backticks:
     setTimeout(()=>{
       const t2=document.getElementById('tab2Btn');
 if(t2){t2.style.display='none';}
-},800);
-}catch(e){
-prog.classList.remove('on');
-err.textContent='SCAN ERROR: '+(e.message||'Unable to complete. Please try again.');
-err.classList.add('on');
-    console.error('Scan error:',e);  
-      }
+    },800);
+  }catch(e){
+    prog.classList.remove('on');
+    err.textContent='SCAN ERROR: '+(e.message||'Unable to complete. Please try again.');
+    err.classList.add('on');
+    console.error('Scan error:',e);
+  }
   btn.disabled=false;
 }
 
