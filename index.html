@@ -551,7 +551,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
      <button class="print-btn" onclick="handlePrint()">🖨️ Print / Save as PDF</button>
     </div>
     
-    <div class="rtabs" id="resultTabs">
+    <div class="rtabs" id="resultTabs" style="display:none;">
       <button class="rtab active" id="tab1Btn" onclick="switchResult('rp-tab1',this)">loading...</button>
       <button class="rtab" id="tab2Btn" onclick="switchResult('rp-tab2',this)">loading...</button>
     </div>
@@ -2824,29 +2824,7 @@ function renderResults(r){
     <div class="sec"><div class="sechd"><span>🏆</span><span class="seclbl lime">Certification Potential</span></div><div class="secbody"><div class="cert-meter"><div class="cert-lbl">// Certification Alignment Score</div><div class="cert-row"><div class="cert-bar"><div class="cert-fill" id="certFill"></div></div><div class="cert-pct" id="certPct"></div></div><div class="cert-verdict" id="certVerdict"></div><div id="certPath"></div></div></div></div>
     <div class="sec"><div class="sechd"><span>🌱</span><span class="seclbl lime">Constructive Assessment</span></div><div class="secbody"><div class="diagbox" style="border-left-color:var(--green3)" id="aDiag"></div></div></div>`;
 
-  // Determine order based on score — green leads if 75+, threats lead if below 75
-  const greenLeads = r.score >= 75;
-  const tab1Label = greenLeads ? '🟢 Green Score & Certification' : '🔴 Threats & Malware';
-  const tab2Label = greenLeads ? '🔴 Threats & Malware' : '🟢 Green Score & Certification';
-  const tab1Color = greenLeads ? 'var(--lime)' : 'var(--red3)';
-  const tab2Color = greenLeads ? 'var(--red3)' : 'var(--lime)';
 
-  document.getElementById('tab1Btn').textContent = tab1Label;
-  document.getElementById('tab1Btn').style.color = tab1Color;
-  document.getElementById('tab2Btn').textContent = tab2Label;
-  document.getElementById('tab2Btn').style.color = 'var(--muted)';
-
-  document.getElementById('rp-tab1').innerHTML = greenLeads ? greenHTML : threatsHTML;
-  document.getElementById('rp-tab2').innerHTML = greenLeads ? threatsHTML : greenHTML;
-
-  // Now populate both panels
-  renderPCards('bPillars',[{n:'EOS',full:'Ethical OS',d:r.bside.eos},{n:'SI',full:'Sustainable Influence',d:r.bside.si},{n:'GC',full:'Good Citizenship',d:r.bside.gc}],col);
-  document.getElementById('malwareList').innerHTML=(r.bside.malware||[]).map(m=>`<div class="mw"><div class="mwhd"><span class="detpill">DETECTED</span><span class="mwname">🦠 ${m.type}</span></div><div class="mwbody"><div class="mwdef">${m.definition}</div><div class="obsblk"><div class="obslbl">Observed in Content</div><div class="obstxt">${m.observed}</div></div></div></div>`).join('');
-  document.getElementById('threatTags').innerHTML=(r.bside.threatCategories||[]).map(t=>`<span class="ttag">⚠ ${t}</span>`).join('');
-  document.getElementById('impactGrid').innerHTML=`<div class="impblk"><div class="implbl">Individual IEOS Impact</div>${(r.bside.ieos_impact||[]).map(i=>`<div class="impitem neg">${i}</div>`).join('')}</div><div class="impblk"><div class="implbl">Community (Troy) Impact</div>${(r.bside.community_impact||[]).map(i=>`<div class="impitem neg">${i}</div>`).join('')}</div>`;
-  if(r.bside.realWorldCase){document.getElementById('caseTitle').textContent=r.bside.realWorldCase.title;document.getElementById('caseTxt').textContent=r.bside.realWorldCase.content;}
-  document.getElementById('diagBox').innerHTML=`<div style="background:var(--bg2);border-left:3px solid ${col};padding:12px 15px;font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:${col};line-height:1.8;font-weight:600;">${r.bside.diagnosis||''}</div>`;
-  if(document.getElementById('diagHd')){
     document.getElementById('diagHd').innerHTML=`<span>🧾</span><span class="seclbl" style="color:${col};">Final Diagnosis</span>`;
   }
   renderPCards('aPillars',[{n:'EOS',full:'Ethical OS',d:r.aside?.eos||{score:0,indicators:[]}},{n:'SI',full:'Sustainable Influence',d:r.aside?.si||{score:0,indicators:[]}},{n:'GC',full:'Good Citizenship',d:r.aside?.gc||{score:0,indicators:[]}}],'#7fff00');
