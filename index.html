@@ -1656,7 +1656,7 @@ function switchNav(id,btn){
   var target = document.getElementById('tab-'+id);
   if(target){
     target.classList.add('active');
-    target.style.display='block';
+    target.style.cssText='display:block!important';
   }
   if(btn)btn.classList.add('active');
 }
