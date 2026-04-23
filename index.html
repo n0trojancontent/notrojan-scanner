@@ -2825,8 +2825,6 @@ function renderResults(r){
     <div class="sec"><div class="sechd"><span>🌱</span><span class="seclbl lime">Constructive Assessment</span></div><div class="secbody"><div class="diagbox" style="border-left-color:var(--green3)" id="aDiag"></div></div></div>`;
 
 
-    document.getElementById('diagHd').innerHTML=`<span>🧾</span><span class="seclbl" style="color:${col};">Final Diagnosis</span>`;
-  }
   const greenLeads = r.score >= 75;
   document.getElementById('rp-tab1').innerHTML = greenLeads ? greenHTML + threatsHTML : threatsHTML + greenHTML;
   document.getElementById('rp-tab2').innerHTML = '';
