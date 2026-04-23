@@ -1930,8 +1930,7 @@ Return ONLY valid JSON, no markdown, no backticks:
     results.scrollIntoView({behavior:'smooth',block:'start'});
     setTimeout(()=>{
       const t2=document.getElementById('tab2Btn');
-      if(t2){t2.classList.add('pulse');setTimeout(()=>t2.classList.remove('pulse'),5000);}
-    },800);
+if(t2){t2.style.display='none';}    },800);
   }catch(e){
     prog.classList.remove('on');
     err.textContent='SCAN ERROR: '+(e.message||'Unable to complete. Please try again.');
