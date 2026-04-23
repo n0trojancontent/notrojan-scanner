@@ -1928,9 +1928,9 @@ Return ONLY valid JSON, no markdown, no backticks:
     prog.classList.remove('on');
     results.style.display='block';
     results.scrollIntoView({behavior:'smooth',block:'start'});
-    setTimeout(()=>{
+   setTimeout(()=>{
       const t2=document.getElementById('tab2Btn');
-if(t2){t2.style.display='none';}
+      if(t2){t2.style.display='none';}
     },800);
   }catch(e){
     prog.classList.remove('on');
