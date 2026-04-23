@@ -2828,6 +2828,13 @@ function renderResults(r){
   const greenLeads = r.score >= 75;
   document.getElementById('rp-tab1').innerHTML = greenLeads ? greenHTML + threatsHTML : threatsHTML + greenHTML;
   document.getElementById('rp-tab2').innerHTML = '';
+  // Populate threats section
+  renderPCards('bPillars',[{n:'EOS',full:'Ethical OS',d:r.bside?.eos||{score:0,indicators:[]}},{n:'SI',full:'Sustainable Influence',d:r.bside?.si||{score:0,indicators:[]}},{n:'GC',full:'Good Citizenship',d:r.bside?.gc||{score:0,indicators:[]}}],'var(--red3)');
+  document.getElementById('malwareList').innerHTML=(r.bside?.malware||[]).map(m=>`<div class="mware-item"><div class="mware-type">${m.type}</div><div class="mware-def">${m.definition}</div><div class="mware-obs">${m.observed}</div></div>`).join('') || '<div style="color:var(--muted);font-size:0.78rem;">No malware detected</div>';
+  document.getElementById('threatTags').innerHTML=(r.bside?.threatCategories||[]).map(t=>`<div class="ttag">${t}</div>`).join('') || '<div style="color:var(--muted);font-size:0.78rem;">None identified</div>';
+  document.getElementById('impactGrid').innerHTML=(r.bside?.ieos_impact||[]).map(i=>`<div class="imp-item">${i}</div>`).join('') || '';
+  if(r.bside?.realWorldCase){document.getElementById('caseTitle').textContent=r.bside.realWorldCase.title||'';document.getElementById('caseTxt').textContent=r.bside.realWorldCase.content||'';}
+  document.getElementById('diagBox').innerHTML=`<div style="background:var(--bg2);border-left:3px solid var(--red3);padding:12px 15px;font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:var(--red3);line-height:1.8;font-weight:600;">${r.bside?.diagnosis||''}</div>`;
   renderPCards('aPillars',[{n:'EOS',full:'Ethical OS',d:r.aside?.eos||{score:0,indicators:[]}},{n:'SI',full:'Sustainable Influence',d:r.aside?.si||{score:0,indicators:[]}},{n:'GC',full:'Good Citizenship',d:r.aside?.gc||{score:0,indicators:[]}}],'#7fff00');
   const byP={EOS:[],SI:[],GC:[]};
   (r.aside?.rubricDimensions||[]).forEach(d=>{if(byP[d.pillar])byP[d.pillar].push(d);});
