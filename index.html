@@ -1696,11 +1696,12 @@ function restoreLastScan(){
 }
 
 // Auto-restore if coming back from store
-if(document.referrer && document.referrer.includes('myshopify.com')){
-  document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', function(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('restore') === '1' || (document.referrer && document.referrer.includes('myshopify.com'))){
     restoreLastScan();
-  });
-}
+  }
+});
 
 async function runScan(){
   const input=document.getElementById('urlInput').value.trim();
