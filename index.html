@@ -201,7 +201,7 @@ header{background:#000;border-bottom:2px solid var(--red);position:relative;z-in
 .impitem.neg::before{color:var(--red3);}.impitem.pos::before{color:var(--green2);}
 .caseblk{background:var(--bg2);border:1px solid var(--border);padding:12px;}
 .casetitle{font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:5px;}
-.casetxt{font-size:0.85rem;color:var(--white2);line-height:1.7;}
+.casetxt{font-size:0.85rem;line-height:1.7;}
 
 /* A-SIDE */
 .ml-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
@@ -2870,6 +2870,7 @@ function renderResults(r){
     document.getElementById('caseTitle').textContent=r.bside.realWorldCase.title||'';
     document.getElementById('caseTitle').style.color=col;
     document.getElementById('caseTxt').textContent=r.bside.realWorldCase.content||'';
+    document.getElementById('caseTxt').style.color=col;
     const caseblk=document.querySelector('.caseblk');
     if(caseblk){caseblk.style.borderColor=col+'55';caseblk.style.background=col+'0d';}
   }
