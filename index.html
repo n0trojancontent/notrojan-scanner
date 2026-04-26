@@ -129,6 +129,8 @@ header{background:#000;border-bottom:2px solid var(--red);position:relative;z-in
 .sc-verdict{flex:1;padding:15px 18px;display:flex;flex-direction:column;justify-content:center;}
 .sc-title{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}
 .sc-meaning{font-size:0.85rem;color:var(--white2);line-height:1.5;max-width:480px;}
+@keyframes teaserPulse{0%,100%{opacity:1;text-shadow:0 0 8px rgba(0,255,106,0.6);}50%{opacity:0.4;text-shadow:none;}}
+.scroll-teaser{font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;text-align:center;padding:10px 0 6px;animation:teaserPulse 2s ease-in-out infinite;cursor:default;}
 
 /* FORMULA STRIP + INLINE EXPLAINER */
 .formula-strip{display:grid;grid-template-columns:1fr 1fr 1fr auto;border-top:1px solid var(--border2);}
@@ -510,15 +512,19 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
   </div>
 
   <div id="results" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
-     <button class="print-btn" onclick="handlePrint()">🖨️ Print / Save as PDF</button>
-    </div>
 
     <!-- CONTENT IDENTIFICATION HEADER -->
     <div id="contentHeader" style="background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--green3);padding:13px 16px;margin-bottom:10px;display:none;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.56rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:8px;">// Content Identified — NoTrojan® Scan Target</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="contentMeta"></div>
+    </div>
+
+    <!-- SCROLL TEASER -->
+    <div class="scroll-teaser">↓ Scroll down for cultural impact score and full analysis ↓</div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
+     <button class="print-btn" onclick="handlePrint()">🖨️ Print / Save as PDF</button>
     </div>
     <!-- SCORE CARD -->
     <div class="score-card" id="scoreCard">
@@ -2849,7 +2855,8 @@ function renderResults(r){
     <div class="sec"><div class="sechd"><span>📉</span><span class="seclbl" style="color:${col}">Impact Assessment</span></div><div class="secbody"><div class="impgrid" id="impactGrid"></div></div></div>
     <div id="troyHealthInline" style="margin-bottom:11px;"></div>
     <div class="sec"><div class="sechd"><span>📍</span><span class="seclbl" style="color:${col}">Documented Real-World Evidence</span></div><div class="secbody"><div class="caseblk"><div class="casetitle" id="caseTitle"></div><div class="casetxt" id="caseTxt"></div></div></div></div>
-    <div class="sec"><div class="sechd" id="diagHd"><span>🧾</span><span class="seclbl" style="color:${col}">Final Diagnosis</span></div><div class="secbody"><div id="diagBox"></div></div></div>`;
+    <div class="sec"><div class="sechd" id="diagHd"><span>🧾</span><span class="seclbl" style="color:${col}">Final Diagnosis</span></div><div class="secbody"><div id="diagBox"></div></div></div>
+  `;
 
   // Build HTML for GREEN SCORE panel
   const greenHTML = `
