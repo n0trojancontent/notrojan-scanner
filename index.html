@@ -2846,33 +2846,23 @@ function renderResults(r){
   const ps=[{n:'Ethical Operating System',a:'EOS',s:r.eos_score,w:'30%'},{n:'Sustainable Influence',a:'SI',s:r.si_score,w:'30%'},{n:'Good Citizenship',a:'GC',s:r.gc_score,w:'40%'}];
   document.getElementById('formulaStrip').innerHTML=ps.map(p=>`<div class="fs-col"><div class="fs-name">${p.n}</div><div class="fs-wt">Weight: ${p.w}</div><div class="fs-row"><div class="fs-score" style="color:${col}">${p.s}</div><div class="fs-bar"><div class="fs-fill" style="width:${p.s}%;background:${col}"></div></div></div></div>`).join('')+`<div class="fs-col"><div class="fs-lbl">Formula</div><div class="fs-formula">(${r.eos_score}×.30)<br>+(${r.si_score}×.30)<br>+(${r.gc_score}×.40)<br>= <strong style="color:${col}">${r.score}</strong></div></div>`;
   // Build HTML for THREATS panel
-  const threatsHTML = `
-    <div class="pcards" id="bPillars"></div>
-
-
-    <div class="sec"><div class="sechd"><span>🦠</span><span class="seclbl" style="color:${col}" style="color:${col}">Memetic Malware Detected</span></div><div class="secbody"><div id="malwareList"></div></div></div>
+  // Single unified report in correct order
+  const reportHTML = `
+    <div class="sec"><div class="sechd"><span>🦠</span><span class="seclbl" style="color:${col}">Memetic Malware Detected</span></div><div class="secbody"><div id="malwareList"></div></div></div>
     <div class="sec"><div class="sechd"><span>⚠️</span><span class="seclbl" style="color:${col}">Threat Categories Present</span></div><div class="secbody"><div class="ttags" id="threatTags"></div></div></div>
+    <div class="pcards" id="aPillars"></div>
+    <div class="sec"><div class="sechd"><span>📐</span><span class="seclbl" style="color:${col}">Rubric — Dimensional Scoring</span></div><div class="secbody"><div id="rubricDetail"></div><div style="font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">* NoTrojan Score™ dimensional scoring methodology is proprietary to No Trojan®. Reg. No. 7,269,437.</div></div></div>
+    <div class="sec"><div class="sechd"><span>✅</span><span class="seclbl" style="color:${col}">Constructive Elements Identified</span></div><div class="secbody"><div id="strengthList"></div></div></div>
+    <div class="sec"><div class="sechd"><span>🔍</span><span class="seclbl" style="color:${col}">5 Media Literacy Questions (UNESCO / NAMLE)</span></div><div class="secbody"><div class="ml-grid" id="mlGrid"></div></div></div>
+    <div class="sec"><div class="sechd"><span>🌱</span><span class="seclbl" style="color:${col}">Constructive Assessment</span></div><div class="secbody"><div class="diagbox" style="border-left-color:${col}" id="aDiag"></div></div></div>
     <div class="sec"><div class="sechd"><span>📉</span><span class="seclbl" style="color:${col}">Impact Assessment</span></div><div class="secbody"><div class="impgrid" id="impactGrid"></div></div></div>
     <div id="troyHealthInline" style="margin-bottom:11px;"></div>
     <div class="sec"><div class="sechd"><span>📍</span><span class="seclbl" style="color:${col}">Documented Real-World Evidence</span></div><div class="secbody"><div class="caseblk"><div class="casetitle" id="caseTitle"></div><div class="casetxt" id="caseTxt"></div></div></div></div>
-    <div class="sec"><div class="sechd" id="diagHd"><span>🧾</span><span class="seclbl" style="color:${col}">Final Diagnosis</span></div><div class="secbody"><div id="diagBox"></div></div></div>
-  `;
-
-  // Build HTML for GREEN SCORE panel
-  const greenHTML = `
-    <div class="pcards" id="aPillars"></div>
-    <div class="sec"><div class="sechd"><span>📐</span><span class="seclbl" style="color:${col}">Rubric — Dimensional Scoring</span></div><div class="secbody"><div id="rubricDetail"></div><div style="font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">* NoTrojan Score™ dimensional scoring methodology is proprietary to No Trojan®. Reg. No. 7,269,437.</div></div></div>
-    <div class="sec"><div class="sechd"><span>🔍</span><span class="seclbl" style="color:${col}">5 Media Literacy Questions (UNESCO / NAMLE)</span></div><div class="secbody"><div class="ml-grid" id="mlGrid"></div></div></div>
-    <div class="sec"><div class="sechd"><span>✅</span><span class="seclbl" style="color:${col}">Constructive Elements Identified</span></div><div class="secbody"><div id="strengthList"></div></div></div>
     <div class="sec"><div class="sechd"><span>🏆</span><span class="seclbl" style="color:${col}">Certification Potential</span></div><div class="secbody"><div class="cert-meter"><div class="cert-lbl">// Certification Alignment Score</div><div class="cert-row"><div class="cert-bar"><div class="cert-fill" id="certFill"></div></div><div class="cert-pct" id="certPct"></div></div><div class="cert-verdict" id="certVerdict"></div><div id="certPath"></div></div></div></div>
-    <div class="sec"><div class="sechd"><span>🌱</span><span class="seclbl" style="color:${col}">Constructive Assessment</span></div><div class="secbody"><div class="diagbox" style="border-left-color:${col}" id="aDiag"></div></div></div>`;
+    <div class="sec"><div class="sechd" id="diagHd"><span>🧾</span><span class="seclbl" style="color:${col}">Final Diagnosis</span></div><div class="secbody"><div id="diagBox"></div></div></div>`;
 
-
-  const greenLeads = r.score >= 75;
-  document.getElementById('rp-tab1').innerHTML = greenLeads ? greenHTML + threatsHTML : threatsHTML + greenHTML;
-  document.getElementById('rp-tab2').innerHTML = '';
-  // Populate threats section
-  renderPCards('bPillars',[{n:'EOS',full:'Ethical OS',d:r.bside?.eos||{score:0,indicators:[]}},{n:'SI',full:'Sustainable Influence',d:r.bside?.si||{score:0,indicators:[]}},{n:'GC',full:'Good Citizenship',d:r.bside?.gc||{score:0,indicators:[]}}],col);
+  document.getElementById('rp-tab1').innerHTML = reportHTML;
+  // Populate report sections
   document.getElementById('malwareList').innerHTML=(r.bside?.malware||[]).length?(()=>{const MC={'Trojan':'var(--red3)','Virus':'var(--red3)','Worm':'var(--red3)','Ransomware':'var(--orange)','Spyware':'var(--orange)','Adware':'var(--orange)','Rootkit':'var(--orange)','Botnet':'var(--yellow)','Keylogger':'var(--yellow)','Backdoor':'var(--yellow)','Fileless':'var(--yellow)'};const MI={'Trojan':'EOS·SI·GC','Virus':'SI·GC','Worm':'SI·GC','Ransomware':'EOS·SI','Spyware':'EOS·SI','Adware':'SI·GC','Rootkit':'EOS·GC','Botnet':'EOS·SI','Keylogger':'EOS·GC','Backdoor':'EOS·GC','Fileless':'EOS·GC'};return'<table style="width:100%;border-collapse:collapse;"><tr style="border-bottom:1px solid var(--border2);"><th style="text-align:left;padding:4px 8px;font-family:Barlow Condensed,sans-serif;font-size:0.62rem;letter-spacing:0.12em;color:var(--muted);">TYPE</th><th style="text-align:left;padding:4px 8px;font-family:Barlow Condensed,sans-serif;font-size:0.62rem;letter-spacing:0.12em;color:var(--muted);">IMPACT</th><th style="text-align:left;padding:4px 8px;font-family:Barlow Condensed,sans-serif;font-size:0.62rem;letter-spacing:0.12em;color:var(--muted);">DEFINITION — OBSERVED</th></tr>'+(r.bside.malware.map(m=>{const c=MC[m.type]||'var(--red3)';const im=MI[m.type]||'EOS·SI·GC';return'<tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 8px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:0.85rem;color:'+c+';white-space:nowrap;">'+m.type+'</td><td style="padding:6px 8px;color:'+c+';font-size:0.71rem;white-space:nowrap;">↓ '+im+'</td><td style="padding:6px 8px;color:var(--white2);font-size:0.75rem;line-height:1.4;">'+m.definition+' — <em style="color:var(--muted);">'+m.observed+'</em></td></tr>';}).join(''))+'</table>';})():'<div style="color:var(--muted);font-size:0.78rem;">No malware detected</div>';
   document.getElementById('threatTags').innerHTML=(r.bside?.threatCategories||[]).map(t=>`<div style="display:inline-block;background:${col}18;border:1px solid ${col};color:${col};padding:3px 10px;margin:3px;font-size:0.72rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;">${t}</div>`).join('') || '<div style="color:var(--muted);font-size:0.78rem;">None identified</div>';
   document.getElementById('impactGrid').innerHTML=(r.bside?.ieos_impact||[]).map(i=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.78rem;color:${col};">→ ${i}</div>`).join('') || '';
