@@ -3016,7 +3016,7 @@ function handleShare(){
     <div id="notShareCard" style="background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:22px;font-family:'Barlow Condensed',sans-serif;">
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid ${col}33;padding-bottom:10px;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};text-transform:uppercase;">NoT™ Cultural Influence Decoder™</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};text-transform:uppercase;">NoT™ Cultural Influence Score Card™</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;">notrojan.com</div>
       </div>
       <!-- Content Identified block -->
@@ -3071,9 +3071,11 @@ function handleShare(){
       <button onclick="shareToFB()" style="padding:11px;background:rgba(24,119,242,0.12);border:1px solid #1877f2;color:#1877f2;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Facebook</button>
       <button onclick="shareToWhatsApp()" style="padding:11px;background:rgba(37,211,102,0.08);border:1px solid #25d366;color:#25d366;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">WhatsApp</button>
       <button id="socialShareBtn" onclick="downloadShareCard()" style="padding:11px;background:rgba(0,255,106,0.08);border:1px solid var(--green,#00ff6a);color:var(--green,#00ff6a);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">📲 Share to Social Media</button>
+      <button onclick="shareViaText()" style="padding:11px;background:rgba(100,180,255,0.08);border:1px solid #64b4ff;color:#64b4ff;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">📱 Text</button>
+      <button onclick="shareViaEmail()" style="padding:11px;background:rgba(255,200,50,0.08);border:1px solid #ffc832;color:#ffc832;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✉️ Email</button>
     </div>
     <div style="margin-top:8px;">
-      <button onclick="copyShareLink()" style="width:100%;padding:10px;background:transparent;border:1px solid #333;color:#666;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">🔗 Copy Link — notrojan.com</button>
+      <button onclick="copyShareLink()" style="width:100%;padding:10px;background:transparent;border:1px solid #333;color:#666;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">🔗 Share Link — notrojan.com</button>
     </div>
     <div style="margin-top:8px;text-align:center;">
       <button onclick="document.getElementById('shareCardModal').remove()" style="background:transparent;border:none;color:#444;font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Close</button>
@@ -3128,7 +3130,7 @@ function handleShare(){
 function getShareText(){
   const r=window._lastResult;
   if(!r) return '';
-  return `I just decoded ${r.title||r.query} on the NoT™ Cultural Influence Decoder™\n\nNoTrojan Score™: ${r.score}/100 — ${r.rating}\n\nDecoded at notrojan.com — The Cultural Ethics Intelligence System™\n\n#NoTrojan #NoTrojanIsTheNewGreen #CulturalIntelligence`;
+  return `I just decoded ${r.title||r.query} on the NoT™ Cultural Influence Score Card™\n\nNoTrojan Score™: ${r.score}/100 — ${r.rating}\n\nDecoded at notrojan.com — The Cultural Ethics Intelligence System™\n\n#NoTrojan #NoTrojanIsTheNewGreen #CulturalIntelligence`;
 }
 
 function shareToX(){
@@ -3148,8 +3150,25 @@ function shareToWhatsApp(){
 
 function copyShareLink(){
   navigator.clipboard.writeText('https://notrojan.com').then(()=>{
-    alert('Link copied! Share notrojan.com with your community.');
+    alert('Link copied! Share notrojan.com — invite your community to decode their own content.');
   });
+}
+function shareViaText(){
+  const r=window._lastResult;
+  const title=r?.content_id?.title||r?.title||r?.query||'Content';
+  const score=r?.score||0;
+  const rating=r?.rating||'';
+  const body=`I decoded "${title}" on the NoT™ Cultural Influence Score Card™\n\nNoTrojan Score™: ${score}/100 — ${rating}\n\nDecode your own content at notrojan.com\n\n#NoTrojan #NoTrojanIsTheNewGreen`;
+  window.location.href=`sms:?body=${encodeURIComponent(body)}`;
+}
+function shareViaEmail(){
+  const r=window._lastResult;
+  const title=r?.content_id?.title||r?.title||r?.query||'Content';
+  const score=r?.score||0;
+  const rating=r?.rating||'';
+  const subject=`NoT™ Score Card: "${title}" scored ${score}/100 — ${rating}`;
+  const body=`I just decoded "${title}" on the NoT™ Cultural Influence Score Card™\n\nNoTrojan Score™: ${score}/100\nRating: ${rating}\n\nThe NoTrojan Score™ measures whether content strengthens or depletes individuals and communities across three pillars: Ethical OS, Sustainable Influence, and Good Citizenship.\n\nFor the full report, decode your own content at notrojan.com\n\n#NoTrojan #NoTrojanIsTheNewGreen`;
+  window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function downloadShareCard(){
@@ -3164,13 +3183,46 @@ function downloadShareCard(){
     }
   };
   const go=()=>{
-    const title=(window._lastResult?.content_id?.title||window._lastResult?.title||window._lastResult?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
-    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(canvas=>{
-      const link=document.createElement('a');
-      link.download=`notrojan-${title}-score.png`;
-      link.href=canvas.toDataURL('image/png');
-      link.click();
-      finish();
+    const r=window._lastResult;
+    const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
+    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+      // Try native Web Share API first (mobile)
+      if(navigator.share && navigator.canShare){
+        try{
+          canvas.toBlob(async blob=>{
+            const file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
+            if(navigator.canShare({files:[file]})){
+              await navigator.share({
+                files:[file],
+                title:`NoT™ Score Card — ${r?.content_id?.title||r?.title||r?.query||''}`,
+                text:`NoTrojan Score™: ${r?.score}/100 — ${r?.rating}\n\nnotrojan.com`
+              });
+              finish();
+              return;
+            }
+            // Fall back to download
+            const link=document.createElement('a');
+            link.download=`notrojan-${title}-score-card.png`;
+            link.href=canvas.toDataURL('image/png');
+            link.click();
+            finish();
+          },'image/png');
+        }catch(e){
+          // User cancelled or error — fall back to download
+          const link=document.createElement('a');
+          link.download=`notrojan-${title}-score-card.png`;
+          link.href=canvas.toDataURL('image/png');
+          link.click();
+          finish();
+        }
+      } else {
+        // Desktop — just download
+        const link=document.createElement('a');
+        link.download=`notrojan-${title}-score-card.png`;
+        link.href=canvas.toDataURL('image/png');
+        link.click();
+        finish();
+      }
     }).catch(()=>finish());
   };
   if(typeof html2canvas!=='undefined'){go();}
