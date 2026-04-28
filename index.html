@@ -3097,6 +3097,7 @@ function handleShare(){
 
   const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
+  const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
 
   const setImgBox=(html)=>{
     const imgBox=document.getElementById('wikiImgBox');
@@ -3107,7 +3108,7 @@ function handleShare(){
   // 0-24 = red overlay, 25-49 = orange overlay, 50+ = no overlay
   const getOverlay=()=>{
     if(score<25) return {color:'rgba(196,30,30,0.5)',logo:notRedLogo};
-    if(score<50) return {color:'rgba(255,140,0,0.45)',logo:notRedLogo};
+    if(score<50) return {color:'rgba(255,140,0,0.45)',logo:notOrangeLogo};
     return null;
   };
 
