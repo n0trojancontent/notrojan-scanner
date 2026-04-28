@@ -3061,7 +3061,7 @@ function handleShare(){
       ${troyRating?`<div style="margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index: ${troyRating}</div>`:''}
       <!-- Footer -->
       <div style="border-top:1px solid ${col}33;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:0.65rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details:</div>
+        <div style="font-size:0.65rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details, visit:</div>
         <div style="font-size:0.9rem;font-weight:900;color:${col};letter-spacing:0.12em;">notrojan.com</div>
       </div>
     </div>
@@ -3089,43 +3089,41 @@ function handleShare(){
   const threatCats=(r.bside?.threatCategories||[]).map(t=>(t.name||t||'').toLowerCase());
   const hasAdultContent=adultFlags.some(f=>threatCats.some(t=>t.includes(f)));
   const isTrojanLevel=score<25;
+  const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
+  const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
+
+  const setImgBox=(html)=>{
+    const imgBox=document.getElementById('wikiImgBox');
+    if(imgBox) imgBox.innerHTML=html;
+  };
 
   if(hasAdultContent){
-    // Skip Wikipedia entirely — show NoT red logo
-    const imgBox=document.getElementById('wikiImgBox');
-    if(imgBox) imgBox.innerHTML=`<img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png" style="width:70%;height:70%;object-fit:contain;" />`;
+    setImgBox(`<img src="${notRedLogo}" style="width:70%;height:70%;object-fit:contain;"/>`);
   } else {
-    const searchTerm=encodeURIComponent(title);
-    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${searchTerm}`)
+    // Request larger image from Wikipedia
+    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`)
       .then(res=>res.json())
       .then(data=>{
-        const imgBox=document.getElementById('wikiImgBox');
-        if(!imgBox) return;
-        const imgUrl=data?.thumbnail?.source||data?.originalimage?.source||null;
+        const imgUrl=data?.originalimage?.source||data?.thumbnail?.source||null;
         if(imgUrl){
           if(isTrojanLevel){
-            // Show image WITH Trojan overlay
-            imgBox.style.position='relative';
-            imgBox.innerHTML=`
-              <img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<img src=\'https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png\' style=\'width:70%;height:70%;object-fit:contain;\'/>'"/>
+            setImgBox(`
+              <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.src='${notRedLogo}';this.style.width='70%';this.style.height='70%'"/>
               <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(196,30,30,0.45);">
-                <img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png" style="width:65%;height:65%;object-fit:contain;opacity:0.92;" />
-              </div>`;
+                <img src="${notRedLogo}" style="width:60%;height:60%;object-fit:contain;opacity:0.92;"/>
+              </div>`);
           } else {
-            imgBox.innerHTML=`<img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'font-family:Share Tech Mono,monospace;font-size:0.45rem;color:#4a7a5a;text-align:center;padding:4px;\'>No image<br>available</div>'" />`;
+            setImgBox(`<img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.parentElement.innerHTML='<img src=\\'${score>=90?notGreenLogo:notRedLogo}\\' style=\\'width:70%;height:70%;object-fit:contain;\\'/>'" />`);
           }
         } else {
-          imgBox.innerHTML=isTrojanLevel
-            ?`<img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png" style="width:70%;height:70%;object-fit:contain;" />`
-            :`<div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;text-align:center;padding:4px;">No image<br>available</div>`;
+          // No Wikipedia image — use appropriate NoT logo
+          setImgBox(`<img src="${score>=90?notGreenLogo:score<25?notRedLogo:notGreenLogo}" style="width:70%;height:70%;object-fit:contain;"/>`);
         }
       })
       .catch(()=>{
-        const imgBox=document.getElementById('wikiImgBox');
-        if(imgBox) imgBox.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;text-align:center;padding:4px;">No image<br>available</div>`;
+        setImgBox(`<img src="${notGreenLogo}" style="width:70%;height:70%;object-fit:contain;"/>`);
       });
   }
-}
 
 function getShareText(){
   const r=window._lastResult;
