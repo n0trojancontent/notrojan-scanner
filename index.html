@@ -2896,16 +2896,6 @@ function fetchReportImage(r, col){
     .then(data=>{const u=data?.originalimage?.source||data?.thumbnail?.source||null;return u&&!isLogoUrl(u)?u:null;})
     .catch(()=>null);
 
-  const tryItunes=(term)=>fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&limit=1&media=all`)
-    .then(r=>r.json())
-    .then(data=>{
-      const result=data?.results?.[0];
-      if(!result) return null;
-      // Get highest res image — replace 100x100 with 600x600
-      const img=result.artworkUrl100||result.artworkUrl60||null;
-      return img?img.replace('100x100','600x600').replace('60x60','600x600'):null;
-    }).catch(()=>null);
-
   const fallbackLogo=score>=75?notGreenLogo:notRedLogo;
   (async()=>{
     let imgUrl=null;
@@ -2913,8 +2903,6 @@ function fetchReportImage(r, col){
     if(!imgUrl) imgUrl=await tryMediaList(title);
     if(!imgUrl&&creator) imgUrl=await trySummary(creator);
     if(!imgUrl) imgUrl=await trySummary(title);
-    if(!imgUrl&&creator) imgUrl=await tryItunes(creator);
-    if(!imgUrl) imgUrl=await tryItunes(title);
     if(imgUrl){showReportImg(imgUrl);}
     else{setBox(`<img src="${fallbackLogo}" style="width:65%;height:65%;object-fit:contain;"/>`);}
   })();
@@ -3292,15 +3280,6 @@ function handleShare(){
         }).catch(()=>null);
     };
 
-    const tryItunes=(term)=>fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&limit=1&media=all`)
-      .then(r=>r.json())
-      .then(data=>{
-        const result=data?.results?.[0];
-        if(!result) return null;
-        const img=result.artworkUrl100||result.artworkUrl60||null;
-        return img?img.replace('100x100','600x600').replace('60x60','600x600'):null;
-      }).catch(()=>null);
-
     const creator=r?.content_id?.creator||'';
     (async()=>{
       let imgUrl=null;
@@ -3308,8 +3287,6 @@ function handleShare(){
       if(!imgUrl) imgUrl=await tryMediaList(title);
       if(!imgUrl&&creator) imgUrl=await trySummary(creator);
       if(!imgUrl) imgUrl=await trySummary(title);
-      if(!imgUrl&&creator) imgUrl=await tryItunes(creator);
-      if(!imgUrl) imgUrl=await tryItunes(title);
       if(imgUrl){ showImg(imgUrl); }
       else { setImgBox(`<img src="${fallbackLogo}" style="width:70%;height:70%;object-fit:contain;"/>`); }
     })();
