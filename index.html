@@ -3085,10 +3085,16 @@ function handleShare(){
   document.body.appendChild(modal);
 
   // Fetch Wikipedia image after modal renders
-  const adultFlags=['sexual exploitation','explicit','adult content','pornograph','onlyfans','strip','escort'];
+  const adultFlags=[
+    'sexual exploitation','explicit content','adult content','pornograph','onlyfans',
+    'strip club','escort','nudity','graphic violence','gore','torture','abuse',
+    'sexual objectification','sexual content','nsfw','18+','xxx'
+  ];
   const threatCats=(r.bside?.threatCategories||[]).map(t=>(t.name||t||'').toLowerCase());
-  const hasAdultContent=adultFlags.some(f=>threatCats.some(t=>t.includes(f)));
-  const isTrojanLevel=score<25;
+  const malwareTypes=(r.bside?.malware||[]).map(m=>(m.type||'').toLowerCase());
+  const allThreats=[...threatCats,...malwareTypes];
+  const hasSchoolBannedContent=adultFlags.some(f=>allThreats.some(t=>t.includes(f)));
+
   const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
 
@@ -3097,32 +3103,77 @@ function handleShare(){
     if(imgBox) imgBox.innerHTML=html;
   };
 
-  if(hasAdultContent){
+  // Determine overlay based on score tier
+  // 0-24 = red overlay, 25-49 = orange overlay, 50+ = no overlay
+  const getOverlay=()=>{
+    if(score<25) return {color:'rgba(196,30,30,0.5)',logo:notRedLogo};
+    if(score<50) return {color:'rgba(255,140,0,0.45)',logo:notRedLogo};
+    return null;
+  };
+
+  const showImg=(imgUrl)=>{
+    const overlay=getOverlay();
+    if(overlay){
+      setImgBox(`
+        <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.src='${notRedLogo}';this.style.width='70%';this.style.height='70%'"/>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:${overlay.color};">
+          <img src="${overlay.logo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;"/>
+        </div>`);
+    } else {
+      const fallback=score>=90?notGreenLogo:notRedLogo;
+      setImgBox(`<img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.parentElement.innerHTML='<img src=\\'${fallback}\\' style=\\'width:70%;height:70%;object-fit:contain;\\'/>'" />`);
+    }
+  };
+
+  if(hasSchoolBannedContent){
+    // School-banned content — NoT red logo only, no Wikipedia image
     setImgBox(`<img src="${notRedLogo}" style="width:70%;height:70%;object-fit:contain;"/>`);
   } else {
-    // Request larger image from Wikipedia
-    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`)
-      .then(res=>res.json())
-      .then(data=>{
-        const imgUrl=data?.originalimage?.source||data?.thumbnail?.source||null;
-        if(imgUrl){
-          if(isTrojanLevel){
-            setImgBox(`
-              <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.src='${notRedLogo}';this.style.width='70%';this.style.height='70%'"/>
-              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(196,30,30,0.45);">
-                <img src="${notRedLogo}" style="width:60%;height:60%;object-fit:contain;opacity:0.92;"/>
-              </div>`);
-          } else {
-            setImgBox(`<img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.parentElement.innerHTML='<img src=\\'${score>=90?notGreenLogo:notRedLogo}\\' style=\\'width:70%;height:70%;object-fit:contain;\\'/>'" />`);
+    const fallbackLogo=score>=90?notGreenLogo:score<50?notRedLogo:notGreenLogo;
+
+    const isLogoUrl=(url)=>{
+      const u=(url||'').toLowerCase();
+      return u.includes('logo')||u.includes('wordmark')||u.includes('seal')||
+             u.includes('badge')||u.includes('icon')||u.includes('flag')||
+             u.includes('coat')||u.includes('emblem')||u.includes('.svg');
+    };
+
+    const tryMediaList=(searchTerm)=>{
+      return fetch(`https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(searchTerm)}`)
+        .then(res=>res.json())
+        .then(data=>{
+          const items=data?.items||[];
+          const photos=items.filter(item=>{
+            const url=(item?.srcset?.[0]?.src||item?.src||'').toLowerCase();
+            return (url.endsWith('.jpg')||url.endsWith('.jpeg'))&&!isLogoUrl(url);
+          });
+          if(photos.length>0){
+            const src=photos[0]?.srcset?.[0]?.src||photos[0]?.src||'';
+            return src.startsWith('//')?'https:'+src:src||null;
           }
-        } else {
-          // No Wikipedia image — use appropriate NoT logo
-          setImgBox(`<img src="${score>=90?notGreenLogo:score<25?notRedLogo:notGreenLogo}" style="width:70%;height:70%;object-fit:contain;"/>`);
-        }
-      })
-      .catch(()=>{
-        setImgBox(`<img src="${notGreenLogo}" style="width:70%;height:70%;object-fit:contain;"/>`);
-      });
+          return null;
+        }).catch(()=>null);
+    };
+
+    const trySummary=(searchTerm)=>{
+      return fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchTerm)}`)
+        .then(res=>res.json())
+        .then(data=>{
+          const url=data?.originalimage?.source||data?.thumbnail?.source||null;
+          return url&&!isLogoUrl(url)?url:null;
+        }).catch(()=>null);
+    };
+
+    const creator=r?.content_id?.creator||'';
+    (async()=>{
+      let imgUrl=null;
+      imgUrl=await tryMediaList(title);
+      if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
+      if(!imgUrl) imgUrl=await trySummary(title);
+      if(!imgUrl&&creator) imgUrl=await trySummary(creator);
+      if(imgUrl){ showImg(imgUrl); }
+      else { setImgBox(`<img src="${fallbackLogo}" style="width:70%;height:70%;object-fit:contain;"/>`); }
+    })();
   }
 }
 
