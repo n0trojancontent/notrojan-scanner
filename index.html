@@ -2970,9 +2970,14 @@ function handleShare(){
   const r=window._lastResult;
   const col=window._lastCol||'#00ff6a';
   const score=r.score||0;
-  const title=r.title||r.query||'Content';
+  const ci=r.content_id||{};
+  const title=ci.title||r.title||r.query||'Content';
+  const creator=ci.creator||'';
+  const type=ci.type||'';
+  const year=ci.year||'';
+  const publisher=ci.label_publisher||ci.label||'';
+  const description=ci.description||'';
   const rating=r.rating||'';
-  const verdict=r.bside?.shortVerdict||r.bside?.finalDiagnosis?.substring(0,120)||'';
   const eosS=r.eos_score||0;
   const siS=r.si_score||0;
   const gcS=r.gc_score||0;
@@ -2980,74 +2985,125 @@ function handleShare(){
   const impacts=(r.bside?.impactAssessment||[]).slice(0,3);
   const troyRating=r.bside?.troyRating||rating;
 
-  // Build share card HTML
-  const card=document.createElement('div');
-  card.id='shareCardModal';
-  card.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
+  // Build card without image first, then fetch Wikipedia image
+  const existing=document.getElementById('shareCardModal');
+  if(existing) existing.remove();
+  const modal=document.createElement('div');
+  modal.id='shareCardModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
 
-  const cardInner=`
-  <div style="max-width:480px;width:100%;">
-    <!-- The shareable card -->
-    <div id="notShareCard" style="background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:24px;font-family:'Barlow Condensed',sans-serif;position:relative;overflow:hidden;">
+  modal.innerHTML=`
+  <div style="max-width:500px;width:100%;">
+    <div id="notShareCard" style="background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:22px;font-family:'Barlow Condensed',sans-serif;">
       <!-- Header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;border-bottom:1px solid ${col}33;padding-bottom:12px;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.2em;color:${col};text-transform:uppercase;">NoT™ Cultural Influence Decoder™</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--muted,#4a7a5a);">notrojan.com</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid ${col}33;padding-bottom:10px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};text-transform:uppercase;">NoT™ Cultural Influence Decoder™</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;">notrojan.com</div>
       </div>
-      <!-- Title -->
-      <div style="font-size:1.6rem;font-weight:900;color:#fff;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;">${title}</div>
-      <!-- Score -->
-      <div style="display:flex;align-items:flex-end;gap:12px;margin:14px 0;">
-        <div style="font-size:4.5rem;font-weight:900;color:${col};line-height:1;">${score}</div>
-        <div style="padding-bottom:8px;">
-          <div style="font-size:0.6rem;color:var(--muted,#4a7a5a);font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;">NoTrojan Score™ / 100</div>
-          <div style="font-size:1rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
+      <!-- Content Identified block -->
+      <div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid ${col}22;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.16em;color:${col}99;text-transform:uppercase;margin-bottom:8px;">// Content Identified — NoTrojan® Scan Target</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Title</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${title}</div></div>
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Creator</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${creator}</div></div>
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Type</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${type}</div></div>
         </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Year</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${year}</div></div>
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Label / Publisher</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${publisher}</div></div>
+        </div>
+        ${description?`<div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Description</div><div style="font-size:0.76rem;color:#aaa;line-height:1.4;">${description.substring(0,120)}${description.length>120?'...':''}</div></div>`:''}
       </div>
-      <!-- Pillar Scores -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
-        <div style="background:${col}11;border:1px solid ${col}33;padding:8px;text-align:center;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:var(--muted,#4a7a5a);letter-spacing:0.1em;">EOS</div>
-          <div style="font-size:1.2rem;font-weight:900;color:${col};">${eosS}</div>
+      <!-- Score row + Wikipedia image -->
+      <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:flex-end;gap:10px;">
+            <div style="font-size:4rem;font-weight:900;color:${col};line-height:1;">${score}</div>
+            <div style="padding-bottom:6px;">
+              <div style="font-size:0.5rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;">NoTrojan Score™ / 100</div>
+              <div style="font-size:1rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
+            </div>
+          </div>
+          <!-- Pillars -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;">
+            ${['EOS','SI','GC'].map((p,i)=>`<div style="background:${col}11;border:1px solid ${col}33;padding:6px;text-align:center;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.46rem;color:#4a7a5a;letter-spacing:0.1em;">${p}</div><div style="font-size:1.1rem;font-weight:900;color:${col};">${[eosS,siS,gcS][i]}</div></div>`).join('')}
+          </div>
         </div>
-        <div style="background:${col}11;border:1px solid ${col}33;padding:8px;text-align:center;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:var(--muted,#4a7a5a);letter-spacing:0.1em;">SI</div>
-          <div style="font-size:1.2rem;font-weight:900;color:${col};">${siS}</div>
-        </div>
-        <div style="background:${col}11;border:1px solid ${col}33;padding:8px;text-align:center;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:var(--muted,#4a7a5a);letter-spacing:0.1em;">GC</div>
-          <div style="font-size:1.2rem;font-weight:900;color:${col};">${gcS}</div>
+        <!-- Wikipedia image placeholder -->
+        <div id="wikiImgBox" style="width:100px;height:100px;flex-shrink:0;border:1px solid ${col}33;background:${col}08;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;text-align:center;padding:4px;">Loading<br>image...</div>
         </div>
       </div>
       <!-- Malware -->
-      ${malware.length?`<div style="margin-bottom:10px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.14em;color:${col};text-transform:uppercase;margin-bottom:5px;">🦠 Memetic Malware Detected</div>${malware.map(m=>`<div style="font-size:0.78rem;color:#ff4444;padding:2px 0;">• ${m}</div>`).join('')}</div>`:''}
+      ${malware.length?`<div style="margin-bottom:8px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:4px;">🦠 Memetic Malware Detected</div>${malware.map(m=>`<div style="font-size:0.76rem;color:#ff5555;padding:1px 0;">• ${m}</div>`).join('')}</div>`:`<div style="font-size:0.7rem;color:#4a7a5a;margin-bottom:8px;font-family:'Share Tech Mono',monospace;">🦠 No Malware Detected</div>`}
       <!-- Impact -->
-      ${impacts.length?`<div style="margin-bottom:10px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.14em;color:${col};text-transform:uppercase;margin-bottom:5px;">📉 Community & Individual Impact</div>${impacts.map(i=>`<div style="font-size:0.78rem;color:#ccc;padding:2px 0;">→ ${i.text||i}</div>`).join('')}</div>`:''}
+      ${impacts.length?`<div style="margin-bottom:8px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:4px;">📉 Community & Individual Impact</div>${impacts.map(i=>`<div style="font-size:0.74rem;color:#ccc;padding:1px 0;">→ ${i.text||i}</div>`).join('')}</div>`:''}
       <!-- Troy -->
-      ${troyRating?`<div style="margin-bottom:12px;font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index: ${troyRating}</div>`:''}
+      ${troyRating?`<div style="margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index: ${troyRating}</div>`:''}
       <!-- Footer -->
       <div style="border-top:1px solid ${col}33;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:0.7rem;color:var(--muted,#4a7a5a);font-family:'Share Tech Mono',monospace;">For full report details:</div>
-        <div style="font-size:0.85rem;font-weight:900;color:${col};letter-spacing:0.1em;">notrojan.com</div>
+        <div style="font-size:0.65rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details:</div>
+        <div style="font-size:0.9rem;font-weight:900;color:${col};letter-spacing:0.12em;">notrojan.com</div>
       </div>
     </div>
     <!-- Share buttons -->
-    <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-      <button onclick="shareToX()" style="padding:10px;background:rgba(0,0,0,0.8);border:1px solid #333;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">𝕏 Post to X</button>
-      <button onclick="shareToFB()" style="padding:10px;background:rgba(24,119,242,0.15);border:1px solid #1877f2;color:#1877f2;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Facebook</button>
-      <button onclick="shareToWhatsApp()" style="padding:10px;background:rgba(37,211,102,0.1);border:1px solid #25d366;color:#25d366;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">WhatsApp</button>
-      <button onclick="downloadShareCard()" style="padding:10px;background:rgba(0,255,106,0.08);border:1px solid var(--green,#00ff6a);color:var(--green,#00ff6a);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">⬇ Save for IG/TT</button>
+    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <button onclick="shareToX()" style="padding:11px;background:rgba(0,0,0,0.8);border:1px solid #555;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">𝕏 Post to X</button>
+      <button onclick="shareToFB()" style="padding:11px;background:rgba(24,119,242,0.12);border:1px solid #1877f2;color:#1877f2;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Facebook</button>
+      <button onclick="shareToWhatsApp()" style="padding:11px;background:rgba(37,211,102,0.08);border:1px solid #25d366;color:#25d366;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">WhatsApp</button>
+      <button onclick="downloadShareCard()" style="padding:11px;background:rgba(0,255,106,0.08);border:1px solid var(--green,#00ff6a);color:var(--green,#00ff6a);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">⬇ Save for IG/TT</button>
     </div>
     <div style="margin-top:8px;">
-      <button onclick="copyShareLink()" style="width:100%;padding:10px;background:transparent;border:1px solid #333;color:#888;font-family:'Share Tech Mono',monospace;font-size:0.7rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">🔗 Copy Link to notrojan.com</button>
+      <button onclick="copyShareLink()" style="width:100%;padding:10px;background:transparent;border:1px solid #333;color:#666;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">🔗 Copy Link — notrojan.com</button>
     </div>
     <div style="margin-top:8px;text-align:center;">
-      <button onclick="document.getElementById('shareCardModal').remove()" style="background:transparent;border:none;color:#555;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Close</button>
+      <button onclick="document.getElementById('shareCardModal').remove()" style="background:transparent;border:none;color:#444;font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Close</button>
     </div>
   </div>`;
 
-  card.innerHTML=cardInner;
-  document.body.appendChild(card);
+  document.body.appendChild(modal);
+
+  // Fetch Wikipedia image after modal renders
+  const adultFlags=['sexual exploitation','explicit','adult content','pornograph','onlyfans','strip','escort'];
+  const threatCats=(r.bside?.threatCategories||[]).map(t=>(t.name||t||'').toLowerCase());
+  const hasAdultContent=adultFlags.some(f=>threatCats.some(t=>t.includes(f)));
+  const isTrojanLevel=score<25;
+
+  if(hasAdultContent){
+    // Skip Wikipedia entirely — show NoT red logo
+    const imgBox=document.getElementById('wikiImgBox');
+    if(imgBox) imgBox.innerHTML=`<img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png" style="width:70%;height:70%;object-fit:contain;" />`;
+  } else {
+    const searchTerm=encodeURIComponent(title);
+    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${searchTerm}`)
+      .then(res=>res.json())
+      .then(data=>{
+        const imgBox=document.getElementById('wikiImgBox');
+        if(!imgBox) return;
+        const imgUrl=data?.thumbnail?.source||data?.originalimage?.source||null;
+        if(imgUrl){
+          if(isTrojanLevel){
+            // Show image WITH Trojan overlay
+            imgBox.style.position='relative';
+            imgBox.innerHTML=`
+              <img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<img src=\'https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png\' style=\'width:70%;height:70%;object-fit:contain;\'/>'"/>
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(196,30,30,0.45);">
+                <img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png" style="width:65%;height:65%;object-fit:contain;opacity:0.92;" />
+              </div>`;
+          } else {
+            imgBox.innerHTML=`<img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'font-family:Share Tech Mono,monospace;font-size:0.45rem;color:#4a7a5a;text-align:center;padding:4px;\'>No image<br>available</div>'" />`;
+          }
+        } else {
+          imgBox.innerHTML=isTrojanLevel
+            ?`<img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png" style="width:70%;height:70%;object-fit:contain;" />`
+            :`<div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;text-align:center;padding:4px;">No image<br>available</div>`;
+        }
+      })
+      .catch(()=>{
+        const imgBox=document.getElementById('wikiImgBox');
+        if(imgBox) imgBox.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;text-align:center;padding:4px;">No image<br>available</div>`;
+      });
+  }
 }
 
 function getShareText(){
