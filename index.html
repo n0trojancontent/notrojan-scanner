@@ -131,6 +131,12 @@ header{background:#000;border-bottom:2px solid var(--red);position:relative;z-in
 .sc-meaning{font-size:0.85rem;color:var(--white2);line-height:1.5;max-width:480px;}
 @keyframes teaserPulse{0%,100%{opacity:1;text-shadow:0 0 8px rgba(0,255,106,0.6);}50%{opacity:0.4;text-shadow:none;}}
 .scroll-teaser{font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;text-align:center;padding:10px 0 6px;animation:teaserPulse 2s ease-in-out infinite;cursor:default;}
+@keyframes imgPulse{0%,100%{opacity:0.3;}50%{opacity:0.8;}}
+.img-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:100%;height:100%;}
+.img-loading-bar{width:40%;height:2px;background:var(--green3);animation:imgPulse 1.2s ease-in-out infinite;}
+.img-loading-bar:nth-child(2){width:60%;animation-delay:0.2s;}
+.img-loading-bar:nth-child(3){width:30%;animation-delay:0.4s;}
+.img-loading-txt{font-family:'Share Tech Mono',monospace;font-size:0.42rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;animation:imgPulse 1.2s ease-in-out infinite;}
 
 /* FORMULA STRIP + INLINE EXPLAINER */
 .formula-strip{display:grid;grid-template-columns:1fr 1fr 1fr auto;border-top:1px solid var(--border2);}
@@ -518,7 +524,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     <!-- CONTENT IDENTIFICATION HEADER -->
     <div id="contentHeader" style="background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--green3);padding:13px 16px;margin-bottom:10px;display:none;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.56rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:8px;">// Content Identified — NoTrojan® Scan Target</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="contentMeta"></div>
+      <div style="display:flex;gap:14px;align-items:flex-start;">
+        <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="contentMeta"></div>
+        <div id="reportImgBox" style="width:120px;height:120px;flex-shrink:0;border:1px solid var(--border2);background:var(--bg2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+          <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Scanning...</div></div>
+        </div>
+      </div>
     </div>
 
     <!-- SCROLL TEASER -->
@@ -1688,7 +1699,7 @@ function switchResult(id,btn){
 }
 function goToTab(id){var panel=document.getElementById('tab-'+id);document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none';p.classList.remove('active');});if(panel){panel.style.display='block';panel.classList.add('active');}window.scrollTo({top:0,behavior:'smooth'});} function openStore(){window.open('https://no-trojan-content.myshopify.com','_blank');}
 
-function clearScan(){   document.getElementById('urlInput').value='';   document.getElementById('results').style.display='none';   document.getElementById('errBar').classList.remove('on');   document.getElementById('contentHeader').style.display='none';   document.getElementById('clearBtn').style.display='none';   document.getElementById('cursorWrap').classList.remove('hide-cursor');   const fsb=document.getElementById('floatShareBtn');if(fsb)fsb.style.display='none';   window._lastResult=null;   document.getElementById('urlInput').focus(); } 
+function clearScan(){   document.getElementById('urlInput').value='';   document.getElementById('results').style.display='none';   document.getElementById('errBar').classList.remove('on');   document.getElementById('contentHeader').style.display='none';   document.getElementById('clearBtn').style.display='none';   document.getElementById('cursorWrap').classList.remove('hide-cursor');   const fsb=document.getElementById('floatShareBtn');if(fsb)fsb.style.display='none';   window._lastResult=null;   const rib=document.getElementById('reportImgBox');if(rib)rib.innerHTML='<div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Scanning...</div></div>';   document.getElementById('urlInput').focus(); } 
 function restoreLastScan(){
   try{
     const saved = localStorage.getItem('not_last_scan');
@@ -2813,6 +2824,90 @@ function renderTroyHealth(score, col, rating, malware, threats){
 }
 
 
+function fetchReportImage(r, col){
+  const score=r.score||0;
+  const title=r.content_id?.title||r.title||r.query||'';
+  const creator=r.content_id?.creator||'';
+  const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
+  const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
+
+  const adultFlags=['sexual exploitation','explicit content','adult content','pornograph','onlyfans','strip club','escort','nudity','graphic violence','gore','nsfw','18+','xxx'];
+  const threatCats=(r.bside?.threatCategories||[]).map(t=>(t.name||t||'').toLowerCase());
+  const malwareTypes=(r.bside?.malware||[]).map(m=>(m.type||'').toLowerCase());
+  const hasSchoolBannedContent=adultFlags.some(f=>[...threatCats,...malwareTypes].some(t=>t.includes(f)));
+
+  // Same overlay tints as share card
+  const getTint=()=>{
+    if(score<25)  return {tint:'rgba(196,30,30,0.35)',   logo:notRedLogo,    filter:''};
+    if(score<50)  return {tint:'rgba(255,140,0,0.35)',   logo:notRedLogo,    filter:'hue-rotate(20deg) saturate(1.8) brightness(1.1)'};
+    if(score<75)  return {tint:'rgba(255,200,0,0.25)',   logo:null,          filter:''};
+    if(score<90)  return {tint:'rgba(0,200,80,0.2)',     logo:null,          filter:''};
+    return              {tint:'rgba(0,255,106,0.25)',    logo:null,          filter:''};
+  };
+
+  const setBox=(html)=>{
+    const box=document.getElementById('reportImgBox');
+    if(box) box.innerHTML=html;
+  };
+
+  const showReportImg=(imgUrl)=>{
+    const ov=getTint();
+    const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:55%;height:55%;object-fit:contain;opacity:0.9;filter:${ov.filter};"/></div>`:'';
+    const fallback=score>=75?notGreenLogo:notRedLogo;
+    setBox(`
+      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.src='${fallback}';this.style.width='65%';this.style.height='65%'"/>
+      <div style="position:absolute;inset:0;background:${ov.tint};"></div>
+      ${logoHtml}`);
+  };
+
+  if(hasSchoolBannedContent){
+    setBox(`<img src="${notRedLogo}" style="width:65%;height:65%;object-fit:contain;"/>`);
+    return;
+  }
+
+  const isLogoUrl=(url)=>{
+    const u=(url||'').toLowerCase();
+    return u.includes('logo')||u.includes('wordmark')||u.includes('seal')||u.includes('badge')||u.includes('icon')||u.includes('flag')||u.includes('coat')||u.includes('emblem')||u.includes('.svg');
+  };
+
+  const tryMediaList=(term)=>fetch(`https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(term)}`)
+    .then(r=>r.json())
+    .then(data=>{
+      const searchWords=term.toLowerCase().split(/\s+/).filter(w=>w.length>2);
+      const badWords=['train','toy','set','scene','house','building','street','map','chart','graph','diagram','cover','album','poster','logo','sign','award','statue','monument','flag'];
+      const goodWords=['portrait','headshot','photo','person'];
+      const photos=(data?.items||[])
+        .filter(item=>{const u=(item?.srcset?.[0]?.src||item?.src||'').toLowerCase();return(u.endsWith('.jpg')||u.endsWith('.jpeg'))&&!isLogoUrl(u);})
+        .map(item=>{
+          const u=(item?.srcset?.[0]?.src||item?.src||'').toLowerCase();
+          const fname=u.split('/').pop()||'';
+          let pts=0;
+          searchWords.forEach(w=>{if(fname.includes(w))pts+=3;});
+          goodWords.forEach(w=>{if(fname.includes(w))pts+=2;});
+          badWords.forEach(w=>{if(fname.includes(w))pts-=5;});
+          return{item,pts};
+        }).sort((a,b)=>b.pts-a.pts);
+      if(photos.length>0){const src=photos[0].item?.srcset?.[0]?.src||photos[0].item?.src||'';return src.startsWith('//')?'https:'+src:src||null;}
+      return null;
+    }).catch(()=>null);
+
+  const trySummary=(term)=>fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(term)}`)
+    .then(r=>r.json())
+    .then(data=>{const u=data?.originalimage?.source||data?.thumbnail?.source||null;return u&&!isLogoUrl(u)?u:null;})
+    .catch(()=>null);
+
+  const fallbackLogo=score>=75?notGreenLogo:notRedLogo;
+  (async()=>{
+    let imgUrl=null;
+    if(creator) imgUrl=await tryMediaList(creator);
+    if(!imgUrl) imgUrl=await tryMediaList(title);
+    if(!imgUrl&&creator) imgUrl=await trySummary(creator);
+    if(!imgUrl) imgUrl=await trySummary(title);
+    if(imgUrl){showReportImg(imgUrl);}
+    else{setBox(`<img src="${fallbackLogo}" style="width:65%;height:65%;object-fit:contain;"/>`);}
+  })();
+}
+
 function renderResults(r){
   window._lastResult=r;
   const col=COLORS[r.ratingClass]||'#00ff6a';
@@ -2837,6 +2932,8 @@ function renderResults(r){
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:${f.label==='Description'?'0.84':'0.92'}rem;font-weight:${f.label==='Description'?'400':'700'};color:var(--white);line-height:1.4;">${f.value}</div>
       </div>`).join('');
     document.getElementById('contentHeader').style.display='block';
+    // Fetch image for report after col is known — called after score computed
+    setTimeout(()=>fetchReportImage(r, col), 100);
   }
 
   document.getElementById('scNum').textContent=r.score;
@@ -3050,7 +3147,7 @@ function handleShare(){
         </div>
         <!-- Wikipedia image placeholder -->
         <div id="wikiImgBox" style="width:140px;height:140px;flex-shrink:0;border:1px solid ${col}33;background:${col}08;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;text-align:center;padding:4px;">Loading<br>image...</div>
+          <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Fetching...</div></div>
         </div>
       </div>
       <!-- Malware -->
@@ -3105,27 +3202,25 @@ function handleShare(){
   };
 
   // Determine overlay based on score tier
-  // 0-24 = red tint + red Trojan logo
-  // 25-49 = orange tint + orange Trojan logo (CSS filtered)
-  // 50-74 = yellow tint, no logo
-  // 75-89 = green tint, no logo
-  // 90-100 = bright NoT green tint, no logo
+  // 0-24 = red overlay, 25-49 = orange overlay, 50+ = no overlay
   const getOverlay=()=>{
-    if(score<25)  return {tint:'rgba(196,30,30,0.35)',   logo:notRedLogo,    filter:''};
-    if(score<50)  return {tint:'rgba(255,140,0,0.35)',   logo:notRedLogo,    filter:'hue-rotate(20deg) saturate(1.8) brightness(1.1)'};
-    if(score<75)  return {tint:'rgba(255,200,0,0.25)',   logo:null,          filter:''};
-    if(score<90)  return {tint:'rgba(0,200,80,0.2)',     logo:null,          filter:''};
-    return              {tint:'rgba(0,255,106,0.25)',    logo:null,          filter:''};
+    if(score<25) return {color:'rgba(196,30,30,0.5)',logo:notRedLogo};
+    if(score<50) return {color:'rgba(255,140,0,0.45)',logo:notOrangeLogo};
+    return null;
   };
 
   const showImg=(imgUrl)=>{
-    const ov=getOverlay();
-    const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;filter:${ov.filter};"/></div>`:'';
-    const fallback=score>=75?notGreenLogo:notRedLogo;
-    setImgBox(`
-      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.src='${fallback}';this.style.width='70%';this.style.height='70%'"/>
-      <div style="position:absolute;inset:0;background:${ov.tint};"></div>
-      ${logoHtml}`);
+    const overlay=getOverlay();
+    if(overlay){
+      setImgBox(`
+        <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.src='${notRedLogo}';this.style.width='70%';this.style.height='70%'"/>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:${overlay.color};">
+          <img src="${overlay.logo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;"/>
+        </div>`);
+    } else {
+      const fallback=score>=90?notGreenLogo:notRedLogo;
+      setImgBox(`<img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.parentElement.innerHTML='<img src=\\'${fallback}\\' style=\\'width:70%;height:70%;object-fit:contain;\\'/>'" />`);
+    }
   };
 
   if(hasSchoolBannedContent){
