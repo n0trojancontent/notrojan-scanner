@@ -3143,12 +3143,32 @@ function handleShare(){
         .then(res=>res.json())
         .then(data=>{
           const items=data?.items||[];
-          const photos=items.filter(item=>{
-            const url=(item?.srcset?.[0]?.src||item?.src||'').toLowerCase();
-            return (url.endsWith('.jpg')||url.endsWith('.jpeg'))&&!isLogoUrl(url);
-          });
+          const searchWords=searchTerm.toLowerCase().split(/\s+/).filter(w=>w.length>2);
+          // Score each photo — prefer portraits/headshots, deprioritize sets/props/locations
+          const badWords=['train','toy','set','scene','house','building','street','map','chart','graph','diagram','cover','album','poster','logo','sign','award','statue','monument','flag'];
+          const goodWords=['portrait','headshot','photo','person','people'];
+
+          const photos=items
+            .filter(item=>{
+              const url=(item?.srcset?.[0]?.src||item?.src||'').toLowerCase();
+              return (url.endsWith('.jpg')||url.endsWith('.jpeg'))&&!isLogoUrl(url);
+            })
+            .map(item=>{
+              const url=(item?.srcset?.[0]?.src||item?.src||'').toLowerCase();
+              const fname=url.split('/').pop()||'';
+              let pts=0;
+              // Boost if filename contains search terms
+              searchWords.forEach(w=>{if(fname.includes(w)) pts+=3;});
+              // Boost for portrait indicators
+              goodWords.forEach(w=>{if(fname.includes(w)) pts+=2;});
+              // Penalize for bad indicators
+              badWords.forEach(w=>{if(fname.includes(w)) pts-=5;});
+              return {item, pts};
+            })
+            .sort((a,b)=>b.pts-a.pts);
+
           if(photos.length>0){
-            const src=photos[0]?.srcset?.[0]?.src||photos[0]?.src||'';
+            const src=photos[0].item?.srcset?.[0]?.src||photos[0].item?.src||'';
             return src.startsWith('//')?'https:'+src:src||null;
           }
           return null;
@@ -3167,10 +3187,11 @@ function handleShare(){
     const creator=r?.content_id?.creator||'';
     (async()=>{
       let imgUrl=null;
-      imgUrl=await tryMediaList(title);
-      if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
-      if(!imgUrl) imgUrl=await trySummary(title);
+      // For people/creators try their name first — more likely to get a portrait
+      if(creator) imgUrl=await tryMediaList(creator);
+      if(!imgUrl) imgUrl=await tryMediaList(title);
       if(!imgUrl&&creator) imgUrl=await trySummary(creator);
+      if(!imgUrl) imgUrl=await trySummary(title);
       if(imgUrl){ showImg(imgUrl); }
       else { setImgBox(`<img src="${fallbackLogo}" style="width:70%;height:70%;object-fit:contain;"/>`); }
     })();
