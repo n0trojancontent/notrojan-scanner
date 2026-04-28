@@ -524,7 +524,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
-     <button class="print-btn" onclick="handlePrint()">🖨️ Print / Save as PDF</button>
+     <button class="print-btn" onclick="handleShare()" style="background:rgba(0,255,106,0.08);border-color:var(--green);color:var(--green);">📤 Share Report</button>
+     <button class="print-btn" onclick="handlePrint()" style="margin-left:6px;">🖨️ Save as PDF</button>
     </div>
     <!-- SCORE CARD -->
     <div class="score-card" id="scoreCard">
@@ -2812,7 +2813,9 @@ function renderTroyHealth(score, col, rating, malware, threats){
 
 
 function renderResults(r){
+  window._lastResult=r;
   const col=COLORS[r.ratingClass]||'#00ff6a';
+  window._lastCol=col;
   const em=EMOJI[r.ratingClass]||'';
   // Render content identification header
   if(r.content_id){
@@ -2962,8 +2965,150 @@ async function submitContact(e){
     btn.textContent='⚡ Request More Info';
   }
 }
+function handleShare(){
+  if(!window._lastResult){return;}
+  const r=window._lastResult;
+  const col=window._lastCol||'#00ff6a';
+  const score=r.score||0;
+  const title=r.title||r.query||'Content';
+  const rating=r.rating||'';
+  const verdict=r.bside?.shortVerdict||r.bside?.finalDiagnosis?.substring(0,120)||'';
+  const eosS=r.eos_score||0;
+  const siS=r.si_score||0;
+  const gcS=r.gc_score||0;
+  const malware=(r.bside?.malware||[]).map(m=>m.type).filter(Boolean).slice(0,3);
+  const impacts=(r.bside?.impactAssessment||[]).slice(0,3);
+  const troyRating=r.bside?.troyRating||rating;
+
+  // Build share card HTML
+  const card=document.createElement('div');
+  card.id='shareCardModal';
+  card.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
+
+  const cardInner=`
+  <div style="max-width:480px;width:100%;">
+    <!-- The shareable card -->
+    <div id="notShareCard" style="background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:24px;font-family:'Barlow Condensed',sans-serif;position:relative;overflow:hidden;">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;border-bottom:1px solid ${col}33;padding-bottom:12px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.2em;color:${col};text-transform:uppercase;">NoT™ Cultural Influence Decoder™</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--muted,#4a7a5a);">notrojan.com</div>
+      </div>
+      <!-- Title -->
+      <div style="font-size:1.6rem;font-weight:900;color:#fff;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;">${title}</div>
+      <!-- Score -->
+      <div style="display:flex;align-items:flex-end;gap:12px;margin:14px 0;">
+        <div style="font-size:4.5rem;font-weight:900;color:${col};line-height:1;">${score}</div>
+        <div style="padding-bottom:8px;">
+          <div style="font-size:0.6rem;color:var(--muted,#4a7a5a);font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;">NoTrojan Score™ / 100</div>
+          <div style="font-size:1rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
+        </div>
+      </div>
+      <!-- Pillar Scores -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+        <div style="background:${col}11;border:1px solid ${col}33;padding:8px;text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:var(--muted,#4a7a5a);letter-spacing:0.1em;">EOS</div>
+          <div style="font-size:1.2rem;font-weight:900;color:${col};">${eosS}</div>
+        </div>
+        <div style="background:${col}11;border:1px solid ${col}33;padding:8px;text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:var(--muted,#4a7a5a);letter-spacing:0.1em;">SI</div>
+          <div style="font-size:1.2rem;font-weight:900;color:${col};">${siS}</div>
+        </div>
+        <div style="background:${col}11;border:1px solid ${col}33;padding:8px;text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:var(--muted,#4a7a5a);letter-spacing:0.1em;">GC</div>
+          <div style="font-size:1.2rem;font-weight:900;color:${col};">${gcS}</div>
+        </div>
+      </div>
+      <!-- Malware -->
+      ${malware.length?`<div style="margin-bottom:10px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.14em;color:${col};text-transform:uppercase;margin-bottom:5px;">🦠 Memetic Malware Detected</div>${malware.map(m=>`<div style="font-size:0.78rem;color:#ff4444;padding:2px 0;">• ${m}</div>`).join('')}</div>`:''}
+      <!-- Impact -->
+      ${impacts.length?`<div style="margin-bottom:10px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.14em;color:${col};text-transform:uppercase;margin-bottom:5px;">📉 Community & Individual Impact</div>${impacts.map(i=>`<div style="font-size:0.78rem;color:#ccc;padding:2px 0;">→ ${i.text||i}</div>`).join('')}</div>`:''}
+      <!-- Troy -->
+      ${troyRating?`<div style="margin-bottom:12px;font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index: ${troyRating}</div>`:''}
+      <!-- Footer -->
+      <div style="border-top:1px solid ${col}33;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:0.7rem;color:var(--muted,#4a7a5a);font-family:'Share Tech Mono',monospace;">For full report details:</div>
+        <div style="font-size:0.85rem;font-weight:900;color:${col};letter-spacing:0.1em;">notrojan.com</div>
+      </div>
+    </div>
+    <!-- Share buttons -->
+    <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <button onclick="shareToX()" style="padding:10px;background:rgba(0,0,0,0.8);border:1px solid #333;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">𝕏 Post to X</button>
+      <button onclick="shareToFB()" style="padding:10px;background:rgba(24,119,242,0.15);border:1px solid #1877f2;color:#1877f2;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Facebook</button>
+      <button onclick="shareToWhatsApp()" style="padding:10px;background:rgba(37,211,102,0.1);border:1px solid #25d366;color:#25d366;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">WhatsApp</button>
+      <button onclick="downloadShareCard()" style="padding:10px;background:rgba(0,255,106,0.08);border:1px solid var(--green,#00ff6a);color:var(--green,#00ff6a);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">⬇ Save for IG/TT</button>
+    </div>
+    <div style="margin-top:8px;">
+      <button onclick="copyShareLink()" style="width:100%;padding:10px;background:transparent;border:1px solid #333;color:#888;font-family:'Share Tech Mono',monospace;font-size:0.7rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">🔗 Copy Link to notrojan.com</button>
+    </div>
+    <div style="margin-top:8px;text-align:center;">
+      <button onclick="document.getElementById('shareCardModal').remove()" style="background:transparent;border:none;color:#555;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Close</button>
+    </div>
+  </div>`;
+
+  card.innerHTML=cardInner;
+  document.body.appendChild(card);
+}
+
+function getShareText(){
+  const r=window._lastResult;
+  if(!r) return '';
+  return `I just decoded ${r.title||r.query} on the NoT™ Cultural Influence Decoder™\n\nNoTrojan Score™: ${r.score}/100 — ${r.rating}\n\nDecoded at notrojan.com — The Cultural Ethics Intelligence System™\n\n#NoTrojan #NoTrojanIsTheNewGreen #CulturalIntelligence`;
+}
+
+function shareToX(){
+  const text=encodeURIComponent(getShareText());
+  window.open(`https://twitter.com/intent/tweet?text=${text}`,'_blank');
+}
+
+function shareToFB(){
+  const url=encodeURIComponent('https://notrojan.com');
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`,'_blank');
+}
+
+function shareToWhatsApp(){
+  const text=encodeURIComponent(getShareText());
+  window.open(`https://wa.me/?text=${text}`,'_blank');
+}
+
+function copyShareLink(){
+  navigator.clipboard.writeText('https://notrojan.com').then(()=>{
+    alert('Link copied! Share notrojan.com with your community.');
+  });
+}
+
+function downloadShareCard(){
+  // Use html2canvas if available, otherwise instruct user
+  if(typeof html2canvas!=='undefined'){
+    const card=document.getElementById('notShareCard');
+    html2canvas(card,{backgroundColor:'#020c06',scale:2}).then(canvas=>{
+      const link=document.createElement('a');
+      link.download=`notrojan-score-${Date.now()}.png`;
+      link.href=canvas.toDataURL('image/png');
+      link.click();
+    });
+  } else {
+    // Load html2canvas dynamically
+    const script=document.createElement('script');
+    script.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script.onload=()=>{
+      const card=document.getElementById('notShareCard');
+      html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true}).then(canvas=>{
+        const link=document.createElement('a');
+        link.download=`notrojan-score-${Date.now()}.png`;
+        link.href=canvas.toDataURL('image/png');
+        link.click();
+      });
+    };
+    document.head.appendChild(script);
+  }
+}
+
 function handlePrint(){
   if(isRegistered()){
+    // Add print title before printing
+    const title=window._lastResult?.title||window._lastResult?.query||'NoTrojan Report';
+    document.title=`NoTrojan Report — ${title}`;
     window.print();
   } else {
     const pd=document.createElement('div');
