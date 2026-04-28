@@ -418,6 +418,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 /* ── PRINT / SAVE AS PDF ── */
 .print-btn{background:var(--green4);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;font-weight:800;letter-spacing:0.16em;padding:7px 16px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;margin-top:10px;display:inline-flex;align-items:center;gap:6px;}
 .print-btn:hover{background:rgba(0,255,106,0.1);color:var(--green);}
+.float-share-btn{position:fixed;bottom:24px;right:20px;z-index:9000;background:#020c06;border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;padding:12px 22px;cursor:pointer;text-transform:uppercase;display:none;align-items:center;gap:8px;box-shadow:0 0 20px rgba(0,255,106,0.3);transition:all 0.2s;}
+.float-share-btn:hover{background:rgba(0,255,106,0.1);box-shadow:0 0 32px rgba(0,255,106,0.5);}
 @media print{
   header,nav,.nav-bar,.input-box,.prog-row,.err-bar,
   .tab-panel:not(.active),.print-btn,footer,body::before,body::after{display:none!important;}
@@ -524,8 +526,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
-     <button class="print-btn" onclick="handleShare()" style="background:rgba(0,255,106,0.08);border-color:var(--green);color:var(--green);">📤 Share Report</button>
-     <button class="print-btn" onclick="handlePrint()" style="margin-left:6px;">🖨️ Save as PDF</button>
+     <!-- floating share button renders via JS -->
     </div>
     <!-- SCORE CARD -->
     <div class="score-card" id="scoreCard">
@@ -1687,7 +1688,7 @@ function switchResult(id,btn){
 }
 function goToTab(id){var panel=document.getElementById('tab-'+id);document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none';p.classList.remove('active');});if(panel){function goToTab(id){var panel=document.getElementById('tab-'+id);document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none';p.classList.remove('active');});if(panel){panel.style.display='block';panel.classList.add('active');}window.scrollTo({top:0,behavior:'smooth'});} function openStore(){window.open('https://no-trojan-content.myshopify.com','_blank');};panel.classList.add('active');}window.scrollTo({top:0,behavior:'smooth'});} function openStore(){window.open('https://no-trojan-content.myshopify.com','_blank');}
 
-function clearScan(){   document.getElementById('urlInput').value='';   document.getElementById('results').style.display='none';   document.getElementById('errBar').classList.remove('on');   document.getElementById('contentHeader').style.display='none';   document.getElementById('clearBtn').style.display='none';   document.getElementById('cursorWrap').classList.remove('hide-cursor');   document.getElementById('urlInput').focus(); } 
+function clearScan(){   document.getElementById('urlInput').value='';   document.getElementById('results').style.display='none';   document.getElementById('errBar').classList.remove('on');   document.getElementById('contentHeader').style.display='none';   document.getElementById('clearBtn').style.display='none';   document.getElementById('cursorWrap').classList.remove('hide-cursor');   const fsb=document.getElementById('floatShareBtn');if(fsb)fsb.style.display='none';   window._lastResult=null;   document.getElementById('urlInput').focus(); } 
 function restoreLastScan(){
   try{
     const saved = localStorage.getItem('not_last_scan');
@@ -2816,6 +2817,8 @@ function renderResults(r){
   window._lastResult=r;
   const col=COLORS[r.ratingClass]||'#00ff6a';
   window._lastCol=col;
+  const fsb=document.getElementById('floatShareBtn');
+  if(fsb) fsb.style.display='flex';
   const em=EMOJI[r.ratingClass]||'';
   // Render content identification header
   if(r.content_id){
@@ -2965,6 +2968,22 @@ async function submitContact(e){
     btn.textContent='⚡ Request More Info';
   }
 }
+function handleShareMenu(){
+  const existing=document.getElementById('shareMenuModal');
+  if(existing){existing.remove();return;}
+  const modal=document.createElement('div');
+  modal.id='shareMenuModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML=`
+  <div style="max-width:340px;width:100%;background:#020c06;border:2px solid var(--green);padding:28px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;margin-bottom:20px;text-align:center;">// Share This Report</div>
+    <button onclick="document.getElementById('shareMenuModal').remove();handleShare();" style="width:100%;padding:14px;background:rgba(0,255,106,0.08);border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:block;">📤 Share to Social Media</button>
+    <button onclick="document.getElementById('shareMenuModal').remove();handlePrint();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:16px;display:block;">🖨️ Save Full Report as PDF</button>
+    <div style="text-align:center;"><button onclick="document.getElementById('shareMenuModal').remove()" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button></div>
+  </div>`;
+  document.body.appendChild(modal);
+}
+
 function handleShare(){
   if(!window._lastResult){return;}
   const r=window._lastResult;
@@ -2990,7 +3009,7 @@ function handleShare(){
   if(existing) existing.remove();
   const modal=document.createElement('div');
   modal.id='shareCardModal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;';
 
   modal.innerHTML=`
   <div style="max-width:500px;width:100%;">
@@ -3030,7 +3049,7 @@ function handleShare(){
           </div>
         </div>
         <!-- Wikipedia image placeholder -->
-        <div id="wikiImgBox" style="width:100px;height:100px;flex-shrink:0;border:1px solid ${col}33;background:${col}08;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+        <div id="wikiImgBox" style="width:140px;height:140px;flex-shrink:0;border:1px solid ${col}33;background:${col}08;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;text-align:center;padding:4px;">Loading<br>image...</div>
         </div>
       </div>
@@ -3051,7 +3070,7 @@ function handleShare(){
       <button onclick="shareToX()" style="padding:11px;background:rgba(0,0,0,0.8);border:1px solid #555;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">𝕏 Post to X</button>
       <button onclick="shareToFB()" style="padding:11px;background:rgba(24,119,242,0.12);border:1px solid #1877f2;color:#1877f2;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Facebook</button>
       <button onclick="shareToWhatsApp()" style="padding:11px;background:rgba(37,211,102,0.08);border:1px solid #25d366;color:#25d366;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">WhatsApp</button>
-      <button onclick="downloadShareCard()" style="padding:11px;background:rgba(0,255,106,0.08);border:1px solid var(--green,#00ff6a);color:var(--green,#00ff6a);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">⬇ Save for IG/TT</button>
+      <button id="socialShareBtn" onclick="downloadShareCard()" style="padding:11px;background:rgba(0,255,106,0.08);border:1px solid var(--green,#00ff6a);color:var(--green,#00ff6a);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">📲 Share to Social Media</button>
     </div>
     <div style="margin-top:8px;">
       <button onclick="copyShareLink()" style="width:100%;padding:10px;background:transparent;border:1px solid #333;color:#666;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">🔗 Copy Link — notrojan.com</button>
@@ -3134,29 +3153,32 @@ function copyShareLink(){
 }
 
 function downloadShareCard(){
-  // Use html2canvas if available, otherwise instruct user
-  if(typeof html2canvas!=='undefined'){
-    const card=document.getElementById('notShareCard');
-    html2canvas(card,{backgroundColor:'#020c06',scale:2}).then(canvas=>{
+  const card=document.getElementById('notShareCard');
+  if(!card) return;
+  const btn=document.getElementById('socialShareBtn');
+  if(btn){btn.textContent='⏳ Saving to share to social media...';btn.disabled=true;btn.style.opacity='0.7';}
+  const finish=()=>{
+    if(btn){
+      btn.textContent='✅ Saved! Check your downloads';btn.style.opacity='1';
+      setTimeout(()=>{btn.textContent='📲 Share to Social Media';btn.disabled=false;},3000);
+    }
+  };
+  const go=()=>{
+    const title=(window._lastResult?.content_id?.title||window._lastResult?.title||window._lastResult?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
+    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(canvas=>{
       const link=document.createElement('a');
-      link.download=`notrojan-score-${Date.now()}.png`;
+      link.download=`notrojan-${title}-score.png`;
       link.href=canvas.toDataURL('image/png');
       link.click();
-    });
-  } else {
-    // Load html2canvas dynamically
-    const script=document.createElement('script');
-    script.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    script.onload=()=>{
-      const card=document.getElementById('notShareCard');
-      html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true}).then(canvas=>{
-        const link=document.createElement('a');
-        link.download=`notrojan-score-${Date.now()}.png`;
-        link.href=canvas.toDataURL('image/png');
-        link.click();
-      });
-    };
-    document.head.appendChild(script);
+      finish();
+    }).catch(()=>finish());
+  };
+  if(typeof html2canvas!=='undefined'){go();}
+  else{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload=go;s.onerror=finish;
+    document.head.appendChild(s);
   }
 }
 
@@ -3254,5 +3276,6 @@ if(ni&&hint){ni.addEventListener('scroll',function(){if(ni.scrollLeft>20){if(hin
     </div>
   </div>
 </div>
+<button id="floatShareBtn" class="float-share-btn" onclick="handleShareMenu()">📤 Share Report</button>
 </body>
 </html>
