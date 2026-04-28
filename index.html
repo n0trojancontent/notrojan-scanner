@@ -3204,23 +3204,21 @@ function handleShare(){
   // Determine overlay based on score tier
   // 0-24 = red overlay, 25-49 = orange overlay, 50+ = no overlay
   const getOverlay=()=>{
-    if(score<25) return {color:'rgba(196,30,30,0.5)',logo:notRedLogo};
-    if(score<50) return {color:'rgba(255,140,0,0.45)',logo:notOrangeLogo};
-    return null;
+    if(score<25)  return {tint:'rgba(196,30,30,0.35)',   logo:notRedLogo,    filter:''};
+    if(score<50)  return {tint:'rgba(255,140,0,0.35)',   logo:notRedLogo,    filter:'hue-rotate(20deg) saturate(1.8) brightness(1.1)'};
+    if(score<75)  return {tint:'rgba(255,200,0,0.25)',   logo:null,          filter:''};
+    if(score<90)  return {tint:'rgba(0,200,80,0.2)',     logo:null,          filter:''};
+    return              {tint:'rgba(0,255,106,0.25)',    logo:null,          filter:''};
   };
 
   const showImg=(imgUrl)=>{
-    const overlay=getOverlay();
-    if(overlay){
-      setImgBox(`
-        <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.src='${notRedLogo}';this.style.width='70%';this.style.height='70%'"/>
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:${overlay.color};">
-          <img src="${overlay.logo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;"/>
-        </div>`);
-    } else {
-      const fallback=score>=90?notGreenLogo:notRedLogo;
-      setImgBox(`<img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.parentElement.innerHTML='<img src=\\'${fallback}\\' style=\\'width:70%;height:70%;object-fit:contain;\\'/>'" />`);
-    }
+    const ov=getOverlay();
+    const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;filter:${ov.filter};"/></div>`:'';
+    const fallback=score>=75?notGreenLogo:notRedLogo;
+    setImgBox(`
+      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.src='${fallback}';this.style.width='70%';this.style.height='70%'"/>
+      <div style="position:absolute;inset:0;background:${ov.tint};pointer-events:none;"></div>
+      ${logoHtml}`);
   };
 
   if(hasSchoolBannedContent){
