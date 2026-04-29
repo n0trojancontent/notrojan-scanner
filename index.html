@@ -2844,7 +2844,7 @@ function fetchReportImage(r, col){
   fetch(proxyUrl)
     .then(r=>r.json())
     .then(d=>{
-      const imgUrl=d?.imageUrl?'https://notrojan-proxy.ryanalanrogers.workers.dev?img='+encodeURIComponent(d.imageUrl):null;
+      const imgUrl=d?.imageUrl||null;  // Use DDG URL directly as img src
       box.innerHTML='';
       if(imgUrl){
         const img=document.createElement('img');
