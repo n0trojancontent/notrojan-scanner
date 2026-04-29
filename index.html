@@ -2995,6 +2995,11 @@ function renderResults(r){
       </div>`).join('');
     document.getElementById('contentHeader').style.display='block';
     // Fetch image for report after col is known — called after score computed
+    // TEMP TEST: force image directly into box
+    const testBox=document.getElementById('reportImgBox');
+    if(testBox){
+      testBox.innerHTML='<img src="https://duckduckgo.com/i/045bae93d2ca7dd2.jpg" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML=\'<div style=\'background:red;color:white;font-size:10px;padding:4px;\'>IMG BLOCKED</div>\'"/>';
+    }
     setTimeout(()=>fetchReportImage(r, col), 100);
   }
 
