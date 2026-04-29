@@ -2880,10 +2880,16 @@ function fetchReportImage(r, col){
   (async function(){
     var img=null;
     var query=r?.query||'';
-    // For fictional characters, try the query/title first (more specific than creator)
-    if(!img&&query) img=await trySummary(query);
-    if(!img&&title&&title!==query) img=await trySummary(title);
+    var label=r?.content_id?.label||'';
+    // Try full AI title first
+    if(!img&&title) img=await trySummary(title);
     if(!img&&title) img=await trySearch(title);
+    // For fictional characters, try the franchise/show title for poster
+    if(!img&&label&&label!==title) img=await trySearch(label);
+    // Try query + label combo for disambiguation
+    var combined=query&&label?query+' '+label:'';
+    if(!img&&combined) img=await trySearch(combined);
+    if(!img&&query&&query!==title) img=await trySummary(query);
     if(!img&&creator) img=await trySummary(creator);
     if(!img&&creator) img=await trySearch(creator);
     if(!img&&query) img=await trySearch(query);
