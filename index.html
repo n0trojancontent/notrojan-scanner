@@ -2879,10 +2879,14 @@ function fetchReportImage(r, col){
   if(!creator&&!title) return;
   (async function(){
     var img=null;
-    if(creator) img=await trySummary(creator);
-    if(!img&&creator) img=await trySearch(creator);
+    var query=r?.query||'';
+    // For fictional characters, try the query/title first (more specific than creator)
+    if(!img&&query) img=await trySummary(query);
+    if(!img&&title&&title!==query) img=await trySummary(title);
     if(!img&&title) img=await trySearch(title);
-    if(!img&&title) img=await trySummary(title);
+    if(!img&&creator) img=await trySummary(creator);
+    if(!img&&creator) img=await trySearch(creator);
+    if(!img&&query) img=await trySearch(query);
     if(img) render(img);
   })();
 }
@@ -3185,10 +3189,13 @@ function handleShare(){
     if(creator2||title2){
       (async function(){
         var img=null;
-        if(creator2) img=await sum2(creator2);
-        if(!img&&creator2) img=await search2(creator2);
+        var query2=r?.query||'';
+        if(!img&&query2) img=await sum2(query2);
+        if(!img&&title2&&title2!==query2) img=await sum2(title2);
         if(!img&&title2) img=await search2(title2);
-        if(!img&&title2) img=await sum2(title2);
+        if(!img&&creator2) img=await sum2(creator2);
+        if(!img&&creator2) img=await search2(creator2);
+        if(!img&&query2) img=await search2(query2);
         if(img) setWikiImg(img);
       })();
     }
