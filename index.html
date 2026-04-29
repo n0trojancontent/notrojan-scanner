@@ -2857,7 +2857,7 @@ function fetchReportImage(r, col){
     const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:55%;height:55%;object-fit:contain;opacity:0.9;filter:${ov.filter};"/></div>`:'';
     const fallback=score>=75?notGreenLogo:notRedLogo;
     setBox(`
-      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.src='${fallback}';this.style.width='65%';this.style.height='65%'"/>
+      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;background:#020c06;" onerror="this.style.objectFit='contain';this.style.width='65%';this.style.height='65%';this.src='${fallback}';"/>
       <div style="position:absolute;inset:0;background:${ov.tint};"></div>
       ${logoHtml}`);
   };
@@ -2908,10 +2908,52 @@ function fetchReportImage(r, col){
 
   const fallbackLogo=score>=75?notGreenLogo:notRedLogo;
   const query=r?.query||'';
+
+  // DuckDuckGo Instant Answer — best source for celebrities (free, CORS-open, reliable)
+  const tryDDG=(term,typeHint='')=>{
+    const q=encodeURIComponent(typeHint?`${term} ${typeHint}`:term);
+    return fetch(`https://api.duckduckgo.com/?q=${q}&format=json&no_redirect=1&skip_disambig=1`)
+      .then(r=>r.json())
+      .then(d=>{
+        const img=d?.Image||'';
+        return img&&img.startsWith('/i/')?'https://duckduckgo.com'+img:null;
+      }).catch(()=>null);
+  };
+
+  // TheAudioDB — dedicated music artist photo database, free, CORS-open
+  const tryAudioDB=(name)=>{
+    if(!name) return Promise.resolve(null);
+    return fetch(`https://www.theaudiodb.com/api/v1/json/2/search.php?s=${encodeURIComponent(name)}`)
+      .then(r=>r.json())
+      .then(d=>{
+        const a=(d?.artists||[])[0];
+        return a?.strArtistThumb||a?.strArtistCutout||null;
+      }).catch(()=>null);
+  };
+
+  // Type hint map — improves DDG accuracy for artists/actors/etc
+  const typeMap={
+    'Song':'rapper singer artist musician',
+    'Album':'musician artist rapper singer',
+    'Artist':'rapper singer artist musician',
+    'Movie':'actor film',
+    'TV Show':'actor television',
+    'Influencer':'influencer',
+    'Brand':'brand company',
+  };
+  const typeHint=typeMap[r?.content_id?.type||'']||'';
+  const isMusicType=['Song','Album','Artist'].includes(r?.content_id?.type||'');
+
   (async()=>{
     let imgUrl=null;
     const aiImg=r?.content_id?.image_url||null;
     if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
+    // TheAudioDB first for music content — dedicated artist photo DB
+    if(!imgUrl&&creator&&isMusicType) imgUrl=await tryAudioDB(creator);
+    // DuckDuckGo — great for celebrities of all types
+    if(!imgUrl&&creator) imgUrl=await tryDDG(creator, typeHint);
+    if(!imgUrl&&creator) imgUrl=await tryDDG(creator);
+    // Wikipedia fallbacks
     if(!imgUrl&&creator) imgUrl=await trySummary(creator);
     if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
     if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
@@ -2919,7 +2961,11 @@ function fetchReportImage(r, col){
     if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
     if(!imgUrl) imgUrl=await trySummary(title);
     if(imgUrl){showReportImg(imgUrl);}
-    else{setBox(`<img src="${fallbackLogo}" style="width:65%;height:65%;object-fit:contain;"/>`);}
+    else{
+      const ov=getTint();
+      const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:55%;height:55%;object-fit:contain;opacity:0.9;"/></div>`:'';
+      setBox(`<img src="${fallbackLogo}" style="width:65%;height:65%;object-fit:contain;"/><div style="position:absolute;inset:0;background:${ov.tint};"></div>${logoHtml}`);
+    }
   })();
 }
 
@@ -3230,7 +3276,7 @@ function handleShare(){
     const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;filter:${ov.filter};"/></div>`:'';
     const fallback=score>=75?notGreenLogo:notRedLogo;
     setImgBox(`
-      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;" onerror="this.src='${fallback}';this.style.width='70%';this.style.height='70%'"/>
+      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;background:#020c06;" onerror="this.style.objectFit='contain';this.style.width='70%';this.style.height='70%';this.src='${fallback}';"/>
       <div style="position:absolute;inset:0;background:${ov.tint};pointer-events:none;"></div>
       ${logoHtml}`);
   };
@@ -3304,10 +3350,30 @@ function handleShare(){
 
     const creator=r?.content_id?.creator||'';
     const query=r?.query||'';
+    const typeMap2={'Song':'rapper singer artist musician','Album':'musician artist rapper singer','Artist':'rapper singer artist musician','Movie':'actor film','TV Show':'actor television','Influencer':'influencer','Brand':'brand company'};
+    const typeHint2=typeMap2[r?.content_id?.type||'']||'';
+    const isMusicType2=['Song','Album','Artist'].includes(r?.content_id?.type||'');
+    const tryDDG2=(term,hint='')=>{
+      const q=encodeURIComponent(hint?`${term} ${hint}`:term);
+      return fetch(`https://api.duckduckgo.com/?q=${q}&format=json&no_redirect=1&skip_disambig=1`)
+        .then(res=>res.json())
+        .then(d=>{const img=d?.Image||'';return img&&img.startsWith('/i/')?'https://duckduckgo.com'+img:null;})
+        .catch(()=>null);
+    };
+    const tryAudioDB2=(name)=>{
+      if(!name) return Promise.resolve(null);
+      return fetch(`https://www.theaudiodb.com/api/v1/json/2/search.php?s=${encodeURIComponent(name)}`)
+        .then(res=>res.json())
+        .then(d=>{const a=(d?.artists||[])[0];return a?.strArtistThumb||a?.strArtistCutout||null;})
+        .catch(()=>null);
+    };
     (async()=>{
       let imgUrl=null;
       const aiImg=r?.content_id?.image_url||null;
       if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
+      if(!imgUrl&&creator&&isMusicType2) imgUrl=await tryAudioDB2(creator);
+      if(!imgUrl&&creator) imgUrl=await tryDDG2(creator, typeHint2);
+      if(!imgUrl&&creator) imgUrl=await tryDDG2(creator);
       if(!imgUrl&&creator) imgUrl=await trySummary(creator);
       if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
       if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
@@ -3315,7 +3381,11 @@ function handleShare(){
       if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
       if(!imgUrl) imgUrl=await trySummary(title);
       if(imgUrl){ showImg(imgUrl); }
-      else { setImgBox(`<img src="${fallbackLogo}" style="width:70%;height:70%;object-fit:contain;"/>`); }
+      else {
+        const ov=getOverlay();
+        const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;"/></div>`:'';
+        setImgBox(`<img src="${fallbackLogo}" style="width:70%;height:70%;object-fit:contain;"/><div style="position:absolute;inset:0;background:${ov.tint};pointer-events:none;"></div>${logoHtml}`);
+      }
     })();
   }
 }
