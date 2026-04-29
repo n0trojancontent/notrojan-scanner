@@ -1644,38 +1644,26 @@ async function submitGate(){
 
 // ── ANIMATED PLACEHOLDER ──
 (function(){
-  const examples = [
-    // Fixed instruction
-    'Enter: artist, song, brand, movie, or campaign',
-    // Topics
-    'Enter: song',
-    'Enter: movie',
-    'Enter: artist',
-    'Enter: influencer',
-    'Enter: URL',
-    'Enter: platform',
-    'Enter: brand',
-    'Enter: trend',
-    'Enter: creator',
-    // Specific examples
-    'e.g. Nicki Minaj, rapper',
-    'e.g. Happy by Pharrell Williams',
-    'e.g. Mickey Mouse, Disney character',
-    'e.g. Hennessy, cognac brand',
-    'e.g. Ariel, The Little Mermaid',
-    'e.g. Drake, rapper',
-    'e.g. SpongeBob SquarePants, cartoon',
-    'e.g. Mask Off by Future',
-    'e.g. Cardi B, influencer',
-    'e.g. The Fresh Prince of Bel-Air, TV show',
+  const suffixes = [
+    'song','movie','artist','influencer','URL','platform','brand','trend','creator',
+    'Nicki Minaj, rapper',
+    'Happy by Pharrell Williams',
+    'Mickey Mouse, Disney character',
+    'Hennessy, cognac brand',
+    'Ariel, The Little Mermaid',
+    'Drake, rapper',
+    'SpongeBob SquarePants, cartoon',
+    'Mask Off by Future',
+    'Cardi B, influencer',
+    'The Fresh Prince of Bel-Air, TV show',
   ];
-  let i = 0;
   const inp = document.getElementById('urlInput');
   if(!inp) return;
-  inp.placeholder = examples[0];
+  let i = 0;
+  inp.placeholder = 'Enter: ' + suffixes[0];
   setInterval(function(){
-    i = (i + 1) % examples.length;
-    inp.placeholder = examples[i];
+    i = (i + 1) % suffixes.length;
+    inp.placeholder = 'Enter: ' + suffixes[i];
   }, 2000);
 })();
 
