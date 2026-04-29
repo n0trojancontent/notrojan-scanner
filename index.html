@@ -2862,7 +2862,11 @@ function fetchReportImage(r, col){
     const ov=getTint();
     const box=document.getElementById('reportImgBox');
     if(!box) return;
-    // Use DOM API instead of innerHTML to avoid data URL truncation
+    // TEMP: show URL type in box
+    box.style.background='#003300';
+    box.innerHTML=`<div style="color:#0f0;font-size:6px;font-family:monospace;padding:2px;word-break:break-all;overflow:auto;height:100%;">${imgUrl?imgUrl.substring(0,80):'NULL'}</div>`;
+    setTimeout(()=>{
+    box.style.background='';
     box.innerHTML='';
     // Photo layer
     const photo=document.createElement('img');
