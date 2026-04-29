@@ -2915,8 +2915,12 @@ function fetchReportImage(r, col){
       .then(r=>r.json())
       .then(d=>{
         const rawUrl=d?.imageUrl||null;
-        // Proxy image through Worker to bypass hotlink protection
-        return rawUrl?`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl)}`:null;
+        if(!rawUrl) return null;
+        // Fetch image as base64 through Worker — bypasses all hotlink/CORS restrictions
+        return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl)}&b64=1`)
+          .then(r=>r.json())
+          .then(d=>d?.dataUrl||null)
+          .catch(()=>null);
       })
       .catch(()=>null);
   };
@@ -3355,7 +3359,11 @@ function handleShare(){
         .then(res=>res.json())
         .then(d=>{
           const rawUrl2=d?.imageUrl||null;
-          return rawUrl2?`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl2)}`:null;
+          if(!rawUrl2) return null;
+          return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl2)}&b64=1`)
+            .then(res=>res.json())
+            .then(d=>d?.dataUrl||null)
+            .catch(()=>null);
         })
         .catch(()=>null);
     };
