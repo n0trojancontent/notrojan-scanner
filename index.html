@@ -1764,7 +1764,14 @@ async function runScan(){
       r.aside.eos={score:eos,indicators:r.bside.eos.indicators};
       r.aside.si ={score:si, indicators:r.bside.si.indicators};
       r.aside.gc ={score:gc, indicators:r.bside.gc.indicators};
-      r.aside.rubricDimensions=[];
+      const DN2={E1:'Agency',E2:'Integrity',E3:'Discernment',E4:'Responsibility',E5:'Character',E6:'Mind/Body/Spirit',
+                S1:'Intentionality',S2:'Reciprocity',S3:'Stewardship',S4:'Long-Term Thinking',S5:'Ecosystem Health',S6:'Replication Quality',
+                G1:'Contribution',G2:'Accountability',G3:'Shared Norms',G4:'Community Stewardship',G5:'Civic Engagement',G6:'Public Health & Safety'};
+      r.aside.rubricDimensions=[
+        ...['E1','E2','E3','E4','E5','E6'].map(k=>({pillar:'EOS',dimension:DN2[k],score:rb[k],maxScore:10,finding:''})),
+        ...['S1','S2','S3','S4','S5','S6'].map(k=>({pillar:'SI', dimension:DN2[k],score:rb[k],maxScore:10,finding:''})),
+        ...['G1','G2','G3','G4','G5','G6'].map(k=>({pillar:'GC', dimension:DN2[k],score:rb[k],maxScore:10,finding:''}))
+      ];
       r.aside.certificationPct=computed;
       prog.classList.remove('on');
       btn.disabled=false;
