@@ -2832,15 +2832,16 @@ function renderTroyHealth(score, col, rating, malware, threats){
 function fetchReportImage(r, col){
   const box=document.getElementById('reportImgBox');
   if(!box) return;
-  const creator=r?.content_id?.creator||r?.query||'';
   const score=r?.score||0;
+  const title=r.content_id?.title||r.title||r.query||'';
+  const creator=r.content_id?.creator||'';
+  const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
   const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
-  const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
   const horse=score<25?notRedLogo:score<50?notOrangeLogo:notGreenLogo;
 
-  function setImageBox(imgUrl){
+  function render(imgUrl){
     box.innerHTML='';
     if(imgUrl){
       const img=document.createElement('img');
@@ -2848,24 +2849,33 @@ function fetchReportImage(r, col){
       img.src=imgUrl;
       box.appendChild(img);
     }
-    const tintDiv=document.createElement('div');
-    tintDiv.style.cssText='position:absolute;inset:0;background:'+tint+';';
-    box.appendChild(tintDiv);
-    const horseDiv=document.createElement('div');
-    horseDiv.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
-    const horseImg=document.createElement('img');
-    horseImg.src=horse;
-    horseImg.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
-    horseDiv.appendChild(horseImg);
-    box.appendChild(horseDiv);
+    const td=document.createElement('div');
+    td.style.cssText='position:absolute;inset:0;background:'+tint+';';
+    box.appendChild(td);
+    const hd=document.createElement('div');
+    hd.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+    const hi=document.createElement('img');
+    hi.src=horse;
+    hi.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
+    hd.appendChild(hi);
+    box.appendChild(hd);
   }
 
-  if(!creator){ setImageBox(null); return; }
+  render(null); // show tint+horse immediately
 
-  fetch('https://notrojan-proxy.ryanalanrogers.workers.dev?q='+encodeURIComponent(creator))
-    .then(r=>r.json())
-    .then(d=>setImageBox(d?.imageUrl||null))
-    .catch(()=>setImageBox(null));
+  var isLogoUrl=function(u){u=(u||'').toLowerCase();return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');};
+  var trySummary=function(term){return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(term)).then(function(r){return r.json();}).then(function(d){var u=d&&(d.originalimage||d.thumbnail);return u&&u.source&&!isLogoUrl(u.source)?u.source:null;}).catch(function(){return null;});};
+  var trySearch=function(term){return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(term)+'&srlimit=1&format=json&origin=*').then(function(r){return r.json();}).then(function(d){var t=d&&d.query&&d.query.search&&d.query.search[0]&&d.query.search[0].title;return t?trySummary(t):null;}).catch(function(){return null;});};
+
+  if(!creator&&!title) return;
+  (async function(){
+    var img=null;
+    if(creator) img=await trySummary(creator);
+    if(!img&&creator) img=await trySearch(creator);
+    if(!img&&title) img=await trySearch(title);
+    if(!img&&title) img=await trySummary(title);
+    if(img) render(img);
+  })();
 }
 
 
