@@ -2937,7 +2937,13 @@ function fetchReportImage(r, col){
 
   render(null); // show tint+horse immediately
 
-  var isLogoUrl=function(u){u=(u||'').toLowerCase();return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');};
+  const contentType=(r.content_id?.type||'').toLowerCase();
+  const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
+  var isLogoUrl=function(u){
+    if(isBrand) return false; // brands: show logo/product image
+    u=(u||'').toLowerCase();
+    return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');
+  };
   var trySummary=function(term){return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(term)).then(function(r){return r.json();}).then(function(d){var u=d&&(d.originalimage||d.thumbnail);return u&&u.source&&!isLogoUrl(u.source)?u.source:null;}).catch(function(){return null;});};
   var trySearch=function(term){return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(term)+'&srlimit=1&format=json&origin=*').then(function(r){return r.json();}).then(function(d){var t=d&&d.query&&d.query.search&&d.query.search[0]&&d.query.search[0].title;return t?trySummary(t):null;}).catch(function(){return null;});};
 
@@ -3224,6 +3230,7 @@ function handleShare(){
   {
     const creator2=r?.content_id?.creator||'';
     const title2=r?.content_id?.title||r?.query||'';
+    const isBrand=(function(){var t=(r?.content_id?.type||'').toLowerCase();return t==='brand'||t==='company'||t==='product'||t==='organization';})();
     const tint2=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
     const horse2=score<25?notRedLogo:score<50?notOrangeLogo:null;
 
@@ -3253,7 +3260,7 @@ function handleShare(){
 
     setWikiImg(null); // show tint+horse immediately
 
-    var isLogo2=function(u){u=(u||'').toLowerCase();return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');};
+    var isLogo2=function(u){if(isBrand)return false;u=(u||'').toLowerCase();return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');};
     var sum2=function(t){return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(t)).then(function(r){return r.json();}).then(function(d){var u=d&&(d.originalimage||d.thumbnail);return u&&u.source&&!isLogo2(u.source)?u.source:null;}).catch(function(){return null;});};
     var search2=function(t){return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(t)+'&srlimit=1&format=json&origin=*').then(function(r){return r.json();}).then(function(d){var pt=d&&d.query&&d.query.search&&d.query.search[0]&&d.query.search[0].title;return pt?sum2(pt):null;}).catch(function(){return null;});};
 
