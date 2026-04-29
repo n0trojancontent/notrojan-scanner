@@ -3169,30 +3169,6 @@ function handleShare(){
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
   const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
 
-  const setImgBox=(html)=>{
-    const imgBox=document.getElementById('wikiImgBox');
-    if(imgBox) imgBox.innerHTML=html;
-  };
-
-  // Determine overlay based on score tier
-  const getOverlay=()=>{
-    if(score<25)  return {tint:'rgba(196,30,30,0.35)',   logo:notRedLogo,    filter:''};
-    if(score<50)  return {tint:'rgba(255,140,0,0.35)',   logo:notOrangeLogo, filter:''};
-    if(score<75)  return {tint:'rgba(255,200,0,0.25)',   logo:null,          filter:''};
-    if(score<90)  return {tint:'rgba(0,200,80,0.2)',     logo:null,          filter:''};
-    return              {tint:'rgba(0,255,106,0.25)',    logo:null,          filter:''};
-  };
-
-  const showImg=(imgUrl)=>{
-    const ov=getOverlay();
-    const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;filter:${ov.filter};"/></div>`:'';
-    const fallback=score>=75?notGreenLogo:notRedLogo;
-    setImgBox(`
-      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;background:#020c06;" onerror="this.style.objectFit='contain';this.style.width='70%';this.style.height='70%';this.src='${fallback}';"/>
-      <div style="position:absolute;inset:0;background:${ov.tint};pointer-events:none;"></div>
-      ${logoHtml}`);
-  };
-
   // Fetch image for share card
   {
     const creator2=r?.content_id?.creator||'';
@@ -3241,6 +3217,7 @@ function handleShare(){
       })();
     }
   }
+}
 
 function getShareText(){
   const r=window._lastResult;
