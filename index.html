@@ -3068,8 +3068,16 @@ function handleShare(){
   const eosS=r.eos_score||0;
   const siS=r.si_score||0;
   const gcS=r.gc_score||0;
-  const malware=(r.bside?.malware||[]).map(m=>m.type).filter(Boolean).slice(0,3);
-  const impacts=(r.bside?.impactAssessment||[]).slice(0,3);
+  // Cultural impact bullets — all 5 tiers
+  const impactBullets=score<75
+    ?(r.bside?.ieos_impact||[]).slice(0,3)        // red/orange/yellow: why it's a concern
+    :(r.bside?.community_impact||[]).slice(0,3);   // green: positive community qualities
+  const impactLabel=score<25?'⚠️ Trojan-Level Cultural Impact'
+    :score<50?'⚠️ At-Risk Cultural Influence'
+    :score<75?'→ Mixed Cultural Signals'
+    :score<90?'✅ Positive Influence Qualities'
+    :'✅ NoT™ Green Certified Qualities';
+  const impactColor=score<25?'#ff5555':score<50?'#ff8c00':score<75?'#f5d800':score<90?'#5ED67A':'#00ff6a';
   const troyRating=r.bside?.troyRating||rating;
 
   // Build card without image first, then fetch Wikipedia image
@@ -3121,10 +3129,8 @@ function handleShare(){
           <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Fetching...</div></div>
         </div>
       </div>
-      <!-- Malware -->
-      ${malware.length?`<div style="margin-bottom:8px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:4px;">🦠 Memetic Malware Detected</div>${malware.map(m=>`<div style="font-size:0.76rem;color:#ff5555;padding:1px 0;">• ${m}</div>`).join('')}</div>`:`<div style="font-size:0.7rem;color:#4a7a5a;margin-bottom:8px;font-family:'Share Tech Mono',monospace;">🦠 No Malware Detected</div>`}
-      <!-- Impact -->
-      ${impacts.length?`<div style="margin-bottom:8px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:4px;">📉 Community & Individual Impact</div>${impacts.map(i=>`<div style="font-size:0.74rem;color:#ccc;padding:1px 0;">→ ${i.text||i}</div>`).join('')}</div>`:''}
+      <!-- Cultural Impact Bullets -->
+      ${impactBullets.length?`<div style="margin-bottom:8px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:4px;">${impactLabel}</div>${impactBullets.map(b=>`<div style="font-size:0.76rem;color:${impactColor};padding:1px 0;">• ${b}</div>`).join('')}</div>`:''}
       <!-- Troy -->
       ${troyRating?`<div style="margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index: ${troyRating}</div>`:''}
       <!-- Footer -->
