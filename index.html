@@ -2917,7 +2917,7 @@ function fetchReportImage(r, col){
     box.innerHTML='';
     if(imgUrl){
       const img=document.createElement('img');
-      img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+      img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:'+(isBrand?'contain':'cover')+';';
       img.src=imgUrl;
       box.appendChild(img);
     }
@@ -3240,7 +3240,7 @@ function handleShare(){
       imgBox.innerHTML='';
       if(imgUrl){
         const img=document.createElement('img');
-        img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+        img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:'+(isBrand?'contain':'cover')+';';
         img.src=imgUrl;
         imgBox.appendChild(img);
       }
