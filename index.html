@@ -2947,12 +2947,13 @@ function fetchReportImage(r, col){
   (async()=>{
     let imgUrl=null;
     const aiImg=r?.content_id?.image_url||null;
+    console.log('[NoT IMG] creator:',creator,'type:',r?.content_id?.type,'isMusicType:',isMusicType,'aiImg:',aiImg);
     if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
     // TheAudioDB first for music content — dedicated artist photo DB
-    if(!imgUrl&&creator&&isMusicType) imgUrl=await tryAudioDB(creator);
+    if(!imgUrl&&creator&&isMusicType){ imgUrl=await tryAudioDB(creator); console.log('[NoT IMG] AudioDB result:',imgUrl); }
     // DuckDuckGo — great for celebrities of all types
-    if(!imgUrl&&creator) imgUrl=await tryDDG(creator, typeHint);
-    if(!imgUrl&&creator) imgUrl=await tryDDG(creator);
+    if(!imgUrl&&creator){ imgUrl=await tryDDG(creator, typeHint); console.log('[NoT IMG] DDG+hint result:',imgUrl); }
+    if(!imgUrl&&creator){ imgUrl=await tryDDG(creator); console.log('[NoT IMG] DDG plain result:',imgUrl); }
     // Wikipedia fallbacks
     if(!imgUrl&&creator) imgUrl=await trySummary(creator);
     if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
@@ -2960,6 +2961,7 @@ function fetchReportImage(r, col){
     if(!imgUrl) imgUrl=await tryWikiSearch(title);
     if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
     if(!imgUrl) imgUrl=await trySummary(title);
+    console.log('[NoT IMG] FINAL imgUrl:',imgUrl);
     if(imgUrl){showReportImg(imgUrl);}
     else{
       const ov=getTint();
