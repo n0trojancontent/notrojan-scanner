@@ -2867,7 +2867,6 @@ function fetchReportImage(r, col){
     // Photo layer
     const photo=document.createElement('img');
     photo.style.cssText='width:100%;height:100%;object-fit:contain;background:#020c06;position:absolute;inset:0;';
-    photo.crossOrigin='anonymous';
     photo.src=imgUrl;
     box.appendChild(photo);
     // Tint overlay
