@@ -2831,10 +2831,12 @@ function fetchReportImage(r, col){
   const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
 
-  const adultFlags=['sexual exploitation','explicit content','adult content','pornograph','onlyfans','strip club','escort','nudity','graphic violence','gore','nsfw','18+','xxx'];
   const threatCats=(r.bside?.threatCategories||[]).map(t=>(t.name||t||'').toLowerCase());
   const malwareTypes=(r.bside?.malware||[]).map(m=>(m.type||'').toLowerCase());
-  const hasSchoolBannedContent=adultFlags.some(f=>[...threatCats,...malwareTypes].some(t=>t.includes(f)));
+  // Tight image gate — only blocks web image search for truly explicit/graphic content
+  // Threat labels like "sexual exploitation" describe the CONTENT being scanned, not the headshot
+  const schoolImageFlags=['pornograph','onlyfans','xxx','nudity','gore','graphic violence','snuff','torture','beheading','execution','mass shooting','child abuse','child exploitation','csam','hentai','explicit sexual'];
+  const hasExplicitImagery=schoolImageFlags.some(f=>[...threatCats,...malwareTypes].some(t=>t.includes(f)));
 
   const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
 
@@ -2862,10 +2864,7 @@ function fetchReportImage(r, col){
       ${logoHtml}`);
   };
 
-  if(hasSchoolBannedContent){
-    setBox(`<img src="${notRedLogo}" style="width:65%;height:65%;object-fit:contain;"/>`);
-    return;
-  }
+  // Headshots are always appropriate — no photo gate. Overlay color communicates the threat.
 
   const isLogoUrl=(url)=>{
     const u=(url||'').toLowerCase();
@@ -2947,21 +2946,21 @@ function fetchReportImage(r, col){
   (async()=>{
     let imgUrl=null;
     const aiImg=r?.content_id?.image_url||null;
-    console.log('[NoT IMG] creator:',creator,'type:',r?.content_id?.type,'isMusicType:',isMusicType,'aiImg:',aiImg);
     if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
-    // TheAudioDB first for music content — dedicated artist photo DB
-    if(!imgUrl&&creator&&isMusicType){ imgUrl=await tryAudioDB(creator); console.log('[NoT IMG] AudioDB result:',imgUrl); }
-    // DuckDuckGo — great for celebrities of all types
-    if(!imgUrl&&creator){ imgUrl=await tryDDG(creator, typeHint); console.log('[NoT IMG] DDG+hint result:',imgUrl); }
-    if(!imgUrl&&creator){ imgUrl=await tryDDG(creator); console.log('[NoT IMG] DDG plain result:',imgUrl); }
-    // Wikipedia fallbacks
-    if(!imgUrl&&creator) imgUrl=await trySummary(creator);
-    if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
-    if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
-    if(!imgUrl) imgUrl=await tryWikiSearch(title);
-    if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
-    if(!imgUrl) imgUrl=await trySummary(title);
-    console.log('[NoT IMG] FINAL imgUrl:',imgUrl);
+    // TheAudioDB — safe artist headshots, always allowed regardless of content flags
+    if(!imgUrl&&creator&&isMusicType) imgUrl=await tryAudioDB(creator);
+    // DDG + Wikipedia only when content is NOT explicitly graphic
+    // (web search could return violent/explicit imagery for those topics)
+    if(!hasExplicitImagery){
+      if(!imgUrl&&creator) imgUrl=await tryDDG(creator, typeHint);
+      if(!imgUrl&&creator) imgUrl=await tryDDG(creator);
+      if(!imgUrl&&creator) imgUrl=await trySummary(creator);
+      if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
+      if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
+      if(!imgUrl) imgUrl=await tryWikiSearch(title);
+      if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
+      if(!imgUrl) imgUrl=await trySummary(title);
+    }
     if(imgUrl){showReportImg(imgUrl);}
     else{
       const ov=getTint();
@@ -3245,15 +3244,11 @@ function handleShare(){
   document.body.appendChild(modal);
 
   // Fetch Wikipedia image after modal renders
-  const adultFlags=[
-    'sexual exploitation','explicit content','adult content','pornograph','onlyfans',
-    'strip club','escort','nudity','graphic violence','gore','torture','abuse',
-    'sexual objectification','sexual content','nsfw','18+','xxx'
-  ];
-  const threatCats=(r.bside?.threatCategories||[]).map(t=>(t.name||t||'').toLowerCase());
-  const malwareTypes=(r.bside?.malware||[]).map(m=>(m.type||'').toLowerCase());
-  const allThreats=[...threatCats,...malwareTypes];
-  const hasSchoolBannedContent=adultFlags.some(f=>allThreats.some(t=>t.includes(f)));
+  const threatCats2=(r.bside?.threatCategories||[]).map(t=>(t.name||t||'').toLowerCase());
+  const malwareTypes2=(r.bside?.malware||[]).map(m=>(m.type||'').toLowerCase());
+  const allThreats=[...threatCats2,...malwareTypes2];
+  const schoolImageFlags2=['pornograph','onlyfans','xxx','nudity','gore','graphic violence','snuff','torture','beheading','execution','mass shooting','child abuse','child exploitation','csam','hentai','explicit sexual'];
+  const hasExplicitImagery2=schoolImageFlags2.some(f=>allThreats.some(t=>t.includes(f)));
 
   const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
@@ -3283,10 +3278,8 @@ function handleShare(){
       ${logoHtml}`);
   };
 
-  if(hasSchoolBannedContent){
-    // School-banned content — NoT red logo only, no Wikipedia image
-    setImgBox(`<img src="${notRedLogo}" style="width:70%;height:70%;object-fit:contain;"/>`);
-  } else {
+  // Headshots always appropriate — overlay color communicates threat level
+  {
     const fallbackLogo=score>=90?notGreenLogo:score<50?notRedLogo:notGreenLogo;
 
     const isLogoUrl=(url)=>{
@@ -3373,15 +3366,19 @@ function handleShare(){
       let imgUrl=null;
       const aiImg=r?.content_id?.image_url||null;
       if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
+      // AudioDB safe headshots always allowed
       if(!imgUrl&&creator&&isMusicType2) imgUrl=await tryAudioDB2(creator);
-      if(!imgUrl&&creator) imgUrl=await tryDDG2(creator, typeHint2);
-      if(!imgUrl&&creator) imgUrl=await tryDDG2(creator);
-      if(!imgUrl&&creator) imgUrl=await trySummary(creator);
-      if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
-      if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
-      if(!imgUrl) imgUrl=await tryWikiSearch(title);
-      if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
-      if(!imgUrl) imgUrl=await trySummary(title);
+      // Web search only for non-explicit content
+      if(!hasExplicitImagery2){
+        if(!imgUrl&&creator) imgUrl=await tryDDG2(creator, typeHint2);
+        if(!imgUrl&&creator) imgUrl=await tryDDG2(creator);
+        if(!imgUrl&&creator) imgUrl=await trySummary(creator);
+        if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
+        if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
+        if(!imgUrl) imgUrl=await tryWikiSearch(title);
+        if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
+        if(!imgUrl) imgUrl=await trySummary(title);
+      }
       if(imgUrl){ showImg(imgUrl); }
       else {
         const ov=getOverlay();
