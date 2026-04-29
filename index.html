@@ -1707,6 +1707,7 @@ function restoreLastScan(){
     const r = JSON.parse(saved);
     renderResults(r);
     document.getElementById('results').style.display='block';
+    if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
     document.getElementById('urlInput').value = r.content_id?.title || '';
     document.getElementById('clearBtn').style.display='inline-flex';
     document.getElementById('contentHeader').style.display='block';
@@ -1775,6 +1776,7 @@ async function runScan(){
         try{localStorage.setItem('not_last_scan',JSON.stringify(r));}catch(e){}
         renderResults(r);
         results.style.display='block';
+        if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
       }
     } catch(e){
       prog.classList.remove('on');
