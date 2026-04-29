@@ -2948,12 +2948,14 @@ function fetchReportImage(r, col){
     const aiImg=r?.content_id?.image_url||null;
     if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
     // TheAudioDB — safe artist headshots, always allowed regardless of content flags
-    if(!imgUrl&&creator&&isMusicType) imgUrl=await tryAudioDB(creator);
+    if(!imgUrl&&creator) imgUrl=await tryAudioDB(creator);
     // DDG + Wikipedia only when content is NOT explicitly graphic
     // (web search could return violent/explicit imagery for those topics)
+    // DDG knowledge graph is safe — just a headshot lookup
+    if(!imgUrl&&creator) imgUrl=await tryDDG(creator, typeHint);
+    if(!imgUrl&&creator) imgUrl=await tryDDG(creator);
     if(!hasExplicitImagery){
-      if(!imgUrl&&creator) imgUrl=await tryDDG(creator, typeHint);
-      if(!imgUrl&&creator) imgUrl=await tryDDG(creator);
+      // Block raw image searches for explicitly graphic content only
       if(!imgUrl&&creator) imgUrl=await trySummary(creator);
       if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
       if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
@@ -2965,7 +2967,7 @@ function fetchReportImage(r, col){
     else{
       const ov=getTint();
       const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:55%;height:55%;object-fit:contain;opacity:0.9;"/></div>`:'';
-      setBox(`<img src="${fallbackLogo}" style="width:65%;height:65%;object-fit:contain;"/><div style="position:absolute;inset:0;background:${ov.tint};"></div>${logoHtml}`);
+      setBox(`<div style="position:absolute;inset:0;background:${ov.tint};"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo||fallbackLogo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;"/></div>`);
     }
   })();
 }
@@ -3367,11 +3369,12 @@ function handleShare(){
       const aiImg=r?.content_id?.image_url||null;
       if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
       // AudioDB safe headshots always allowed
-      if(!imgUrl&&creator&&isMusicType2) imgUrl=await tryAudioDB2(creator);
+      if(!imgUrl&&creator) imgUrl=await tryAudioDB2(creator);
       // Web search only for non-explicit content
+      // DDG knowledge graph safe for all
+      if(!imgUrl&&creator) imgUrl=await tryDDG2(creator, typeHint2);
+      if(!imgUrl&&creator) imgUrl=await tryDDG2(creator);
       if(!hasExplicitImagery2){
-        if(!imgUrl&&creator) imgUrl=await tryDDG2(creator, typeHint2);
-        if(!imgUrl&&creator) imgUrl=await tryDDG2(creator);
         if(!imgUrl&&creator) imgUrl=await trySummary(creator);
         if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
         if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
@@ -3383,7 +3386,7 @@ function handleShare(){
       else {
         const ov=getOverlay();
         const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;"/></div>`:'';
-        setImgBox(`<img src="${fallbackLogo}" style="width:70%;height:70%;object-fit:contain;"/><div style="position:absolute;inset:0;background:${ov.tint};pointer-events:none;"></div>${logoHtml}`);
+        setImgBox(`<div style="position:absolute;inset:0;background:${ov.tint};pointer-events:none;"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo||fallbackLogo}" style="width:65%;height:65%;object-fit:contain;opacity:0.95;"/></div>`);
       }
     })();
   }
