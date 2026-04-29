@@ -2833,216 +2833,41 @@ function fetchReportImage(r, col){
   const box=document.getElementById('reportImgBox');
   if(!box) return;
   const creator=r?.content_id?.creator||r?.query||'';
-  if(!creator) return;
   const score=r?.score||0;
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
   const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
   const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
   const horse=score<25?notRedLogo:score<50?notOrangeLogo:notGreenLogo;
-  const proxyUrl='https://notrojan-proxy.ryanalanrogers.workers.dev?q='+encodeURIComponent(creator);
-  fetch(proxyUrl)
-    .then(r=>r.json())
-    .then(d=>{
-      const imgUrl=d?.imageUrl||null;  // Use DDG URL directly as img src
-      box.innerHTML='';
-      if(imgUrl){
-        const img=document.createElement('img');
-        img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
-        img.src=imgUrl;
-        box.appendChild(img);
-      }
-      const tintDiv=document.createElement('div');
-      tintDiv.style.cssText='position:absolute;inset:0;background:'+tint+';';
-      box.appendChild(tintDiv);
-      const horseDiv=document.createElement('div');
-      horseDiv.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
-      const horseImg=document.createElement('img');
-      horseImg.src=horse;
-      horseImg.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
-      horseDiv.appendChild(horseImg);
-      box.appendChild(horseDiv);
-    })
-    .catch(()=>{
-      box.innerHTML='';
-      const tintDiv=document.createElement('div');
-      tintDiv.style.cssText='position:absolute;inset:0;background:'+tint+';';
-      box.appendChild(tintDiv);
-      const horseDiv=document.createElement('div');
-      horseDiv.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
-      const horseImg=document.createElement('img');
-      horseImg.src=horse;
-      horseImg.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
-      horseDiv.appendChild(horseImg);
-      box.appendChild(horseDiv);
-    });
-  return; // rest of function below is backup only
-  const _score=r.score||0;
-  const score=r.score||0;
-  const title=r.content_id?.title||r.title||r.query||'';
-  const creator=r.content_id?.creator||'';
-  const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
-  const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
 
-  const threatCats=(r.bside?.threatCategories||[]).map(t=>(t.name||t||'').toLowerCase());
-  const malwareTypes=(r.bside?.malware||[]).map(m=>(m.type||'').toLowerCase());
-  // Tight image gate — only blocks web image search for truly explicit/graphic content
-  // Threat labels like "sexual exploitation" describe the CONTENT being scanned, not the headshot
-  const schoolImageFlags=['pornograph','onlyfans','xxx','nudity','gore','graphic violence','snuff','torture','beheading','execution','mass shooting','child abuse','child exploitation','csam','hentai','explicit sexual'];
-  const hasExplicitImagery=schoolImageFlags.some(f=>[...threatCats,...malwareTypes].some(t=>t.includes(f)));
-
-  const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
-
-  // Same overlay tints as share card
-  const getTint=()=>{
-    if(score<25)  return {tint:'rgba(196,30,30,0.35)',   logo:notRedLogo,    filter:''};
-    if(score<50)  return {tint:'rgba(255,140,0,0.35)',   logo:notOrangeLogo, filter:''};
-    if(score<75)  return {tint:'rgba(255,200,0,0.25)',   logo:null,          filter:''};
-    if(score<90)  return {tint:'rgba(0,200,80,0.2)',     logo:null,          filter:''};
-    return              {tint:'rgba(0,255,106,0.25)',    logo:null,          filter:''};
-  };
-
-  const setBox=(html)=>{
-    const box=document.getElementById('reportImgBox');
-    if(box) box.innerHTML=html;
-  };
-
-  const showReportImg=(imgUrl)=>{
-    const ov=getTint();
-    const box=document.getElementById('reportImgBox');
-    if(!box) return;
+  function setImageBox(imgUrl){
     box.innerHTML='';
-    // Photo layer
-    const photo=document.createElement('img');
-    photo.style.cssText='width:100%;height:100%;object-fit:contain;background:#020c06;position:absolute;inset:0;';
-    photo.src=imgUrl;
-    box.appendChild(photo);
-    // Tint overlay
-    const tint=document.createElement('div');
-    tint.style.cssText=`position:absolute;inset:0;background:${ov.tint};`;
-    box.appendChild(tint);
-    // Horse logo
-    if(ov.logo){
-      const logoWrap=document.createElement('div');
-      logoWrap.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
-      const logoImg=document.createElement('img');
-      logoImg.src=ov.logo;
-      logoImg.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
-      logoWrap.appendChild(logoImg);
-      box.appendChild(logoWrap);
+    if(imgUrl){
+      const img=document.createElement('img');
+      img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+      img.src=imgUrl;
+      box.appendChild(img);
     }
-  };
+    const tintDiv=document.createElement('div');
+    tintDiv.style.cssText='position:absolute;inset:0;background:'+tint+';';
+    box.appendChild(tintDiv);
+    const horseDiv=document.createElement('div');
+    horseDiv.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+    const horseImg=document.createElement('img');
+    horseImg.src=horse;
+    horseImg.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
+    horseDiv.appendChild(horseImg);
+    box.appendChild(horseDiv);
+  }
 
-  // Headshots are always appropriate — no photo gate. Overlay color communicates the threat.
+  if(!creator){ setImageBox(null); return; }
 
-  const isLogoUrl=(url)=>{
-    const u=(url||'').toLowerCase();
-    return u.includes('logo')||u.includes('wordmark')||u.includes('seal')||u.includes('badge')||u.includes('icon')||u.includes('flag')||u.includes('coat')||u.includes('emblem')||u.includes('.svg');
-  };
-
-  const tryMediaList=(term)=>fetch(`https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(term)}`)
+  fetch('https://notrojan-proxy.ryanalanrogers.workers.dev?q='+encodeURIComponent(creator))
     .then(r=>r.json())
-    .then(data=>{
-      const searchWords=term.toLowerCase().split(/\s+/).filter(w=>w.length>2);
-      const badWords=['train','toy','set','scene','house','building','street','map','chart','graph','diagram','cover','album','poster','logo','sign','award','statue','monument','flag'];
-      const goodWords=['portrait','headshot','photo','person'];
-      const photos=(data?.items||[])
-        .filter(item=>{const u=(item?.srcset?.[0]?.src||item?.src||'').toLowerCase();return(u.endsWith('.jpg')||u.endsWith('.jpeg'))&&!isLogoUrl(u);})
-        .map(item=>{
-          const u=(item?.srcset?.[0]?.src||item?.src||'').toLowerCase();
-          const fname=u.split('/').pop()||'';
-          let pts=0;
-          searchWords.forEach(w=>{if(fname.includes(w))pts+=3;});
-          goodWords.forEach(w=>{if(fname.includes(w))pts+=2;});
-          badWords.forEach(w=>{if(fname.includes(w))pts-=5;});
-          return{item,pts};
-        }).sort((a,b)=>b.pts-a.pts);
-      if(photos.length>0){const src=photos[0].item?.srcset?.[0]?.src||photos[0].item?.src||'';return src.startsWith('//')?'https:'+src:src||null;}
-      return null;
-    }).catch(()=>null);
-
-  const trySummary=(term)=>fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(term)}`)
-    .then(r=>r.json())
-    .then(data=>{const u=data?.originalimage?.source||data?.thumbnail?.source||null;return u&&!isLogoUrl(u)?u:null;})
-    .catch(()=>null);
-
-  const tryWikiSearch=(term)=>fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(term)}&srlimit=1&format=json&origin=*`)
-    .then(r=>r.json())
-    .then(async data=>{
-      const pageTitle=data?.query?.search?.[0]?.title;
-      if(!pageTitle) return null;
-      return await trySummary(pageTitle);
-    }).catch(()=>null);
-
-  const fallbackLogo=score>=75?notGreenLogo:notRedLogo;
-  const query=r?.query||'';
-
-  // DuckDuckGo Instant Answer — best source for celebrities (free, CORS-open, reliable)
-  const tryDDG=(term,typeHint='')=>{
-    const q=encodeURIComponent(term);
-    return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?q=${q}`)
-      .then(r=>r.json())
-      .then(d=>{
-        const rawUrl=d?.imageUrl||null;
-        if(!rawUrl) return null;
-        // Fetch image as blob and create object URL — bypasses all browser security
-        return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl)}`)
-          .then(r=>r.blob())
-          .then(blob=>URL.createObjectURL(blob))
-          .catch(()=>null);
-      })
-      .catch(()=>null);
-  };
-
-  // TheAudioDB — dedicated music artist photo database, free, CORS-open
-  const tryAudioDB=(name)=>{
-    if(!name) return Promise.resolve(null);
-    return fetch(`https://www.theaudiodb.com/api/v1/json/2/search.php?s=${encodeURIComponent(name)}`)
-      .then(r=>r.json())
-      .then(d=>{
-        const a=(d?.artists||[])[0];
-        return a?.strArtistThumb||a?.strArtistCutout||null;
-      }).catch(()=>null);
-  };
-
-  // Type hint map — improves DDG accuracy for artists/actors/etc
-  const typeMap={
-    'Song':'rapper singer artist musician',
-    'Album':'musician artist rapper singer',
-    'Artist':'rapper singer artist musician',
-    'Movie':'actor film',
-    'TV Show':'actor television',
-    'Influencer':'influencer',
-    'Brand':'brand company',
-  };
-  const typeHint=typeMap[r?.content_id?.type||'']||'';
-  const isMusicType=['Song','Album','Artist'].includes(r?.content_id?.type||'');
-
-  (async()=>{
-    let imgUrl=null;
-    const aiImg=r?.content_id?.image_url||null;
-    if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
-    // DDG first — full CORS (*), works from any domain, reliable celebrity headshots
-    if(!imgUrl&&creator) imgUrl=await tryDDG(creator, typeHint);
-    if(!imgUrl&&creator) imgUrl=await tryDDG(creator);
-    // AudioDB secondary — great headshots but inconsistent CORS
-    if(!imgUrl&&creator) imgUrl=await tryAudioDB(creator);
-    if(!hasExplicitImagery){
-      // Block raw image searches for explicitly graphic content only
-      if(!imgUrl&&creator) imgUrl=await trySummary(creator);
-      if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
-      if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
-      if(!imgUrl) imgUrl=await tryWikiSearch(title);
-      if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
-      if(!imgUrl) imgUrl=await trySummary(title);
-    }
-    if(imgUrl){showReportImg(imgUrl);}
-    else{
-      const ov=getTint();
-      setBox(`<div style="position:absolute;inset:0;background:${ov.tint};"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo||fallbackLogo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;"/></div>`);
-    }
-  })();
+    .then(d=>setImageBox(d?.imageUrl||null))
+    .catch(()=>setImageBox(null));
 }
+
 
 function renderResults(r){
   window._lastResult=r;
