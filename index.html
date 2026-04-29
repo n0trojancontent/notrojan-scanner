@@ -2910,7 +2910,8 @@ function fetchReportImage(r, col){
 
   // DuckDuckGo Instant Answer — best source for celebrities (free, CORS-open, reliable)
   const tryDDG=(term,typeHint='')=>{
-    const q=encodeURIComponent(typeHint?`${term} ${typeHint}`:term);
+    // Use name only — DDG knowledge graph works best with clean names
+    const q=encodeURIComponent(term);
     return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?q=${q}`)
       .then(r=>r.json())
       .then(d=>d?.imageUrl||null)
@@ -3348,7 +3349,7 @@ function handleShare(){
     const typeHint2=typeMap2[r?.content_id?.type||'']||'';
     const isMusicType2=['Song','Album','Artist'].includes(r?.content_id?.type||'');
     const tryDDG2=(term,hint='')=>{
-      const q2=encodeURIComponent(hint?`${term} ${hint}`:term);
+      const q2=encodeURIComponent(term);
       return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?q=${q2}`)
         .then(res=>res.json())
         .then(d=>d?.imageUrl||null)
