@@ -526,7 +526,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.56rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:8px;">// Content Identified — NoTrojan® Scan Target</div>
       <div style="display:flex;gap:14px;align-items:flex-start;">
         <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="contentMeta"></div>
-        <div id="reportImgBox" style="width:120px;height:120px;flex-shrink:0;border:1px solid var(--border2);background:var(--bg2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+        <div id="reportImgBox" style="width:120px;height:120px;flex-shrink:0;border:none;background:var(--bg2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
           <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Scanning...</div></div>
         </div>
       </div>
@@ -2947,13 +2947,11 @@ function fetchReportImage(r, col){
     let imgUrl=null;
     const aiImg=r?.content_id?.image_url||null;
     if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
-    // TheAudioDB — safe artist headshots, always allowed regardless of content flags
-    if(!imgUrl&&creator) imgUrl=await tryAudioDB(creator);
-    // DDG + Wikipedia only when content is NOT explicitly graphic
-    // (web search could return violent/explicit imagery for those topics)
-    // DDG knowledge graph is safe — just a headshot lookup
+    // DDG first — full CORS (*), works from any domain, reliable celebrity headshots
     if(!imgUrl&&creator) imgUrl=await tryDDG(creator, typeHint);
     if(!imgUrl&&creator) imgUrl=await tryDDG(creator);
+    // AudioDB secondary — great headshots but inconsistent CORS
+    if(!imgUrl&&creator) imgUrl=await tryAudioDB(creator);
     if(!hasExplicitImagery){
       // Block raw image searches for explicitly graphic content only
       if(!imgUrl&&creator) imgUrl=await trySummary(creator);
@@ -3368,12 +3366,11 @@ function handleShare(){
       let imgUrl=null;
       const aiImg=r?.content_id?.image_url||null;
       if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
-      // AudioDB safe headshots always allowed
-      if(!imgUrl&&creator) imgUrl=await tryAudioDB2(creator);
-      // Web search only for non-explicit content
-      // DDG knowledge graph safe for all
+      // DDG first — full CORS (*), works from any domain
       if(!imgUrl&&creator) imgUrl=await tryDDG2(creator, typeHint2);
       if(!imgUrl&&creator) imgUrl=await tryDDG2(creator);
+      // AudioDB secondary
+      if(!imgUrl&&creator) imgUrl=await tryAudioDB2(creator);
       if(!hasExplicitImagery2){
         if(!imgUrl&&creator) imgUrl=await trySummary(creator);
         if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
