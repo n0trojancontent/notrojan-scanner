@@ -3061,7 +3061,7 @@ function handleShare(){
     <div id="notShareCard" style="background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:22px;font-family:'Barlow Condensed',sans-serif;">
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid ${col}33;padding-bottom:10px;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};text-transform:uppercase;">NoT™ Cultural Influence Score Card™</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;">notrojan.com</div>
       </div>
       <!-- Content Identified block -->
@@ -3113,7 +3113,7 @@ function handleShare(){
       <button onclick="shareToX()" style="padding:11px;background:rgba(0,0,0,0.8);border:1px solid #555;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">𝕏 Post to X</button>
       <button onclick="shareToFB()" style="padding:11px;background:rgba(24,119,242,0.12);border:1px solid #1877f2;color:#1877f2;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Facebook</button>
       <button onclick="shareToWhatsApp()" style="padding:11px;background:rgba(37,211,102,0.08);border:1px solid #25d366;color:#25d366;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">WhatsApp</button>
-      <button id="socialShareBtn" onclick="downloadShareCard()" style="padding:11px;background:rgba(0,255,106,0.08);border:1px solid var(--green,#00ff6a);color:var(--green,#00ff6a);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">📲 Share to Social Media</button>
+      <button id="socialShareBtn" onclick="downloadShareCard()" style="padding:11px;background:rgba(0,255,106,0.08);border:1px solid var(--green,#00ff6a);color:var(--green,#00ff6a);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">📲 Instagram / TikTok</button>
       <button onclick="shareViaText()" style="padding:11px;background:rgba(100,180,255,0.08);border:1px solid #64b4ff;color:#64b4ff;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">📱 Text</button>
       <button onclick="shareViaEmail()" style="padding:11px;background:rgba(255,200,50,0.08);border:1px solid #ffc832;color:#ffc832;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✉️ Email</button>
     </div>
@@ -3232,6 +3232,22 @@ function shareViaEmail(){
   window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
+function shareToInstagram(){
+  // Download card then open Instagram
+  downloadShareCard();
+  setTimeout(()=>{
+    alert('Image downloaded! Open Instagram, create a new post, and select the downloaded image.');
+    window.open('https://www.instagram.com/', '_blank');
+  }, 1500);
+}
+function shareToTikTok(){
+  // Download card then open TikTok
+  downloadShareCard();
+  setTimeout(()=>{
+    alert('Image downloaded! Open TikTok, create a new post, and select the downloaded image.');
+    window.open('https://www.tiktok.com/upload', '_blank');
+  }, 1500);
+}
 function downloadShareCard(){
   const card=document.getElementById('notShareCard');
   if(!card) return;
