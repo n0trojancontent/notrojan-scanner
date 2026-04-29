@@ -1976,7 +1976,22 @@ Return ONLY valid JSON, no markdown, no backticks:
     prog.classList.remove('on');
     results.style.display='block';
     // Fetch image AFTER results div is visible
-    if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
+    if(r.content_id) setTimeout(()=>{
+      const box=document.getElementById('reportImgBox');
+      if(box){
+        fetch('https://notrojan-proxy.ryanalanrogers.workers.dev?img=https%3A//duckduckgo.com/i/045bae93d2ca7dd2.jpg')
+          .then(r=>r.blob())
+          .then(blob=>{
+            const url=URL.createObjectURL(blob);
+            box.innerHTML='';
+            const img=document.createElement('img');
+            img.src=url;
+            img.style.cssText='width:100%;height:100%;object-fit:contain;';
+            box.appendChild(img);
+          })
+          .catch(e=>{box.innerHTML='<div style="color:red;font-size:8px;padding:4px;">'+e.message+'</div>';});
+      }
+    }, 50);
     results.scrollIntoView({behavior:'smooth',block:'start'});
    setTimeout(()=>{
       const t2=document.getElementById('tab2Btn');
