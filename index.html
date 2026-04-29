@@ -2867,6 +2867,7 @@ function fetchReportImage(r, col){
     // Photo layer
     const photo=document.createElement('img');
     photo.style.cssText='width:100%;height:100%;object-fit:contain;background:#020c06;position:absolute;inset:0;';
+    photo.crossOrigin='anonymous';
     photo.src=imgUrl;
     box.appendChild(photo);
     // Tint overlay
@@ -2937,11 +2938,8 @@ function fetchReportImage(r, col){
       .then(d=>{
         const rawUrl=d?.imageUrl||null;
         if(!rawUrl) return null;
-        // Fetch image as base64 through Worker — bypasses all hotlink/CORS restrictions
-        return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl)}&b64=1`)
-          .then(r=>r.json())
-          .then(d=>d?.dataUrl||null)
-          .catch(()=>null);
+        // Return proxied URL — Worker serves image with CORS headers
+        return `https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl)}`;
       })
       .catch(()=>null);
   };
@@ -3379,10 +3377,7 @@ function handleShare(){
         .then(d=>{
           const rawUrl2=d?.imageUrl||null;
           if(!rawUrl2) return null;
-          return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl2)}&b64=1`)
-            .then(res=>res.json())
-            .then(d=>d?.dataUrl||null)
-            .catch(()=>null);
+          return `https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl2)}`;
         })
         .catch(()=>null);
     };
