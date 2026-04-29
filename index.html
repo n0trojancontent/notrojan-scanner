@@ -505,7 +505,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 <div id="tab-scanner" class="tab-panel active">
   <div class="scan-hdr">
     <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:600;letter-spacing:0.15em;color:var(--white);">NoT™ Cultural Influence Decoder™</h2><div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:8px;">Cultural Influence Intelligence System™</div>
-    <p class="scanner-neon">Enter your favorite creator, song, brand, movie, or campaign below. Check the score.</p>
+    <p class="scanner-neon">Enter details of your favorite creator, song, brand, movie, or campaign below. Check the score!</p>
   </div>
 
   <div class="input-box">
@@ -1645,6 +1645,9 @@ async function submitGate(){
 // ── ANIMATED PLACEHOLDER ──
 (function(){
   const examples = [
+    // Fixed instruction
+    'Enter: artist, song, brand, movie, or campaign',
+    // Topics
     'Enter: song',
     'Enter: movie',
     'Enter: artist',
@@ -1654,6 +1657,17 @@ async function submitGate(){
     'Enter: brand',
     'Enter: trend',
     'Enter: creator',
+    // Specific examples
+    'e.g. Nicki Minaj, rapper',
+    'e.g. Happy by Pharrell Williams',
+    'e.g. Mickey Mouse, Disney character',
+    'e.g. Hennessy, cognac brand',
+    'e.g. Ariel, The Little Mermaid',
+    'e.g. Drake, rapper',
+    'e.g. SpongeBob SquarePants, cartoon',
+    'e.g. Mask Off by Future',
+    'e.g. Cardi B, influencer',
+    'e.g. The Fresh Prince of Bel-Air, TV show',
   ];
   let i = 0;
   const inp = document.getElementById('urlInput');
