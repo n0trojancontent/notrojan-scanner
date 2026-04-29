@@ -2830,6 +2830,54 @@ function renderTroyHealth(score, col, rating, malware, threats){
 
 
 function fetchReportImage(r, col){
+  const box=document.getElementById('reportImgBox');
+  if(!box) return;
+  const creator=r?.content_id?.creator||r?.query||'';
+  if(!creator) return;
+  const score=r?.score||0;
+  const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
+  const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
+  const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
+  const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
+  const horse=score<25?notRedLogo:score<50?notOrangeLogo:notGreenLogo;
+  const proxyUrl='https://notrojan-proxy.ryanalanrogers.workers.dev?q='+encodeURIComponent(creator);
+  fetch(proxyUrl)
+    .then(r=>r.json())
+    .then(d=>{
+      const imgUrl=d?.imageUrl?'https://notrojan-proxy.ryanalanrogers.workers.dev?img='+encodeURIComponent(d.imageUrl):null;
+      box.innerHTML='';
+      if(imgUrl){
+        const img=document.createElement('img');
+        img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+        img.src=imgUrl;
+        box.appendChild(img);
+      }
+      const tintDiv=document.createElement('div');
+      tintDiv.style.cssText='position:absolute;inset:0;background:'+tint+';';
+      box.appendChild(tintDiv);
+      const horseDiv=document.createElement('div');
+      horseDiv.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+      const horseImg=document.createElement('img');
+      horseImg.src=horse;
+      horseImg.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
+      horseDiv.appendChild(horseImg);
+      box.appendChild(horseDiv);
+    })
+    .catch(()=>{
+      box.innerHTML='';
+      const tintDiv=document.createElement('div');
+      tintDiv.style.cssText='position:absolute;inset:0;background:'+tint+';';
+      box.appendChild(tintDiv);
+      const horseDiv=document.createElement('div');
+      horseDiv.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+      const horseImg=document.createElement('img');
+      horseImg.src=horse;
+      horseImg.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
+      horseDiv.appendChild(horseImg);
+      box.appendChild(horseDiv);
+    });
+  return; // rest of function below is backup only
+  const _score=r.score||0;
   const score=r.score||0;
   const title=r.content_id?.title||r.title||r.query||'';
   const creator=r.content_id?.creator||'';
