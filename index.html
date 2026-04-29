@@ -2839,7 +2839,7 @@ function fetchReportImage(r, col){
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
   const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
   const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
-  const horse=score<25?notRedLogo:score<50?notOrangeLogo:notGreenLogo;
+  const horse=score<25?notRedLogo:score<50?notOrangeLogo:null;  // no horse for green/yellow scores
 
   function render(imgUrl){
     box.innerHTML='';
@@ -2852,13 +2852,15 @@ function fetchReportImage(r, col){
     const td=document.createElement('div');
     td.style.cssText='position:absolute;inset:0;background:'+tint+';';
     box.appendChild(td);
-    const hd=document.createElement('div');
-    hd.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
-    const hi=document.createElement('img');
-    hi.src=horse;
-    hi.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
-    hd.appendChild(hi);
-    box.appendChild(hd);
+    if(horse){
+      const hd=document.createElement('div');
+      hd.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+      const hi=document.createElement('img');
+      hi.src=horse;
+      hi.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
+      hd.appendChild(hi);
+      box.appendChild(hd);
+    }
   }
 
   render(null); // show tint+horse immediately
