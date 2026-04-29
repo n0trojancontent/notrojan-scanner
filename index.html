@@ -2859,10 +2859,8 @@ function fetchReportImage(r, col){
     const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:55%;height:55%;object-fit:contain;opacity:0.9;filter:${ov.filter};"/></div>`:'';
     const fallback=score>=75?notGreenLogo:notRedLogo;
     setBox(`
-      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;background:#020c06;" 
-        onload="this.nextElementSibling.style.display='block'"
-        onerror="this.parentElement.innerHTML='<div style=\'position:absolute;inset:0;background:rgba(196,30,30,0.8);display:flex;align-items:center;justify-content:center;\'><div style=\'color:white;font-size:7px;font-family:monospace;padding:4px;word-break:break-all;text-align:center\'>IMG FAIL: ${imgUrl.substring(0,40)}</div></div>'"/>
-      <div style="position:absolute;inset:0;background:${ov.tint};display:none;"></div>
+      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;background:#020c06;" onerror="this.style.objectFit='contain';this.style.width='65%';this.style.height='65%';this.src='${fallback}';"/>
+      <div style="position:absolute;inset:0;background:${ov.tint};"></div>
       ${logoHtml}`);
   };
 
@@ -2912,11 +2910,14 @@ function fetchReportImage(r, col){
 
   // DuckDuckGo Instant Answer — best source for celebrities (free, CORS-open, reliable)
   const tryDDG=(term,typeHint='')=>{
-    // Use name only — DDG knowledge graph works best with clean names
     const q=encodeURIComponent(term);
     return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?q=${q}`)
       .then(r=>r.json())
-      .then(d=>d?.imageUrl||null)
+      .then(d=>{
+        const rawUrl=d?.imageUrl||null;
+        // Proxy image through Worker to bypass hotlink protection
+        return rawUrl?`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl)}`:null;
+      })
       .catch(()=>null);
   };
 
@@ -2995,11 +2996,6 @@ function renderResults(r){
       </div>`).join('');
     document.getElementById('contentHeader').style.display='block';
     // Fetch image for report after col is known — called after score computed
-    // TEMP TEST: force image directly into box
-    const testBox=document.getElementById('reportImgBox');
-    if(testBox){
-      testBox.innerHTML='<img src="https://duckduckgo.com/i/045bae93d2ca7dd2.jpg" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML=\'<div style=\'background:red;color:white;font-size:10px;padding:4px;\'>IMG BLOCKED</div>\'"/>';
-    }
     setTimeout(()=>fetchReportImage(r, col), 100);
   }
 
@@ -3357,7 +3353,10 @@ function handleShare(){
       const q2=encodeURIComponent(term);
       return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?q=${q2}`)
         .then(res=>res.json())
-        .then(d=>d?.imageUrl||null)
+        .then(d=>{
+          const rawUrl2=d?.imageUrl||null;
+          return rawUrl2?`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl2)}`:null;
+        })
         .catch(()=>null);
     };
     const tryAudioDB2=(name)=>{
