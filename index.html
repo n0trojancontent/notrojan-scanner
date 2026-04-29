@@ -2807,7 +2807,7 @@ function renderTroyHealth(score, col, rating, malware, threats){
     <div class="troy-index" style="border-color:${level.color}35;border-top:2px solid ${level.color}60;">
       <div class="troy-hd" style="border-bottom-color:${level.color}25;background:${level.bg};">
         <span style="font-size:0.9rem;">🏛️</span>
-        <span class="troy-hd-label">Troy Health Index — As Within, So Without</span>
+        <span class="troy-hd-label">Troy Health Index™ — As Within, So Without</span>
         <span style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:${level.color};margin-left:auto;letter-spacing:0.12em;opacity:0.9;">Score ${score}/100 — ${level.troyTitle}</span>
       </div>
       <div class="troy-body">
@@ -2921,7 +2921,7 @@ function renderResults(r){
 
   // Inject score legend
   document.getElementById('scoreLegend').innerHTML='<div class="sec" style="margin-bottom:0;"><div class="sechd"><span>📊</span><span class="seclbl">NoTrojan Score™ — Rating Key</span></div><div class="secbody" style="padding:0"><table class="ltable"><tr><th>Score</th><th>Rating</th><th>Content Health</th><th>Meaning</th></tr><tr><td><span class="slbl" style="color:#7fff00">90–100</span></td><td><div style="display:flex;align-items:center;gap:8px;"><img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png" style="width:36px;height:43px;object-fit:contain;" alt="Certified NoTrojan"/><span class="pill pill-cert" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;">Certified NoTrojan®</span></div></td><td><span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:#7fff00;box-shadow:0 0 5px #7fff00;vertical-align:middle;margin-right:4px;"></span><span style="color:#7fff00;font-weight:800;">NoT™ Green</span></td><td>Model citizen influence. Strengthens all three pillars.</td></tr><tr><td><span class="slbl" style="color:#5ED67A">75–89</span></td><td><span class="pill pill-green">🟢 Positive Influence</span></td><td style="color:#5ED67A">🟢 Green</td><td>Strong alignment. Minor threats present but don\'t dominate.</td></tr><tr><td><span class="slbl" style="color:var(--yellow)">50–74</span></td><td><span class="pill pill-yellow">🟡 Neutral / Mixed</span></td><td style="color:var(--yellow)">🟡 Yellow</td><td>Positive potential alongside threats that pull score to neutral.</td></tr><tr><td><span class="slbl" style="color:var(--orange)">25–49</span></td><td><span class="pill pill-orange">🟠 At Risk</span></td><td style="color:var(--orange)">🟠 Orange</td><td>Threats outweigh positives across one or more pillars.</td></tr><tr><td><span class="slbl" style="color:var(--red3)">0–24</span></td><td><div style="display:flex;align-items:center;gap:8px;"><img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png" style="width:36px;height:43px;object-fit:contain;" alt="Trojan Level Threat"/><span class="pill pill-red" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;">Trojan-Level Threat</span></div></td><td style="color:var(--red3)">🔴 Red</td><td>Harmful programming dominates. High community risk.</td></tr></table></div></div>';
-  // Render Troy Health Index with malware-specific damage mapping
+  // Render Troy Health Index™ with malware-specific damage mapping
   // renderTroyHealth called after stacking sections
   setTimeout(()=>renderTroyHealth(r.score, col, r.rating, r.bside.malware||[], r.bside.threatCategories||[]),10);
   const ps=[{n:'Ethical Operating System',a:'EOS',s:r.eos_score,w:'30%'},{n:'Sustainable Influence',a:'SI',s:r.si_score,w:'30%'},{n:'Good Citizenship',a:'GC',s:r.gc_score,w:'40%'}];
@@ -3108,7 +3108,7 @@ function handleShare(){
       <!-- Cultural Impact Bullets -->
       ${impactBullets.length?`<div style="margin-bottom:8px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:4px;">${impactLabel}</div>${impactBullets.map(b=>`<div style="font-size:0.76rem;color:${impactColor};padding:1px 0;">• ${b}</div>`).join('')}</div>`:''}
       <!-- Troy -->
-      ${troyRating?`<div style="margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index: ${troyRating}</div>`:''}
+      ${troyRating?`<div style="margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index™: ${troyRating}</div>`:''}
       <!-- Footer -->
       <div style="border-top:1px solid ${col}33;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:0.65rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details, visit:</div>
