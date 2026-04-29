@@ -3005,37 +3005,6 @@ async function submitContact(e){
 function closeContact(){document.getElementById('contactOverlay').classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('contactOverlay').addEventListener('click',function(e){if(e.target===this)closeContact();});});
 
-async function submitContact(e){
-  e.preventDefault();
-  const btn=document.getElementById('cformBtn');
-  const err=document.getElementById('cformError');
-  btn.disabled=true;btn.textContent='Sending...';err.style.display='none';
-  const payload={
-    firstName:document.getElementById('cf_fname').value,
-    lastName:document.getElementById('cf_lname').value,
-    email:document.getElementById('cf_email').value,
-    phone:document.getElementById('cf_phone').value||'',
-    who:document.getElementById('cf_who').value,
-    interest:document.getElementById('cf_interest').value,
-    source:document.getElementById('cf_source').value,
-    message:document.getElementById('cf_message').value||''
-  };
-  try{
-    const res=await fetch('https://services.leadconnectorhq.com/hooks/Jq1gaWassPDUjM2xFMxX/webhook-trigger/92a31df6-8472-4bf8-a9ad-a850e1cc606c',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    });
-    if(res.ok){
-      document.getElementById('cformWrap').style.display='none';
-      document.getElementById('cformSuccess').style.display='block';
-    } else {throw new Error('error');}
-  } catch(ex){
-    err.style.display='block';
-    btn.disabled=false;
-    btn.textContent='⚡ Request More Info';
-  }
-}
 function handleShareMenu(){
   const existing=document.getElementById('shareMenuModal');
   if(existing){existing.remove();return;}
