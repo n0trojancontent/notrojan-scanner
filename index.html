@@ -1912,7 +1912,7 @@ CONTENT IDENTIFICATION — Always identify the content being scanned. Research f
 - description: one sentence — what this content is
 
 Return ONLY valid JSON, no markdown, no backticks:
-{"content_id":{"title":"<title>","creator":"<creator>","type":"<type>","year":"<year>","label":"<label>","description":"<1 sentence>","image_url":"<a direct publicly accessible .jpg or .png image URL for this subject from Wikipedia Commons or similar open source — must be a real working URL, return null if not known>"},"rubric":{"E1":<0-10>,"E2":<0-10>,"E3":<0-10>,"E4":<0-10>,"E5":<0-10>,"E6":<0-10>,"S1":<0-10>,"S2":<0-10>,"S3":<0-10>,"S4":<0-10>,"S5":<0-10>,"S6":<0-10>,"G1":<0-10>,"G2":<0-10>,"G3":<0-10>,"G4":<0-10>,"G5":<0-10>,"G6":<0-10>},"verdictMeaning":"<1 sentence>","bside":{"eos":{"indicators":[{"text":"<8 words>","status":"<pass|warn|fail>"}]},"si":{"indicators":[{"text":"<8 words>","status":"<pass|warn|fail>"}]},"gc":{"indicators":[{"text":"<8 words>","status":"<pass|warn|fail>"}]},"malware":[{"type":"<n>","definition":"<10 words>","observed":"<12 words>"}],"threatCategories":["<cat>"],"ieos_impact":["<10 words>"],"community_impact":["<10 words>"],"realWorldCase":{"title":"<title>","content":"<2 sentences>"},"diagnosis":"<2 sentences>"},"aside":{"mediaLiteracy":[{"q":"<ML question>","a":"<12 words>","finding":"<4 words>"}],"strengths":[{"pillar":"<EOS|SI|GC>","icon":"<emoji>","title":"<title>","description":"<10 words>"}],"certificationVerdict":"<1 sentence>","certificationPathway":["<8 words>"],"constructiveAssessment":"<2 sentences>"}}`;
+{"content_id":{"title":"<title>","creator":"<full official name as it appears on Wikipedia — never shorten or nickname e.g. 'Nicki Minaj' not 'Niki', 'Fred Rogers' not 'Mister Rogers'>","type":"<type>","year":"<year>","label":"<label>","description":"<1 sentence>","image_url":"<a direct publicly accessible .jpg or .png image URL for this subject from Wikipedia Commons or similar open source — must be a real working URL, return null if not known>"},"rubric":{"E1":<0-10>,"E2":<0-10>,"E3":<0-10>,"E4":<0-10>,"E5":<0-10>,"E6":<0-10>,"S1":<0-10>,"S2":<0-10>,"S3":<0-10>,"S4":<0-10>,"S5":<0-10>,"S6":<0-10>,"G1":<0-10>,"G2":<0-10>,"G3":<0-10>,"G4":<0-10>,"G5":<0-10>,"G6":<0-10>},"verdictMeaning":"<1 sentence>","bside":{"eos":{"indicators":[{"text":"<8 words>","status":"<pass|warn|fail>"}]},"si":{"indicators":[{"text":"<8 words>","status":"<pass|warn|fail>"}]},"gc":{"indicators":[{"text":"<8 words>","status":"<pass|warn|fail>"}]},"malware":[{"type":"<n>","definition":"<10 words>","observed":"<12 words>"}],"threatCategories":["<cat>"],"ieos_impact":["<10 words>"],"community_impact":["<10 words>"],"realWorldCase":{"title":"<title>","content":"<2 sentences>"},"diagnosis":"<2 sentences>"},"aside":{"mediaLiteracy":[{"q":"<ML question>","a":"<12 words>","finding":"<4 words>"}],"strengths":[{"pillar":"<EOS|SI|GC>","icon":"<emoji>","title":"<title>","description":"<10 words>"}],"certificationVerdict":"<1 sentence>","certificationPathway":["<8 words>"],"constructiveAssessment":"<2 sentences>"}}`;
 
 
   try{
@@ -2898,15 +2898,25 @@ function fetchReportImage(r, col){
     .then(data=>{const u=data?.originalimage?.source||data?.thumbnail?.source||null;return u&&!isLogoUrl(u)?u:null;})
     .catch(()=>null);
 
+  const tryWikiSearch=(term)=>fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(term)}&srlimit=1&format=json&origin=*`)
+    .then(r=>r.json())
+    .then(async data=>{
+      const pageTitle=data?.query?.search?.[0]?.title;
+      if(!pageTitle) return null;
+      return await trySummary(pageTitle);
+    }).catch(()=>null);
+
   const fallbackLogo=score>=75?notGreenLogo:notRedLogo;
+  const query=r?.query||'';
   (async()=>{
     let imgUrl=null;
-    // Try AI-provided image URL first
     const aiImg=r?.content_id?.image_url||null;
     if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
-    if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
-    if(!imgUrl) imgUrl=await tryMediaList(title);
     if(!imgUrl&&creator) imgUrl=await trySummary(creator);
+    if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
+    if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
+    if(!imgUrl) imgUrl=await tryWikiSearch(title);
+    if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
     if(!imgUrl) imgUrl=await trySummary(title);
     if(imgUrl){showReportImg(imgUrl);}
     else{setBox(`<img src="${fallbackLogo}" style="width:65%;height:65%;object-fit:contain;"/>`);}
@@ -3284,15 +3294,25 @@ function handleShare(){
         }).catch(()=>null);
     };
 
+    const tryWikiSearch=(term)=>fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(term)}&srlimit=1&format=json&origin=*`)
+      .then(res=>res.json())
+      .then(async data=>{
+        const pageTitle=data?.query?.search?.[0]?.title;
+        if(!pageTitle) return null;
+        return await trySummary(pageTitle);
+      }).catch(()=>null);
+
     const creator=r?.content_id?.creator||'';
+    const query=r?.query||'';
     (async()=>{
       let imgUrl=null;
-      // Try AI-provided image URL first
       const aiImg=r?.content_id?.image_url||null;
       if(aiImg&&aiImg!=='null'&&aiImg.startsWith('http')) imgUrl=aiImg;
-      if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
-      if(!imgUrl) imgUrl=await tryMediaList(title);
       if(!imgUrl&&creator) imgUrl=await trySummary(creator);
+      if(!imgUrl&&creator) imgUrl=await tryMediaList(creator);
+      if(!imgUrl&&query&&query!==creator) imgUrl=await tryWikiSearch(query);
+      if(!imgUrl) imgUrl=await tryWikiSearch(title);
+      if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
       if(!imgUrl) imgUrl=await trySummary(title);
       if(imgUrl){ showImg(imgUrl); }
       else { setImgBox(`<img src="${fallbackLogo}" style="width:70%;height:70%;object-fit:contain;"/>`); }
