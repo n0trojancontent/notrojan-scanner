@@ -2937,8 +2937,11 @@ function fetchReportImage(r, col){
       .then(d=>{
         const rawUrl=d?.imageUrl||null;
         if(!rawUrl) return null;
-        // Return proxied URL — Worker serves image with CORS headers
-        return `https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl)}`;
+        // Fetch image as blob and create object URL — bypasses all browser security
+        return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl)}`)
+          .then(r=>r.blob())
+          .then(blob=>URL.createObjectURL(blob))
+          .catch(()=>null);
       })
       .catch(()=>null);
   };
@@ -3376,7 +3379,10 @@ function handleShare(){
         .then(d=>{
           const rawUrl2=d?.imageUrl||null;
           if(!rawUrl2) return null;
-          return `https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl2)}`;
+          return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?img=${encodeURIComponent(rawUrl2)}`)
+            .then(res=>res.blob())
+            .then(blob=>URL.createObjectURL(blob))
+            .catch(()=>null);
         })
         .catch(()=>null);
     };
