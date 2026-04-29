@@ -2960,12 +2960,10 @@ function fetchReportImage(r, col){
       if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
       if(!imgUrl) imgUrl=await trySummary(title);
     }
-    console.log("[NoT] final imgUrl:", imgUrl, "creator:", creator);
     if(imgUrl){showReportImg(imgUrl);}
     else{
-      const ov=getTint();
-      const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:55%;height:55%;object-fit:contain;opacity:0.9;"/></div>`:'';
-      setBox(`<div style="position:absolute;inset:0;background:${ov.tint};"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo||fallbackLogo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;"/></div>`);
+      // Show diagnostic in box so we can see what failed
+      setBox(`<div style="position:absolute;inset:0;background:rgba(196,30,30,0.6);display:flex;align-items:center;justify-content:center;flex-direction:column;padding:4px;"><div style="color:#fff;font-size:8px;font-family:monospace;text-align:center;word-break:break-all;">NO IMG\ncreator:${creator}\ntype:${r?.content_id?.type}</div></div>`);
     }
   })();
 }
