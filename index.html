@@ -425,8 +425,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 /* ── PRINT / SAVE AS PDF ── */
 .print-btn{background:var(--green4);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;font-weight:800;letter-spacing:0.16em;padding:7px 16px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;margin-top:10px;display:inline-flex;align-items:center;gap:6px;}
 .print-btn:hover{background:rgba(0,255,106,0.1);color:var(--green);}
-.float-share-btn{position:fixed;bottom:24px;right:20px;z-index:9000;background:#020c06;border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;padding:12px 22px;cursor:pointer;text-transform:uppercase;display:none;align-items:center;gap:8px;box-shadow:0 0 20px rgba(0,255,106,0.3);transition:all 0.2s;}
-.float-share-btn:hover{background:rgba(0,255,106,0.1);box-shadow:0 0 32px rgba(0,255,106,0.5);}
+
 @media print{
   header,nav,.nav-bar,.input-box,.prog-row,.err-bar,
   .tab-panel:not(.active),.print-btn,footer,body::before,body::after{display:none!important;}
@@ -538,7 +537,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
-     <!-- floating share button renders via JS -->
+      <button id="floatShareBtn" onclick="handleShareMenu()" style="display:none;align-items:center;gap:8px;background:#020c06;border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;padding:12px 22px;cursor:pointer;text-transform:uppercase;box-shadow:0 0 20px rgba(0,255,106,0.3);transition:all 0.2s;position:fixed;bottom:24px;right:20px;z-index:9000;">📤 Share Report</button>
     </div>
     <!-- SCORE CARD -->
     <div class="score-card" id="scoreCard">
@@ -2969,7 +2968,7 @@ function renderResults(r){
   const col=COLORS[r.ratingClass]||'#00ff6a';
   window._lastCol=col;
   const fsb=document.getElementById('floatShareBtn');
-  if(fsb) fsb.style.display='flex';
+  if(fsb) fsb.style.display='inline-flex';
   const em=EMOJI[r.ratingClass]||'';
   // Render content identification header
   if(r.content_id){
@@ -3491,6 +3490,5 @@ if(ni&&hint){ni.addEventListener('scroll',function(){if(ni.scrollLeft>20){if(hin
     </div>
   </div>
 </div>
-<button id="floatShareBtn" class="float-share-btn" onclick="handleShareMenu()">📤 Share Report</button>
 </body>
 </html>
