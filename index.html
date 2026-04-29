@@ -2860,12 +2860,29 @@ function fetchReportImage(r, col){
 
   const showReportImg=(imgUrl)=>{
     const ov=getTint();
-    const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:55%;height:55%;object-fit:contain;opacity:0.9;filter:${ov.filter};"/></div>`:'';
-    const fallback=score>=75?notGreenLogo:notRedLogo;
-    setBox(`
-      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;"/>
-      <div style="position:absolute;inset:0;background:${ov.tint};"></div>
-      ${logoHtml}`);
+    const box=document.getElementById('reportImgBox');
+    if(!box) return;
+    // Use DOM API instead of innerHTML to avoid data URL truncation
+    box.innerHTML='';
+    // Photo layer
+    const photo=document.createElement('img');
+    photo.style.cssText='width:100%;height:100%;object-fit:contain;background:#020c06;position:absolute;inset:0;';
+    photo.src=imgUrl;
+    box.appendChild(photo);
+    // Tint overlay
+    const tint=document.createElement('div');
+    tint.style.cssText=`position:absolute;inset:0;background:${ov.tint};`;
+    box.appendChild(tint);
+    // Horse logo
+    if(ov.logo){
+      const logoWrap=document.createElement('div');
+      logoWrap.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+      const logoImg=document.createElement('img');
+      logoImg.src=ov.logo;
+      logoImg.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
+      logoWrap.appendChild(logoImg);
+      box.appendChild(logoWrap);
+    }
   };
 
   // Headshots are always appropriate — no photo gate. Overlay color communicates the threat.
