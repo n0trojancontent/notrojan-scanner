@@ -2910,14 +2910,11 @@ function fetchReportImage(r, col){
 
   // DuckDuckGo Instant Answer — best source for celebrities (free, CORS-open, reliable)
   const tryDDG=(term,typeHint='')=>{
-    const q=encodeURIComponent(term);
-    const ddgUrl=encodeURIComponent(`https://api.duckduckgo.com/?q=${q}&format=json&no_redirect=1&skip_disambig=1`);
-    return fetch(`https://api.codetabs.com/v1/proxy?quest=${ddgUrl}`)
+    const q=encodeURIComponent(typeHint?`${term} ${typeHint}`:term);
+    return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?q=${q}`)
       .then(r=>r.json())
-      .then(d=>{
-        const img=d?.Image||'';
-        return img&&img.startsWith('/i/')?'https://duckduckgo.com'+img:null;
-      }).catch(e=>{console.error('[NoT DDG error]',e);return null;});
+      .then(d=>d?.imageUrl||null)
+      .catch(()=>null);
   };
 
   // TheAudioDB — dedicated music artist photo database, free, CORS-open
@@ -3352,10 +3349,9 @@ function handleShare(){
     const isMusicType2=['Song','Album','Artist'].includes(r?.content_id?.type||'');
     const tryDDG2=(term,hint='')=>{
       const q2=encodeURIComponent(hint?`${term} ${hint}`:term);
-      const ddgUrl2=`https://api.duckduckgo.com/?q=${q2}&format=json&no_redirect=1&skip_disambig=1`;
-      return fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(ddgUrl2)}`)
+      return fetch(`https://notrojan-proxy.ryanalanrogers.workers.dev?q=${q2}`)
         .then(res=>res.json())
-        .then(d=>{const img=d?.Image||'';return img&&img.startsWith('/i/')?'https://duckduckgo.com'+img:null;})
+        .then(d=>d?.imageUrl||null)
         .catch(()=>null);
     };
     const tryAudioDB2=(name)=>{
