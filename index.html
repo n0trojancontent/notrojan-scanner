@@ -2861,7 +2861,7 @@ function fetchReportImage(r, col){
     const logoHtml=ov.logo?`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo}" style="width:55%;height:55%;object-fit:contain;opacity:0.9;filter:${ov.filter};"/></div>`:'';
     const fallback=score>=75?notGreenLogo:notRedLogo;
     setBox(`
-      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;background:#020c06;" onerror="this.style.objectFit='contain';this.style.width='65%';this.style.height='65%';this.src='${fallback}';"/>
+      <img src="${imgUrl}" style="width:100%;height:100%;object-fit:contain;background:#020c06;"/>
       <div style="position:absolute;inset:0;background:${ov.tint};"></div>
       ${logoHtml}`);
   };
@@ -2971,8 +2971,8 @@ function fetchReportImage(r, col){
     }
     if(imgUrl){showReportImg(imgUrl);}
     else{
-      // DEBUG: show what happened
-      setBox(`<div style="position:absolute;inset:0;background:#300;padding:4px;overflow:auto;"><div style="color:#0f0;font-size:7px;font-family:monospace;word-break:break-all;">FAIL<br>creator:${creator}<br>type:${r?.content_id?.type}<br>score:${score}</div></div>`);
+      const ov=getTint();
+      setBox(`<div style="position:absolute;inset:0;background:${ov.tint};"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><img src="${ov.logo||fallbackLogo}" style="width:60%;height:60%;object-fit:contain;opacity:0.95;"/></div>`);
     }
   })();
 }
