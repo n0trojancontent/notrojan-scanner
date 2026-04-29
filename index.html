@@ -2825,6 +2825,9 @@ function renderTroyHealth(score, col, rating, malware, threats){
 
 
 function fetchReportImage(r, col){
+  // IMMEDIATE TEST: set box to bright green to confirm function is running
+  const testBox=document.getElementById('reportImgBox');
+  if(testBox) testBox.style.background='lime';
   const score=r.score||0;
   const title=r.content_id?.title||r.title||r.query||'';
   const creator=r.content_id?.creator||'';
