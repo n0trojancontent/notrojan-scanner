@@ -2910,14 +2910,14 @@ function fetchReportImage(r, col){
 
   // DuckDuckGo Instant Answer — best source for celebrities (free, CORS-open, reliable)
   const tryDDG=(term,typeHint='')=>{
-    // Route through codetabs CORS proxy — DDG blocks direct browser fetch
-    const ddgUrl=encodeURIComponent(`https://api.duckduckgo.com/?q=${encodeURIComponent(term)}&format=json&no_redirect=1&skip_disambig=1`);
+    const q=encodeURIComponent(term);
+    const ddgUrl=encodeURIComponent(`https://api.duckduckgo.com/?q=${q}&format=json&no_redirect=1&skip_disambig=1`);
     return fetch(`https://api.codetabs.com/v1/proxy?quest=${ddgUrl}`)
       .then(r=>r.json())
       .then(d=>{
         const img=d?.Image||'';
         return img&&img.startsWith('/i/')?'https://duckduckgo.com'+img:null;
-      }).catch(()=>null);
+      }).catch(e=>{console.error('[NoT DDG error]',e);return null;});
   };
 
   // TheAudioDB — dedicated music artist photo database, free, CORS-open
@@ -2962,6 +2962,7 @@ function fetchReportImage(r, col){
       if(!imgUrl&&creator) imgUrl=await tryWikiSearch(creator);
       if(!imgUrl) imgUrl=await trySummary(title);
     }
+    console.log("[NoT] final imgUrl:", imgUrl, "creator:", creator);
     if(imgUrl){showReportImg(imgUrl);}
     else{
       const ov=getTint();
@@ -3350,8 +3351,9 @@ function handleShare(){
     const typeHint2=typeMap2[r?.content_id?.type||'']||'';
     const isMusicType2=['Song','Album','Artist'].includes(r?.content_id?.type||'');
     const tryDDG2=(term,hint='')=>{
-      const ddgUrl2=encodeURIComponent(`https://api.duckduckgo.com/?q=${encodeURIComponent(term)}&format=json&no_redirect=1&skip_disambig=1`);
-      return fetch(`https://api.codetabs.com/v1/proxy?quest=${ddgUrl2}`)
+      const q2=encodeURIComponent(hint?`${term} ${hint}`:term);
+      const ddgUrl2=`https://api.duckduckgo.com/?q=${q2}&format=json&no_redirect=1&skip_disambig=1`;
+      return fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(ddgUrl2)}`)
         .then(res=>res.json())
         .then(d=>{const img=d?.Image||'';return img&&img.startsWith('/i/')?'https://duckduckgo.com'+img:null;})
         .catch(()=>null);
