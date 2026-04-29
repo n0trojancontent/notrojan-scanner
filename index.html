@@ -1973,6 +1973,8 @@ Return ONLY valid JSON, no markdown, no backticks:
     }
     prog.classList.remove('on');
     results.style.display='block';
+    // Fetch image AFTER results div is visible
+    if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
     results.scrollIntoView({behavior:'smooth',block:'start'});
    setTimeout(()=>{
       const t2=document.getElementById('tab2Btn');
@@ -3002,8 +3004,6 @@ function renderResults(r){
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:${f.label==='Description'?'0.84':'0.92'}rem;font-weight:${f.label==='Description'?'400':'700'};color:var(--white);line-height:1.4;">${f.value}</div>
       </div>`).join('');
     document.getElementById('contentHeader').style.display='block';
-    // Fetch image for report after col is known — called after score computed
-    setTimeout(()=>fetchReportImage(r, col), 100);
   }
 
   document.getElementById('scNum').textContent=r.score;
