@@ -526,7 +526,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.56rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:8px;">// Content Identified — NoTrojan® Scan Target</div>
       <div style="display:flex;gap:14px;align-items:flex-start;">
         <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="contentMeta"></div>
-        <div id="reportImgBox" style="width:120px;height:120px;flex-shrink:0;border:none;background:var(--bg2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+        <div id="reportImgBox" style="width:120px;height:120px;min-width:120px;flex-shrink:0;border:none;background:var(--bg2);overflow:hidden;position:relative;display:block;">
           <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Scanning...</div></div>
         </div>
       </div>
@@ -2929,7 +2929,7 @@ function fetchReportImage(r, col){
     box.innerHTML='';
     if(imgUrl){
       const img=document.createElement('img');
-      img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:'+(isBrand?'contain':'cover')+';';
+      img.style.cssText='position:absolute;top:0;left:0;width:120px;height:120px;object-fit:'+(isBrand?'contain':'cover')+';';
       img.src=imgUrl;
       box.appendChild(img);
     }
