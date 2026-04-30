@@ -1512,7 +1512,7 @@ No Trojan® is a cultural influence scoring and detection system that evaluates 
     </div>
   </div>
 
-</div><!-- /tab-certify --
+</div><!-- /tab-certify -->
     </div>
   </div>
 
@@ -1698,8 +1698,11 @@ async function submitGate(){
   document.getElementById('gateOverlay').remove();
   // Now render the full results
   if(window._pendingResults){
-    renderResults(window._pendingResults);
+    const r = window._pendingResults;
+    renderResults(r);
     document.getElementById('results').style.display='block';
+    if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
+    document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
     window._pendingResults = null;
   }
 }
@@ -2038,6 +2041,14 @@ Return ONLY valid JSON, no markdown, no backticks:
     ];
     r.aside.certificationPct=computed;
 
+    incrementScans();
+    updateTrialDisplay();
+    if(shouldShowGate()){
+      window._pendingResults = r;
+      prog.classList.remove('on');
+      btn.disabled=false;
+      showGate(r.score, r.ratingClass);
+    } else {
     try{
       try{localStorage.setItem('not_last_scan',JSON.stringify(r));}catch(e){}
       renderResults(r);
@@ -2051,6 +2062,7 @@ Return ONLY valid JSON, no markdown, no backticks:
     // Fetch image AFTER results div is visible
     if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
     results.scrollIntoView({behavior:'smooth',block:'start'});
+    }
    setTimeout(()=>{
       const t2=document.getElementById('tab2Btn');
       if(t2){t2.style.display='none';}
