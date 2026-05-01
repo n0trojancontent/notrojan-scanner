@@ -526,7 +526,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.56rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:8px;">// Content Identified — NoTrojan® Scan Target</div>
       <div style="display:flex;gap:14px;align-items:flex-start;">
         <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="contentMeta"></div>
-        <div id="reportImgBox" style="width:120px;height:120px;min-width:120px;flex-shrink:0;border:none;background:var(--bg2);overflow:hidden;position:relative;display:block;">
+        <div id="reportImgBox" style="width:120px;height:120px;min-width:120px;max-width:120px;max-height:120px;flex-shrink:0;border:none;background:var(--bg2);overflow:hidden;position:relative;display:block;clip:rect(0,120px,120px,0);">
           <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Scanning...</div></div>
         </div>
       </div>
@@ -1543,7 +1543,7 @@ const MASKOFF_DATA={rubric:{E1:1,E2:1,E3:1,E4:1,E5:1,E6:2,S1:3,S2:2,S3:1,S4:1,S5
 
 // ── SCAN GATE ──
 const GHL_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/Jq1gaWassPDUjM2xFMxX/webhook-trigger/92a31df6-8472-4bf8-a9ad-a850e1cc606c';
-const TRIAL_LIMIT = 2;       // Free trial before registration
+const TRIAL_LIMIT = 2;       // 2 free scans, 3rd triggers community gate
 const MEMBER_MONTHLY = 10;   // Free member scans per month
 
 function getMonthKey(){ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1); }
@@ -1609,61 +1609,66 @@ function showGate(score, ratingClass){
   const box = document.createElement('div');
   box.className = 'gate-box';
 
-  // Score preview header
+  // Score preview
   const scoreHTML = '<div class="gate-score-preview">'
     + '<div><div class="gate-score-num" style="color:'+col+'">'+score+'</div>'
     + '<div style="font-size:0.52rem;color:var(--muted);margin-top:2px;">NoTrojan Score&#8482; / 100</div></div>'
-    + '<div class="gate-blur-overlay"><div class="gate-blur-msg">Join to unlock full report &#8594;</div></div>'
+    + '<div class="gate-blur-overlay"><div class="gate-blur-msg">Join free to unlock &#8594;</div></div>'
     + '<div style="flex:1"><div style="font-size:0.9rem;font-weight:800;color:'+col+'">'+rating+'</div>'
     + '<div class="gate-score-label">Your full report is one step away.</div></div>'
     + '</div>';
 
-  // Two-column options
-  const optionsHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">'
-    // Free option
-    + '<div style="background:var(--bg2);border:1px solid var(--border2);border-top:2px solid var(--green2);padding:14px;">'
-    + '<div style="font-family:var(--font-bc,sans-serif);font-size:0.8rem;font-weight:900;color:var(--green2);letter-spacing:0.06em;margin-bottom:2px;">FREE</div>'
-    + '<div style="font-family:var(--font-bc,sans-serif);font-size:1rem;font-weight:800;color:var(--white);margin-bottom:8px;">NoT™ Green Community</div>'
-    + '<div class="gate-perk">10 scans per month</div>'
-    + '<div class="gate-perk">Full scan reports</div>'
-    + '<div class="gate-perk">Monthly newsletter</div>'
-    + '<div class="gate-perk">Course discount</div>'
-    + '<div class="gate-perk">Giveaway entry</div>'
-    + '<div style="margin-top:10px;">'
-    + '<input type="email" class="gate-inp" id="gateEmail" placeholder="your@email.com" style="margin-bottom:6px;" />'
-    + '<button class="gate-btn" onclick="submitGate()" style="font-size:0.76rem;padding:10px;">Join Free</button>'
+  // Main join form
+  const joinHTML = '<div style="background:var(--bg2);border:1px solid var(--border2);border-top:3px solid var(--green);padding:18px;margin-bottom:12px;">'
+    + '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:1rem;font-weight:900;color:var(--green);letter-spacing:0.08em;margin-bottom:4px;">🌿 JOIN THE NoT™ GREEN COMMUNITY — FREE</div>'
+    + '<div style="font-size:0.8rem;color:var(--white2);line-height:1.6;margin-bottom:12px;">You\'ve used your 2 free scans. Join free to keep scanning — and help us raise Cultural Influence Intelligence for youth and communities.</div>'
+    // Perks
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:14px;">'
+    + '<div class="gate-perk">✅ 10 scans per month</div>'
+    + '<div class="gate-perk">✅ Full scan reports</div>'
+    + '<div class="gate-perk">✅ 10% off NoT™ merch</div>'
+    + '<div class="gate-perk">✅ Monthly newsletter</div>'
+    + '<div class="gate-perk">✅ NoT™ Green Pledge</div>'
+    + '<div class="gate-perk">✅ Community resources</div>'
     + '</div>'
+    // Pledge
+    + '<div style="background:rgba(0,255,106,0.05);border-left:3px solid var(--green);padding:10px 12px;margin-bottom:14px;font-size:0.78rem;color:var(--white2);line-height:1.7;">'
+    + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:0.6rem;color:var(--green);letter-spacing:0.12em;margin-bottom:6px;">// THE NoT™ GREEN PLEDGE</div>'
+    + '"I commit to questioning the cultural content I consume, share, and create — and to doing only that which is for the greater good of my community."'
     + '</div>'
-    // Paid option
-    + '<div style="background:var(--bg2);border:1px solid var(--green);border-top:2px solid var(--green);padding:14px;">'
-    + '<div style="font-family:var(--font-bc,sans-serif);font-size:0.8rem;font-weight:900;color:var(--green);letter-spacing:0.06em;margin-bottom:2px;">MEMBER</div>'
-    + '<div style="font-family:var(--font-bc,sans-serif);font-size:1rem;font-weight:800;color:var(--white);margin-bottom:8px;">NoT™ Green Community Member</div>'
-    + '<div class="gate-perk">Unlimited scans</div>'
-    + '<div class="gate-perk">Full scan reports always</div>'
-    + '<div class="gate-perk">Exclusive monthly report</div>'
-    + '<div class="gate-perk">Larger course discount</div>'
-    + '<div class="gate-perk">Priority feature access</div>'
-    + '<div style="margin-top:10px;">'
-    + '<button class="gate-btn" onclick="goToPaidSignup()" style="background:rgba(0,255,106,0.12);font-size:0.76rem;padding:10px;">Become a Member</button>'
-    + '<div style="font-size:0.64rem;color:var(--muted);margin-top:5px;text-align:center;">Username + password login</div>'
+    // Email input
+    + '<input type="email" class="gate-inp" id="gateEmail" placeholder="Enter your email to join" style="margin-bottom:8px;" />'
+    + '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">'
+    + '<input type="checkbox" id="gatePledge" style="margin-top:3px;flex-shrink:0;" />'
+    + '<label for="gatePledge" style="font-size:0.74rem;color:var(--white2);line-height:1.5;cursor:pointer;">I accept the NoT™ Green Pledge and agree to receive community emails. A confirmation will be sent to verify your email.</label>'
     + '</div>'
-    + '</div>'
+    + '<button class="gate-btn" id="gateJoinBtn" onclick="submitGate()" style="width:100%;font-size:0.82rem;padding:12px;">JOIN FREE & UNLOCK REPORT</button>'
     + '</div>';
 
-  // Member login link
-  const loginHTML = '<div style="text-align:center;margin-top:4px;">'
-    + '<span style="font-size:0.72rem;color:var(--muted);">Already a member? </span>'
-    + '<a href="YOUR_GHL_LOGIN_URL_HERE" style="font-size:0.72rem;color:var(--green2);text-decoration:underline;">Sign in</a>'
+  // Already a member row
+  const memberHTML = '<div style="background:var(--bg2);border:1px solid var(--border2);padding:14px;margin-bottom:12px;">'
+    + '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.8rem;font-weight:900;color:var(--muted);letter-spacing:0.08em;margin-bottom:8px;">ALREADY A COMMUNITY MEMBER?</div>'
+    + '<div style="display:flex;gap:8px;">'
+    + '<input type="email" class="gate-inp" id="memberEmail" placeholder="Enter your confirmed community email" style="margin-bottom:0;flex:1;" />'
+    + '<button class="gate-btn" onclick="submitMemberEmail()" style="font-size:0.74rem;padding:10px 14px;white-space:nowrap;">UNLOCK</button>'
+    + '</div>'
+    + '<div id="memberEmailErr" style="font-size:0.7rem;color:var(--red3);margin-top:5px;display:none;">Email not found. Please join free above.</div>'
     + '</div>';
 
-  const noteHTML = '<div class="gate-note" style="margin-top:12px;">No spam. Green content, institute news, and community resources only.</div>';
+  // Paid teaser
+  const paidHTML = '<div style="text-align:center;padding:8px;border:1px solid rgba(0,255,106,0.15);">'
+    + '<div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px;">Want unlimited scans + exclusive reports?</div>'
+    + '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.8rem;font-weight:800;color:var(--green);letter-spacing:0.06em;">Paid Community Membership — Coming Soon</div>'
+    + '</div>';
+
+  const noteHTML = '<div class="gate-note" style="margin-top:10px;text-align:center;">No spam. Green content, institute news, and community resources only.</div>';
 
   box.innerHTML = '<div class="gate-badge">&#127807; NoT™ Green Community</div>'
     + '<div class="gate-title">Your scan is ready.</div>'
     + scoreHTML
-    + '<div class="gate-sub" style="margin-bottom:12px;">You have used your 2 free scans. Join our free No Trojan Green Community to unlock your full report.</div>'
-    + optionsHTML
-    + loginHTML
+    + joinHTML
+    + memberHTML
+    + paidHTML
     + noteHTML;
 
   gate.appendChild(box);
@@ -1678,25 +1683,38 @@ function goToPaidSignup(){
 
 async function submitGate(){
   const email = document.getElementById('gateEmail').value.trim();
+  const pledged = document.getElementById('gatePledge').checked;
+  const emailInp = document.getElementById('gateEmail');
   if(!email || !email.includes('@')){
-    document.getElementById('gateEmail').style.borderColor='var(--red3)';
+    emailInp.style.borderColor='var(--red3)';
     return;
   }
-  const btn = document.querySelector('.gate-btn');
+  if(!pledged){
+    emailInp.style.borderColor='';
+    document.getElementById('gatePledge').style.outline='2px solid var(--red3)';
+    return;
+  }
+  const btn = document.getElementById('gateJoinBtn');
   btn.textContent = 'Joining...';
   btn.disabled = true;
-  
+
   try{
     await fetch(GHL_WEBHOOK, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email, source:'NoTrojan Scanner Gate', tags:['not-green-community','scanner-user']})
+      body:JSON.stringify({
+        email,
+        source:'NoTrojan Scanner Gate',
+        tags:['not-green-community','scanner-user','pledge-accepted'],
+        note:'NoT Green Pledge accepted. Send confirmation email with 10% merch discount.'
+      })
     });
   } catch(e){ console.log('Webhook error:', e); }
-  
+
+  // Store email locally so returning member can re-enter it
+  try{ localStorage.setItem('not_community_email', email); }catch(e){}
   markRegistered();
   document.getElementById('gateOverlay').remove();
-  // Now render the full results
   if(window._pendingResults){
     const r = window._pendingResults;
     renderResults(r);
@@ -1704,6 +1722,52 @@ async function submitGate(){
     if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
     document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
     window._pendingResults = null;
+  }
+}
+
+async function submitMemberEmail(){
+  const email = document.getElementById('memberEmail').value.trim();
+  const errEl = document.getElementById('memberEmailErr');
+  if(!email || !email.includes('@')){
+    document.getElementById('memberEmail').style.borderColor='var(--red3)';
+    return;
+  }
+  // Check if email matches locally stored community email
+  const stored = localStorage.getItem('not_community_email')||'';
+  if(stored && stored.toLowerCase()===email.toLowerCase()){
+    markRegistered();
+    document.getElementById('gateOverlay').remove();
+    if(window._pendingResults){
+      const r = window._pendingResults;
+      renderResults(r);
+      document.getElementById('results').style.display='block';
+      if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
+      document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+      window._pendingResults = null;
+    }
+    return;
+  }
+  // Email not found locally — send to GHL to verify and re-register
+  try{
+    await fetch(GHL_WEBHOOK, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email, source:'NoTrojan Member Re-entry', tags:['not-green-community','scanner-reentry']})
+    });
+    // Give benefit of the doubt — if they entered an email, register them
+    try{ localStorage.setItem('not_community_email', email); }catch(e){}
+    markRegistered();
+    document.getElementById('gateOverlay').remove();
+    if(window._pendingResults){
+      const r = window._pendingResults;
+      renderResults(r);
+      document.getElementById('results').style.display='block';
+      if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
+      document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+      window._pendingResults = null;
+    }
+  } catch(e){
+    errEl.style.display='block';
   }
 }
 
@@ -2927,9 +2991,10 @@ function fetchReportImage(r, col){
 
   function render(imgUrl){
     box.innerHTML='';
+    box.style.cssText='width:120px;height:120px;min-width:120px;max-width:120px;max-height:120px;flex-shrink:0;background:var(--bg2);overflow:hidden;position:relative;display:block;';
     if(imgUrl){
       const img=document.createElement('img');
-      img.style.cssText='position:absolute;top:0;left:0;width:120px;height:120px;object-fit:'+(isBrand?'contain':'cover')+';';
+      img.style.cssText='display:block;width:120px;height:120px;object-fit:'+(isBrand?'contain':'cover')+';';
       img.src=imgUrl;
       box.appendChild(img);
     }
@@ -3359,9 +3424,20 @@ function downloadShareCard(){
   if(btn){btn.textContent='⏳ Saving to share to social media...';btn.disabled=true;btn.style.opacity='0.7';}
   const finish=()=>{
     if(btn){
-      btn.textContent='✅ Saved! Check your downloads';btn.style.opacity='1';
+      btn.textContent='✅ Saved!';btn.style.opacity='1';
       setTimeout(()=>{btn.textContent='📲 Share to Social Media';btn.disabled=false;},3000);
     }
+    // Show branded popup
+    const existing=document.getElementById('shareConfirmPopup');
+    if(existing) existing.remove();
+    const popup=document.createElement('div');
+    popup.id='shareConfirmPopup';
+    popup.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;background:#020c06;border:1px solid var(--green);border-top:3px solid var(--green);padding:16px 20px;max-width:340px;width:90%;text-align:center;box-shadow:0 0 24px rgba(0,255,106,0.25);';
+    popup.innerHTML='<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;font-weight:900;letter-spacing:0.14em;color:var(--green);margin-bottom:6px;">✅ SCORE CARD SAVED</div>'
+      +'<div style="font-size:0.82rem;color:var(--white2);line-height:1.6;margin-bottom:10px;">Share your Score Card on social media and tag <strong style="color:var(--green);">@no_trojancontent</strong> to receive community member incentives.</div>'
+      +'<button onclick="document.getElementById(\'shareConfirmPopup\').remove()" style="background:transparent;border:1px solid var(--green);color:var(--green);font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:800;letter-spacing:0.1em;padding:7px 18px;cursor:pointer;text-transform:uppercase;">GOT IT</button>';
+    document.body.appendChild(popup);
+    setTimeout(()=>{ const p=document.getElementById('shareConfirmPopup'); if(p) p.remove(); },8000);
   };
   const go=()=>{
     const r=window._lastResult;
