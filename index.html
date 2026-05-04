@@ -2983,11 +2983,17 @@ function fetchReportImage(r, col){
   const score=r?.score||0;
   const title=r.content_id?.title||r.title||r.query||'';
   const creator=r.content_id?.creator||'';
+  const label=r.content_id?.label||'';
+  const aiImageUrl=r.content_id?.image_url||null;
+  const contentType=(r.content_id?.type||'').toLowerCase();
+  const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
+  const isSong=contentType==='song'||contentType==='album'||contentType==='music';
+  const isPerson=contentType==='artist'||contentType==='person'||contentType==='athlete'||contentType==='politician'||contentType==='author';
   const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
   const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
   const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
-  const horse=score<25?notRedLogo:score<50?notOrangeLogo:null;  // no horse for green/yellow scores
+  const horse=score<25?notRedLogo:score<50?notOrangeLogo:null;
 
   function render(imgUrl){
     box.innerHTML='';
@@ -2996,6 +3002,7 @@ function fetchReportImage(r, col){
       const img=document.createElement('img');
       img.style.cssText='display:block;width:120px;height:120px;object-fit:'+(isBrand?'contain':'cover')+';';
       img.src=imgUrl;
+      img.onerror=function(){box.removeChild(img);}; // remove broken images
       box.appendChild(img);
     }
     const td=document.createElement('div');
@@ -3012,35 +3019,110 @@ function fetchReportImage(r, col){
     }
   }
 
-  render(null); // show tint+horse immediately
+  render(null); // show tint+horse immediately while fetching
 
-  const contentType=(r.content_id?.type||'').toLowerCase();
-  const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
   var isLogoUrl=function(u){
-    if(isBrand) return false; // brands: show logo/product image
+    if(isBrand) return false;
     u=(u||'').toLowerCase();
     return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');
   };
-  var trySummary=function(term){return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(term)).then(function(r){return r.json();}).then(function(d){var u=d&&(d.originalimage||d.thumbnail);return u&&u.source&&!isLogoUrl(u.source)?u.source:null;}).catch(function(){return null;});};
-  var trySearch=function(term){return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(term)+'&srlimit=1&format=json&origin=*').then(function(r){return r.json();}).then(function(d){var t=d&&d.query&&d.query.search&&d.query.search[0]&&d.query.search[0].title;return t?trySummary(t):null;}).catch(function(){return null;});};
 
-  if(!creator&&!title) return;
+  // Wikipedia summary — prefers originalimage (high-res) over thumbnail
+  var trySummary=function(term){
+    if(!term) return Promise.resolve(null);
+    return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(term))
+      .then(function(res){return res.json();})
+      .then(function(d){
+        if(!d||d.type==='disambiguation') return null;
+        var u=d.originalimage||d.thumbnail;
+        return u&&u.source&&!isLogoUrl(u.source)?u.source:null;
+      }).catch(function(){return null;});
+  };
+
+  // Wikipedia search — finds best article match then pulls its image
+  var trySearch=function(term){
+    if(!term) return Promise.resolve(null);
+    return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(term)+'&srlimit=3&format=json&origin=*')
+      .then(function(res){return res.json();})
+      .then(function(d){
+        var results=d&&d.query&&d.query.search||[];
+        // skip disambiguation pages — try next result
+        var titles=results.map(function(s){return s.title;}).filter(function(t){return t&&!t.toLowerCase().includes('disambiguation');});
+        if(!titles.length) return null;
+        return trySummary(titles[0]).then(function(img){
+          return img||trySummary(titles[1]||null);
+        });
+      }).catch(function(){return null;});
+  };
+
+  // MusicBrainz cover art — for songs/albums
+  var tryMusicBrainz=function(trackTitle, artistName){
+    if(!trackTitle) return Promise.resolve(null);
+    var q=encodeURIComponent(trackTitle+(artistName?' artist:'+artistName:''));
+    return fetch('https://musicbrainz.org/ws/2/release/?query=release:'+q+'&limit=1&fmt=json')
+      .then(function(res){return res.json();})
+      .then(function(d){
+        var mbid=d&&d.releases&&d.releases[0]&&d.releases[0].id;
+        if(!mbid) return null;
+        return fetch('https://coverartarchive.org/release/'+mbid+'/front-250')
+          .then(function(res){return res.ok?res.url:null;})
+          .catch(function(){return null;});
+      }).catch(function(){return null;});
+  };
+
+  // Validate AI-supplied image URL — quick HEAD check
+  var tryAiUrl=function(url){
+    if(!url||typeof url!=='string') return Promise.resolve(null);
+    if(!url.startsWith('http')) return Promise.resolve(null);
+    // Try loading it directly — onerror handler in render() cleans up failures
+    return Promise.resolve(url);
+  };
+
+  if(!creator&&!title&&!aiImageUrl) return;
+
   (async function(){
     var img=null;
     var query=r?.query||'';
-    var label=r?.content_id?.label||'';
-    // Try full AI title first
+
+    // ── STEP 1: Use AI-supplied image_url first (highest confidence) ──
+    if(!img&&aiImageUrl) img=await tryAiUrl(aiImageUrl);
+
+    // ── STEP 2: Type-specific fast paths ──
+    if(!img&&isSong){
+      // Songs: try MusicBrainz cover art, then album page on Wikipedia
+      img=await tryMusicBrainz(title, creator);
+      if(!img&&label&&label!==title) img=await trySummary(label+' (album)');
+      if(!img&&label&&label!==title) img=await trySearch(label+' '+creator);
+      // Fall through to artist photo if no album art found
+      if(!img&&creator) img=await trySummary(creator);
+    }
+
+    if(!img&&isPerson){
+      // People: direct name lookup is most reliable
+      if(!img&&creator) img=await trySummary(creator);
+      if(!img&&creator) img=await trySearch(creator);
+      if(!img&&title&&title!==creator) img=await trySummary(title);
+    }
+
+    if(!img&&isBrand){
+      // Brands: try exact company name, then query
+      if(!img&&title) img=await trySummary(title);
+      if(!img&&query) img=await trySummary(query);
+      if(!img&&title) img=await trySearch(title);
+    }
+
+    // ── STEP 3: General fallback waterfall ──
     if(!img&&title) img=await trySummary(title);
     if(!img&&title) img=await trySearch(title);
-    // For fictional characters, try the franchise/show title for poster
     if(!img&&label&&label!==title) img=await trySearch(label);
-    // Try query + label combo for disambiguation
-    var combined=query&&label?query+' '+label:'';
+    // Combo: "title artist" for disambiguation
+    var combined=title&&creator?title+' '+creator:'';
     if(!img&&combined) img=await trySearch(combined);
     if(!img&&query&&query!==title) img=await trySummary(query);
-    if(!img&&creator) img=await trySummary(creator);
-    if(!img&&creator) img=await trySearch(creator);
+    if(!img&&creator&&!isPerson) img=await trySummary(creator);
+    if(!img&&creator&&!isPerson) img=await trySearch(creator);
     if(!img&&query) img=await trySearch(query);
+
     if(img) render(img);
   })();
 }
@@ -3307,7 +3389,11 @@ function handleShare(){
   {
     const creator2=r?.content_id?.creator||'';
     const title2=r?.content_id?.title||r?.query||'';
+    const label2=r?.content_id?.label||'';
+    const aiImageUrl2=r?.content_id?.image_url||null;
     const isBrand=(function(){var t=(r?.content_id?.type||'').toLowerCase();return t==='brand'||t==='company'||t==='product'||t==='organization';})();
+    const isSong2=(function(){var t=(r?.content_id?.type||'').toLowerCase();return t==='song'||t==='album'||t==='music';})();
+    const isPerson2=(function(){var t=(r?.content_id?.type||'').toLowerCase();return t==='artist'||t==='person'||t==='athlete'||t==='politician'||t==='author';})();
     const tint2=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
     const horse2=score<25?notRedLogo:score<50?notOrangeLogo:null;
 
@@ -3319,6 +3405,7 @@ function handleShare(){
         const img=document.createElement('img');
         img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:'+(isBrand?'contain':'cover')+';';
         img.src=imgUrl;
+        img.onerror=function(){imgBox.removeChild(img);};
         imgBox.appendChild(img);
       }
       const td=document.createElement('div');
@@ -3338,18 +3425,65 @@ function handleShare(){
     setWikiImg(null); // show tint+horse immediately
 
     var isLogo2=function(u){if(isBrand)return false;u=(u||'').toLowerCase();return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');};
-    var sum2=function(t){return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(t)).then(function(r){return r.json();}).then(function(d){var u=d&&(d.originalimage||d.thumbnail);return u&&u.source&&!isLogo2(u.source)?u.source:null;}).catch(function(){return null;});};
-    var search2=function(t){return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(t)+'&srlimit=1&format=json&origin=*').then(function(r){return r.json();}).then(function(d){var pt=d&&d.query&&d.query.search&&d.query.search[0]&&d.query.search[0].title;return pt?sum2(pt):null;}).catch(function(){return null;});};
+    var sum2=function(t){
+      if(!t) return Promise.resolve(null);
+      return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(t))
+        .then(function(r){return r.json();})
+        .then(function(d){if(!d||d.type==='disambiguation')return null;var u=d.originalimage||d.thumbnail;return u&&u.source&&!isLogo2(u.source)?u.source:null;})
+        .catch(function(){return null;});
+    };
+    var search2=function(t){
+      if(!t) return Promise.resolve(null);
+      return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(t)+'&srlimit=3&format=json&origin=*')
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var results=d&&d.query&&d.query.search||[];
+          var titles=results.map(function(s){return s.title;}).filter(function(t){return t&&!t.toLowerCase().includes('disambiguation');});
+          if(!titles.length) return null;
+          return sum2(titles[0]).then(function(img){return img||sum2(titles[1]||null);});
+        }).catch(function(){return null;});
+    };
+    var tryMB2=function(track,artist){
+      if(!track) return Promise.resolve(null);
+      var q=encodeURIComponent(track+(artist?' artist:'+artist:''));
+      return fetch('https://musicbrainz.org/ws/2/release/?query=release:'+q+'&limit=1&fmt=json')
+        .then(function(r){return r.json();})
+        .then(function(d){var mbid=d&&d.releases&&d.releases[0]&&d.releases[0].id;if(!mbid)return null;return fetch('https://coverartarchive.org/release/'+mbid+'/front-250').then(function(r){return r.ok?r.url:null;}).catch(function(){return null;});})
+        .catch(function(){return null;});
+    };
 
-    if(creator2||title2){
+    if(creator2||title2||aiImageUrl2){
       (async function(){
         var img=null;
         var query2=r?.query||'';
+
+        // Step 1: AI-supplied URL
+        if(!img&&aiImageUrl2&&typeof aiImageUrl2==='string'&&aiImageUrl2.startsWith('http')) img=aiImageUrl2;
+
+        // Step 2: Type-specific fast paths
+        if(!img&&isSong2){
+          img=await tryMB2(title2,creator2);
+          if(!img&&label2&&label2!==title2) img=await sum2(label2+' (album)');
+          if(!img&&label2&&label2!==title2) img=await search2(label2+' '+creator2);
+          if(!img&&creator2) img=await sum2(creator2);
+        }
+        if(!img&&isPerson2){
+          if(!img&&creator2) img=await sum2(creator2);
+          if(!img&&creator2) img=await search2(creator2);
+        }
+        if(!img&&isBrand){
+          if(!img&&title2) img=await sum2(title2);
+          if(!img&&query2) img=await sum2(query2);
+        }
+
+        // Step 3: General fallback
         if(!img&&query2) img=await sum2(query2);
         if(!img&&title2&&title2!==query2) img=await sum2(title2);
         if(!img&&title2) img=await search2(title2);
-        if(!img&&creator2) img=await sum2(creator2);
-        if(!img&&creator2) img=await search2(creator2);
+        var combined2=title2&&creator2?title2+' '+creator2:'';
+        if(!img&&combined2) img=await search2(combined2);
+        if(!img&&creator2&&!isPerson2) img=await sum2(creator2);
+        if(!img&&creator2&&!isPerson2) img=await search2(creator2);
         if(!img&&query2) img=await search2(query2);
         if(img) setWikiImg(img);
       })();
