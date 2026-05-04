@@ -435,7 +435,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
   .score-card,.sec{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;}
   .sc-num{color:#000!important;}
   *{color:#111!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
-  canvas,svg{display:block!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;background:#1a1a2e!important;}
   a[href]:after{content:none!important;}
 }
 
@@ -3180,21 +3179,11 @@ function handleShareMenu(){
   modal.innerHTML=`
   <div style="max-width:340px;width:100%;background:#020c06;border:2px solid var(--green);padding:28px;">
     <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;margin-bottom:20px;text-align:center;">// Share This Report</div>
-    <button onclick="document.getElementById('shareMenuModal').remove();handleShare();" style="width:100%;padding:14px;background:rgba(0,255,106,0.08);border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;">📤 Share to Social Media</button>
-    <button onclick="showPDFSubMenu();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;">🖨️ Save Full Report as PDF</button>
-    <div id="pdfSubMenu" style="display:none;margin-bottom:16px;border:1px solid rgba(0,255,106,0.2);padding:12px;gap:8px;flex-direction:column;">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--muted);letter-spacing:0.12em;margin-bottom:6px;">// SELECT FORMAT</div>
-      <button onclick="document.getElementById('shareMenuModal').remove();handlePrint();" style="width:100%;padding:12px;background:transparent;border:1px solid var(--muted);color:var(--white2);font-family:'Barlow Condensed',sans-serif;font-size:0.88rem;font-weight:800;letter-spacing:0.12em;cursor:pointer;text-transform:uppercase;margin-bottom:6px;display:block;">🖨️ Print / B&W Friendly</button>
-      <button onclick="document.getElementById('shareMenuModal').remove();downloadColorPDF();" style="width:100%;padding:12px;background:rgba(0,255,106,0.08);border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.88rem;font-weight:800;letter-spacing:0.12em;cursor:pointer;text-transform:uppercase;display:block;">📄 Full Color PDF</button>
-    </div>
+    <button onclick="document.getElementById('shareMenuModal').remove();handleShare();" style="width:100%;padding:14px;background:rgba(0,255,106,0.08);border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:block;">📤 Share to Social Media</button>
+    <button onclick="document.getElementById('shareMenuModal').remove();handlePrint();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:16px;display:block;">🖨️ Save Full Report as PDF</button>
     <div style="text-align:center;"><button onclick="document.getElementById('shareMenuModal').remove()" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button></div>
   </div>`;
   document.body.appendChild(modal);
-}
-
-function showPDFSubMenu(){
-  const sub=document.getElementById('pdfSubMenu');
-  if(sub) sub.style.display=sub.style.display==='flex'?'none':'flex';
 }
 
 function handleShare(){
@@ -3371,9 +3360,7 @@ function handleShare(){
 function getShareText(){
   const r=window._lastResult;
   if(!r) return '';
-  const title=r.content_id?.title||r.query||'Content';
-  const rating=r.content_id?.ratingLabel||r.rating||'';
-  return `I just decoded ${title} on the NoT™ Cultural Influence Score Card™\n\nNoTrojan Score™: ${r.score}/100 — ${rating}\n\nDecoded at notrojan.com — The Cultural Influence Intelligence System™\n\n#NoTrojan #NoTrojanIsTheNewGreen #CulturalIntelligence`;
+  return `I just decoded ${r.title||r.query} on the NoT™ Cultural Influence Score Card™\n\nNoTrojan Score™: ${r.score}/100 — ${r.rating}\n\nDecoded at notrojan.com — The Cultural Ethics Intelligence System™\n\n#NoTrojan #NoTrojanIsTheNewGreen #CulturalIntelligence`;
 }
 
 function shareToX(){
@@ -3401,7 +3388,7 @@ function shareViaText(){
   const title=r?.content_id?.title||r?.title||r?.query||'Content';
   const score=r?.score||0;
   const rating=r?.rating||'';
-  const body=`I decoded "${title}" on the NoT™ Cultural Influence Score Card™\n\nNoTrojan Score™: ${score}/100 — ${rating}\n\nDecode your own content at notrojan.com — The Cultural Influence Intelligence System™\n\n#NoTrojan #NoTrojanIsTheNewGreen`;
+  const body=`I decoded "${title}" on the NoT™ Cultural Influence Score Card™\n\nNoTrojan Score™: ${score}/100 — ${rating}\n\nDecode your own content at notrojan.com\n\n#NoTrojan #NoTrojanIsTheNewGreen`;
   window.location.href=`sms:?body=${encodeURIComponent(body)}`;
 }
 function shareViaEmail(){
@@ -3438,7 +3425,7 @@ function downloadShareCard(){
   const finish=()=>{
     if(btn){
       btn.textContent='✅ Saved!';btn.style.opacity='1';
-      setTimeout(()=>{btn.textContent='Instagram / TikTok';btn.disabled=false;},3000);
+      setTimeout(()=>{btn.textContent='📲 Share to Social Media';btn.disabled=false;},3000);
     }
     // Show branded popup
     const existing=document.getElementById('shareConfirmPopup');
@@ -3455,62 +3442,43 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
-    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,logging:false}).then(async canvas=>{
-
-      // Draw horse overlay onto canvas if red/orange score
-      const horseUrl = score<25
-        ? 'https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png'
-        : score<50
-        ? 'https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png'
-        : null;
-
-      const saveCanvas = () => {
-        if(navigator.share && navigator.canShare){
-          try{
-            canvas.toBlob(async blob=>{
-              const file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-              if(navigator.canShare({files:[file]})){
-                await navigator.share({
-                  files:[file],
-                  title:`NoT™ Score Card — ${r?.content_id?.title||r?.query||''}`,
-                  text:`NoTrojan Score™: ${r?.score}/100\n\nnotrojan.com`
-                });
-                finish(); return;
-              }
-              const link=document.createElement('a');
-              link.download=`notrojan-${title}-score-card.png`;
-              link.href=canvas.toDataURL('image/png');
-              link.click(); finish();
-            },'image/png');
-          }catch(e){
+    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+      // Try native Web Share API first (mobile)
+      if(navigator.share && navigator.canShare){
+        try{
+          canvas.toBlob(async blob=>{
+            const file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
+            if(navigator.canShare({files:[file]})){
+              await navigator.share({
+                files:[file],
+                title:`NoT™ Score Card — ${r?.content_id?.title||r?.title||r?.query||''}`,
+                text:`NoTrojan Score™: ${r?.score}/100 — ${r?.rating}\n\nnotrojan.com`
+              });
+              finish();
+              return;
+            }
+            // Fall back to download
             const link=document.createElement('a');
             link.download=`notrojan-${title}-score-card.png`;
             link.href=canvas.toDataURL('image/png');
-            link.click(); finish();
-          }
-        } else {
+            link.click();
+            finish();
+          },'image/png');
+        }catch(e){
+          // User cancelled or error — fall back to download
           const link=document.createElement('a');
           link.download=`notrojan-${title}-score-card.png`;
           link.href=canvas.toDataURL('image/png');
-          link.click(); finish();
+          link.click();
+          finish();
         }
-      };
-
-      if(horseUrl){
-        const horseImg=new Image();
-        horseImg.onload=function(){
-          const ctx=canvas.getContext('2d');
-          const hw=120*2; const hh=140*2;
-          const x=canvas.width-hw-20; const y=20;
-          ctx.globalAlpha=0.55;
-          ctx.drawImage(horseImg,x,y,hw,hh);
-          ctx.globalAlpha=1.0;
-          saveCanvas();
-        };
-        horseImg.onerror=saveCanvas;
-        horseImg.src=horseUrl+'?v='+Date.now();
       } else {
-        saveCanvas();
+        // Desktop — just download
+        const link=document.createElement('a');
+        link.download=`notrojan-${title}-score-card.png`;
+        link.href=canvas.toDataURL('image/png');
+        link.click();
+        finish();
       }
     }).catch(()=>finish());
   };
@@ -3535,102 +3503,6 @@ function handlePrint(){
     pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
     pd.innerHTML='<div style="background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:400px;width:100%;padding:28px;text-align:center;"><div style="font-family:Barlow Condensed,sans-serif;font-size:1.3rem;font-weight:900;color:var(--green);margin-bottom:10px;">🌿 Join the NoT™ Green Community</div><div style="font-size:0.85rem;color:var(--white2);line-height:1.6;margin-bottom:20px;">Print & save reports is a community perk. Join free to unlock it.</div><div style="display:flex;gap:10px;justify-content:center;"><button onclick="document.getElementById(\'printGateDiv\').remove();" style="padding:10px 20px;background:transparent;border:1px solid var(--muted);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Maybe Later</button><button onclick="document.getElementById(\'printGateDiv\').remove();showGate(0,\'medium\');" style="padding:10px 20px;background:transparent;border:1px solid var(--green);color:var(--green);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Let\'s Do It!</button></div></div>';
     document.body.appendChild(pd);
-  }
-}
-
-async function downloadColorPDF(){
-  const r=window._lastResult;
-  if(!r){alert('No scan results to export.');return;}
-  const title=r.content_id?.title||r.query||'NoTrojan Report';
-  const resultsEl=document.getElementById('results');
-  if(!resultsEl){return;}
-
-  const loader=document.createElement('div');
-  loader.id='pdfLoader';
-  loader.style.cssText='position:fixed;inset:0;background:rgba(2,12,6,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-  loader.innerHTML='<div style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:#00ff6a;letter-spacing:0.14em;">// GENERATING FULL COLOR REPORT...</div>'
-    +'<div style="width:220px;height:2px;background:#1a3a1a;"><div id="pdfBar" style="height:100%;background:#00ff6a;width:0%;transition:width 0.4s;"></div></div>'
-    +'<div style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#3a7a3a;letter-spacing:0.1em;">This may take a few seconds...</div>';
-  document.body.appendChild(loader);
-  const setBar=p=>{const b=document.getElementById('pdfBar');if(b)b.style.width=p+'%';};
-
-  const go=async()=>{
-    try{
-      setBar(15);
-      if(typeof window.jspdf==='undefined'){
-        await new Promise((res,rej)=>{
-          const s=document.createElement('script');
-          s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-          s.onload=res;s.onerror=rej;document.head.appendChild(s);
-        });
-      }
-      setBar(35);
-      const canvas=await html2canvas(resultsEl,{
-        backgroundColor:'#020c06',scale:1.5,useCORS:true,
-        allowTaint:true,logging:false,
-        windowWidth:resultsEl.scrollWidth,
-        height:resultsEl.scrollHeight,scrollY:0
-      });
-      setBar(70);
-      const {jsPDF}=window.jspdf;
-      const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-      const pageW=pdf.internal.pageSize.getWidth();
-      const pageH=pdf.internal.pageSize.getHeight();
-      const margin=8;
-      const contentW=pageW-(margin*2);
-      const imgW=canvas.width;
-      const imgH=canvas.height;
-      const ratio=contentW/(imgW*0.264583);
-      const usablePageH=pageH-26;
-      const slicePx=usablePageH/ratio/0.264583;
-      let yOff=0;let pg=0;
-      while(yOff<imgH){
-        if(pg>0)pdf.addPage();
-        pdf.setFillColor(2,12,6);
-        pdf.rect(0,0,pageW,pg===0?18:12,'F');
-        pdf.setTextColor(0,255,106);
-        pdf.setFont('helvetica','bold');
-        pdf.setFontSize(pg===0?11:7);
-        pdf.text(pg===0?'NoT™ Cultural Influence Score Report':'NoT™ Report — '+title,margin,pg===0?10:8);
-        if(pg===0){
-          pdf.setTextColor(100,180,100);pdf.setFontSize(7);pdf.setFont('helvetica','normal');
-          pdf.text(title+'  ·  notrojan.com  ·  '+new Date().toLocaleDateString(),margin,15);
-        }
-        const sliceH=Math.min(slicePx,imgH-yOff);
-        const sc=document.createElement('canvas');
-        sc.width=imgW;sc.height=sliceH;
-        const ctx=sc.getContext('2d');
-        ctx.fillStyle='#020c06';ctx.fillRect(0,0,imgW,sliceH);
-        ctx.drawImage(canvas,0,yOff,imgW,sliceH,0,0,imgW,sliceH);
-        const imgData=sc.toDataURL('image/jpeg',0.92);
-        const topY=pg===0?20:14;
-        const drawH=sliceH*0.264583*ratio;
-        pdf.addImage(imgData,'JPEG',margin,topY,contentW,drawH);
-        pdf.setTextColor(80,120,80);pdf.setFontSize(6);pdf.setFont('helvetica','normal');
-        pdf.text('No Trojan® Reg. No. 7,269,437  ·  Cultural Influence Intelligence System™  ·  notrojan.com',margin,pageH-4);
-        pdf.text('Page '+(pg+1),pageW-margin-12,pageH-4);
-        yOff+=sliceH;pg++;
-      }
-      setBar(100);
-      setTimeout(()=>{
-        const safe=title.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase();
-        pdf.save('notrojan-report-'+safe+'.pdf');
-        document.getElementById('pdfLoader')?.remove();
-      },300);
-    }catch(e){
-      console.error('PDF error:',e);
-      document.getElementById('pdfLoader')?.remove();
-      alert('PDF generation failed. Try Print / B&W instead.');
-    }
-  };
-
-  if(typeof html2canvas!=='undefined'){go();}
-  else{
-    const s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    s.onload=go;
-    s.onerror=()=>{document.getElementById('pdfLoader')?.remove();alert('Could not load PDF library.');};
-    document.head.appendChild(s);
   }
 }
 var ni=document.querySelector('.nav-inner');
