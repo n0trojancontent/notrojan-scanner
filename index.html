@@ -3092,36 +3092,40 @@ function fetchReportImage(r, col){
 
   if(!creator&&!title) return;
 
+  async function tryItunes(t,c){
+    try{
+      var q=encodeURIComponent((t||'')+(c?' '+c:''));
+      var res=await fetch('https://itunes.apple.com/search?term='+q+'&media=music&limit=1');
+      var d=await res.json();
+      if(d.results&&d.results.length>0){
+        var art=d.results[0].artworkUrl100;
+        return art?art.replace('100x100bb','600x600bb'):null;
+      }
+    }catch(e){}
+    return null;
+  }
   (async function(){
     var img=null;
     var query=r?.query||'';
 
-    // 1. AI-provided URL is most reliable — use it first
-    if(aiImageUrl){
-      img=aiImageUrl;
-    }
+    // Songs/Albums: iTunes first — exact cover art, no Wikipedia guessing
+    if(isSong&&title) img=await tryItunes(title,creator);
 
-    // 2. For persons: Wikipedia summary by name (reliable headshot)
+    // Persons: Wikipedia summary by name
     if(!img&&isPerson&&creator){
       img=await trySummary(creator);
       if(!img) img=await tryWikiImg(creator);
     }
 
-    // 3. For brands: Wikipedia summary by title
+    // Brands: Wikipedia by title
     if(!img&&isBrand&&title){
       img=await trySummary(title);
       if(!img) img=await tryWikiImg(title);
     }
 
-    // 4. For songs/albums: Wikipedia summary by title only (avoid artist article)
-    if(!img&&isSong&&title){
-      img=await trySummary(title+' (song)');
-      if(!img) img=await trySummary(title+' (album)');
-      // Do NOT search by creator — pulls wrong photos
-    }
-
-    // 5. Generic: title summary
+    // Generic fallback
     if(!img&&title) img=await trySummary(title);
+    if(!img&&creator) img=await trySummary(creator);
 
     console.log('[NoT IMG] final:', img?img.slice(0,80):'NO IMAGE FOUND');
     if(img) render(img);
