@@ -3033,59 +3033,18 @@ function fetchReportImage(r, col){
     var img=null;
     var query=r?.query||'';
     var label=r?.content_id?.label||'';
-    var publisher=r?.content_id?.label_publisher||r?.content_id?.publisher||label||'';
-    var ct=(r?.content_id?.type||'').toLowerCase();
-    var isSong=ct==='song'||ct==='album'||ct==='music';
-    var isPerson=ct==='person'||ct==='athlete'||ct==='politician'||ct==='entrepreneur'||
-      ct==='public figure'||ct==='creator'||ct==='broadcaster'||ct==='anchor'||
-      ct==='tv host'||ct==='host'||ct==='journalist'||ct==='sports commentary'||
-      ct==='sportscaster'||ct==='commentator'||ct==='author'||ct==='actor'||
-      ct==='artist'||ct==='musician'||ct==='rapper'||ct==='singer';
-
-    if(isSong&&title){
-      // Songs: iTunes JSONP for exact cover art
-      try{
-        var itunesQ=encodeURIComponent(title+(creator?' '+creator:''));
-        var cb='itcb_'+Date.now();
-        await new Promise(function(resolve){
-          window[cb]=function(d){
-            delete window[cb];
-            var res=d&&d.results&&d.results[0];
-            if(res&&res.artworkUrl100) img=res.artworkUrl100.replace('100x100bb','600x600bb');
-            resolve();
-          };
-          var sc=document.createElement('script');
-          sc.src='https://itunes.apple.com/search?term='+itunesQ+'&media=music&limit=1&callback='+cb;
-          sc.onerror=function(){delete window[cb];resolve();};
-          document.head.appendChild(sc);
-          setTimeout(function(){if(window[cb]){delete window[cb];resolve();}},3000);
-        });
-      }catch(e){}
-    }
-
-    if(!img&&isPerson&&creator){
-      // Person: include publisher for disambiguation (e.g. "James Brown CBS Sports")
-      // This avoids pulling James Brown the musician for James Brown the broadcaster
-      if(publisher&&publisher.toLowerCase()!==creator.toLowerCase()){
-        var personQ=creator+' '+publisher;
-        img=await trySummary(personQ)||await trySearch(personQ);
-      }
-      // Only fall back to bare name — don't risk wrong person for short/common names
-      if(!img&&creator.replace(/\s/g,'').length>12){
-        img=await trySummary(creator);
-      }
-      // No image is better than wrong image for people
-    }
-
-    if(!img&&!isPerson&&!isSong){
-      // Brands, shows, campaigns: title first
-      if(title) img=await trySummary(title)||await trySearch(title);
-      if(!img&&label&&label!==title) img=await trySearch(label);
-      var combined=query&&label?query+' '+label:'';
-      if(!img&&combined) img=await trySearch(combined);
-      if(!img&&query&&query!==title) img=await trySummary(query)||await trySearch(query);
-    }
-
+    // Try full AI title first
+    if(!img&&title) img=await trySummary(title);
+    if(!img&&title) img=await trySearch(title);
+    // For fictional characters, try the franchise/show title for poster
+    if(!img&&label&&label!==title) img=await trySearch(label);
+    // Try query + label combo for disambiguation
+    var combined=query&&label?query+' '+label:'';
+    if(!img&&combined) img=await trySearch(combined);
+    if(!img&&query&&query!==title) img=await trySummary(query);
+    if(!img&&creator) img=await trySummary(creator);
+    if(!img&&creator) img=await trySearch(creator);
+    if(!img&&query) img=await trySearch(query);
     if(img) render(img);
   })();
 }
@@ -3553,8 +3512,27 @@ function downloadFullColorPDF(){
   loader.innerHTML='<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#00ff6a;letter-spacing:0.14em;">// GENERATING FULL COLOR REPORT...</div><div style="width:220px;height:2px;background:#1a3a1a;"><div id="pdfBar" style="height:100%;background:#00ff6a;width:0%;transition:width 0.4s;"></div></div>';
   document.body.appendChild(loader);
   const setBar=p=>{const b=document.getElementById('pdfBar');if(b)b.style.width=p+'%';};
-  function go(){setBar(20);html2canvas(results,{backgroundColor:'#020c06',scale:1.5,useCORS:true,allowTaint:true,scrollY:-window.scrollY,windowWidth:results.scrollWidth,windowHeight:results.scrollHeight}).then(canvas=>{setBar(80);const imgData=canvas.toDataURL('image/jpeg',0.92);const pdf=new window.jspdf.jsPDF({orientation:canvas.width>canvas.height?'landscape':'portrait',unit:'px',format:[canvas.width,canvas.height]});pdf.addImage(imgData,'JPEG',0,0,canvas.width,canvas.height);setBar(100);setTimeout(()=>{pdf.save(titleStr.replace(/[^a-z0-9_-]/gi,'_')+'.pdf');document.getElementById('pdfLoader')?.remove();},400);}).catch(()=>{document.getElementById('pdfLoader')?.remove();alert('Could not generate PDF. Try Print-Friendly PDF instead.');});}
-  if(window.jspdf){go();}else{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=()=>{if(typeof html2canvas!=='undefined'){go();}else{const s2=document.createElement('script');s2.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s2.onload=go;document.head.appendChild(s2);}};document.head.appendChild(s);}
+  function go(){
+    setBar(20);
+    html2canvas(results,{backgroundColor:'#020c06',scale:1.5,useCORS:true,allowTaint:true,scrollY:-window.scrollY,windowWidth:results.scrollWidth,windowHeight:results.scrollHeight}).then(canvas=>{
+      setBar(80);
+      const imgData=canvas.toDataURL('image/jpeg',0.92);
+      const pdf=new window.jspdf.jsPDF({orientation:canvas.width>canvas.height?'landscape':'portrait',unit:'px',format:[canvas.width,canvas.height]});
+      pdf.addImage(imgData,'JPEG',0,0,canvas.width,canvas.height);
+      setBar(100);
+      setTimeout(()=>{pdf.save(titleStr.replace(/[^a-z0-9_-]/gi,'_')+'.pdf');document.getElementById('pdfLoader')?.remove();},400);
+    }).catch(()=>{document.getElementById('pdfLoader')?.remove();alert('Could not generate PDF. Try Print-Friendly PDF instead.');});
+  }
+  if(window.jspdf){go();}
+  else{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload=()=>{
+      if(typeof html2canvas!=='undefined'){go();}
+      else{const s2=document.createElement('script');s2.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s2.onload=go;document.head.appendChild(s2);}
+    };
+    document.head.appendChild(s);
+  }
 }
 
 function handlePrint(){
