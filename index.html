@@ -3027,7 +3027,43 @@ function fetchReportImage(r, col){
     return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');
   };
 
-  // Wikipedia summary — prefers originalimage (high-res) over thumbnail
+  // Wikipedia: get first infobox image via prop=images + imageinfo in one call
+  // This is the most reliable approach — works for artists, brands, athletes
+  var tryWikiImg=function(term){
+    if(!term) return Promise.resolve(null);
+    // Step 1: get list of images used on the article
+    return fetch('https://en.wikipedia.org/w/api.php?action=query&titles='+encodeURIComponent(term)+'&prop=images&imlimit=5&format=json&origin=*')
+      .then(function(res){return res.json();})
+      .then(function(d){
+        var pages=d&&d.query&&d.query.pages;
+        if(!pages) return null;
+        var page=Object.values(pages)[0];
+        if(!page||page.missing) return null;
+        var imgs=page.images||[];
+        // Filter to likely portrait/photo files — skip SVG, flags, logos, icons
+        var candidates=imgs.filter(function(im){
+          var n=(im.title||'').toLowerCase();
+          return !n.includes('.svg')&&!n.includes('flag')&&!n.includes('logo')&&
+                 !n.includes('icon')&&!n.includes('seal')&&!n.includes('award')&&
+                 !n.includes('signature')&&(n.includes('.jpg')||n.includes('.jpeg')||n.includes('.png'));
+        });
+        if(!candidates.length) return null;
+        // Step 2: get the actual URL for the first candidate
+        var imgTitle=candidates[0].title;
+        return fetch('https://en.wikipedia.org/w/api.php?action=query&titles='+encodeURIComponent(imgTitle)+'&prop=imageinfo&iiprop=url&format=json&origin=*')
+          .then(function(res2){return res2.json();})
+          .then(function(d2){
+            var p2=d2&&d2.query&&d2.query.pages;
+            if(!p2) return null;
+            var pg=Object.values(p2)[0];
+            var ii=pg&&pg.imageinfo&&pg.imageinfo[0];
+            var url=ii&&ii.url;
+            return url&&!isLogoUrl(url)?url:null;
+          }).catch(function(){return null;});
+      }).catch(function(){return null;});
+  };
+
+  // Wikipedia summary fallback — quick single call
   var trySummary=function(term){
     if(!term) return Promise.resolve(null);
     return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(term))
@@ -3039,14 +3075,13 @@ function fetchReportImage(r, col){
       }).catch(function(){return null;});
   };
 
-  // Wikipedia search — finds best article match then pulls its image
+  // Wikipedia search → summary
   var trySearch=function(term){
     if(!term) return Promise.resolve(null);
     return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(term)+'&srlimit=3&format=json&origin=*')
       .then(function(res){return res.json();})
       .then(function(d){
         var results=d&&d.query&&d.query.search||[];
-        // skip disambiguation pages — try next result
         var titles=results.map(function(s){return s.title;}).filter(function(t){return t&&!t.toLowerCase().includes('disambiguation');});
         if(!titles.length) return null;
         return trySummary(titles[0]).then(function(img){
@@ -3055,74 +3090,38 @@ function fetchReportImage(r, col){
       }).catch(function(){return null;});
   };
 
-  // MusicBrainz cover art — for songs/albums
-  var tryMusicBrainz=function(trackTitle, artistName){
-    if(!trackTitle) return Promise.resolve(null);
-    var q=encodeURIComponent(trackTitle+(artistName?' artist:'+artistName:''));
-    return fetch('https://musicbrainz.org/ws/2/release/?query=release:'+q+'&limit=1&fmt=json')
-      .then(function(res){return res.json();})
-      .then(function(d){
-        var mbid=d&&d.releases&&d.releases[0]&&d.releases[0].id;
-        if(!mbid) return null;
-        return fetch('https://coverartarchive.org/release/'+mbid+'/front-250')
-          .then(function(res){return res.ok?res.url:null;})
-          .catch(function(){return null;});
-      }).catch(function(){return null;});
-  };
-
-  // Validate AI-supplied image URL — quick HEAD check
-  var tryAiUrl=function(url){
-    if(!url||typeof url!=='string') return Promise.resolve(null);
-    if(!url.startsWith('http')) return Promise.resolve(null);
-    // Try loading it directly — onerror handler in render() cleans up failures
-    return Promise.resolve(url);
-  };
-
-  if(!creator&&!title&&!aiImageUrl) return;
+  if(!creator&&!title) return;
 
   (async function(){
     var img=null;
     var query=r?.query||'';
+    var lookupName = isPerson||isSong ? creator : title;
+    var fallbackName = isPerson||isSong ? title : creator;
 
-    // ── STEP 1: Use AI-supplied image_url first (highest confidence) ──
-    if(!img&&aiImageUrl) img=await tryAiUrl(aiImageUrl);
+    console.log('[NoT IMG] type='+contentType+' lookup='+lookupName);
 
-    // ── STEP 2: Type-specific fast paths ──
-    if(!img&&isSong){
-      // Songs: try MusicBrainz cover art, then album page on Wikipedia
-      img=await tryMusicBrainz(title, creator);
-      if(!img&&label&&label!==title) img=await trySummary(label+' (album)');
-      if(!img&&label&&label!==title) img=await trySearch(label+' '+creator);
-      // Fall through to artist photo if no album art found
-      if(!img&&creator) img=await trySummary(creator);
+    // Primary: tryWikiImg on the main lookup name
+    if(!img&&lookupName) img=await tryWikiImg(lookupName);
+
+    // If that failed, try summary endpoint (sometimes has image when prop=images doesn't)
+    if(!img&&lookupName) img=await trySummary(lookupName);
+
+    // Try search to find the right article title, then wikiImg
+    if(!img&&lookupName){
+      var found=await trySearch(lookupName);
+      img=found||null;
     }
 
-    if(!img&&isPerson){
-      // People: direct name lookup is most reliable
-      if(!img&&creator) img=await trySummary(creator);
-      if(!img&&creator) img=await trySearch(creator);
-      if(!img&&title&&title!==creator) img=await trySummary(title);
-    }
+    // Fallback to the other field (title vs creator)
+    if(!img&&fallbackName) img=await tryWikiImg(fallbackName);
+    if(!img&&fallbackName) img=await trySummary(fallbackName);
 
-    if(!img&&isBrand){
-      // Brands: try exact company name, then query
-      if(!img&&title) img=await trySummary(title);
-      if(!img&&query) img=await trySummary(query);
-      if(!img&&title) img=await trySearch(title);
-    }
-
-    // ── STEP 3: General fallback waterfall ──
-    if(!img&&title) img=await trySummary(title);
-    if(!img&&title) img=await trySearch(title);
-    if(!img&&label&&label!==title) img=await trySearch(label);
-    // Combo: "title artist" for disambiguation
-    var combined=title&&creator?title+' '+creator:'';
-    if(!img&&combined) img=await trySearch(combined);
-    if(!img&&query&&query!==title) img=await trySummary(query);
-    if(!img&&creator&&!isPerson) img=await trySummary(creator);
-    if(!img&&creator&&!isPerson) img=await trySearch(creator);
+    // Last resort: query string
+    if(!img&&query&&query!==lookupName) img=await tryWikiImg(query);
+    if(!img&&query&&query!==lookupName) img=await trySummary(query);
     if(!img&&query) img=await trySearch(query);
 
+    console.log('[NoT IMG] final:', img?img.slice(0,80):'NO IMAGE FOUND');
     if(img) render(img);
   })();
 }
@@ -3443,47 +3442,42 @@ function handleShare(){
           return sum2(titles[0]).then(function(img){return img||sum2(titles[1]||null);});
         }).catch(function(){return null;});
     };
-    var tryMB2=function(track,artist){
-      if(!track) return Promise.resolve(null);
-      var q=encodeURIComponent(track+(artist?' artist:'+artist:''));
-      return fetch('https://musicbrainz.org/ws/2/release/?query=release:'+q+'&limit=1&fmt=json')
+    // prop=images + imageinfo — gets actual infobox photo URL
+    var tryWI2=function(term){
+      if(!term) return Promise.resolve(null);
+      return fetch('https://en.wikipedia.org/w/api.php?action=query&titles='+encodeURIComponent(term)+'&prop=images&imlimit=5&format=json&origin=*')
         .then(function(r){return r.json();})
-        .then(function(d){var mbid=d&&d.releases&&d.releases[0]&&d.releases[0].id;if(!mbid)return null;return fetch('https://coverartarchive.org/release/'+mbid+'/front-250').then(function(r){return r.ok?r.url:null;}).catch(function(){return null;});})
-        .catch(function(){return null;});
+        .then(function(d){
+          var pages=d&&d.query&&d.query.pages;if(!pages)return null;
+          var page=Object.values(pages)[0];if(!page||page.missing)return null;
+          var imgs=(page.images||[]).filter(function(im){var n=(im.title||'').toLowerCase();return !n.includes('.svg')&&!n.includes('flag')&&!n.includes('logo')&&!n.includes('icon')&&!n.includes('seal')&&!n.includes('award')&&!n.includes('signature')&&(n.includes('.jpg')||n.includes('.jpeg')||n.includes('.png'));});
+          if(!imgs.length)return null;
+          return fetch('https://en.wikipedia.org/w/api.php?action=query&titles='+encodeURIComponent(imgs[0].title)+'&prop=imageinfo&iiprop=url&format=json&origin=*')
+            .then(function(r2){return r2.json();})
+            .then(function(d2){var p2=d2&&d2.query&&d2.query.pages;if(!p2)return null;var pg=Object.values(p2)[0];var ii=pg&&pg.imageinfo&&pg.imageinfo[0];var url=ii&&ii.url;return url&&!isLogo2(url)?url:null;})
+            .catch(function(){return null;});
+        }).catch(function(){return null;});
     };
 
-    if(creator2||title2||aiImageUrl2){
+    if(creator2||title2){
       (async function(){
         var img=null;
         var query2=r?.query||'';
+        var lookup2=(isPerson2||isSong2)?creator2:title2;
+        var fallback2=(isPerson2||isSong2)?title2:creator2;
 
-        // Step 1: AI-supplied URL
-        if(!img&&aiImageUrl2&&typeof aiImageUrl2==='string'&&aiImageUrl2.startsWith('http')) img=aiImageUrl2;
-
-        // Step 2: Type-specific fast paths
-        if(!img&&isSong2){
-          img=await tryMB2(title2,creator2);
-          if(!img&&label2&&label2!==title2) img=await sum2(label2+' (album)');
-          if(!img&&label2&&label2!==title2) img=await search2(label2+' '+creator2);
-          if(!img&&creator2) img=await sum2(creator2);
-        }
-        if(!img&&isPerson2){
-          if(!img&&creator2) img=await sum2(creator2);
-          if(!img&&creator2) img=await search2(creator2);
-        }
-        if(!img&&isBrand){
-          if(!img&&title2) img=await sum2(title2);
-          if(!img&&query2) img=await sum2(query2);
-        }
-
-        // Step 3: General fallback
-        if(!img&&query2) img=await sum2(query2);
-        if(!img&&title2&&title2!==query2) img=await sum2(title2);
-        if(!img&&title2) img=await search2(title2);
-        var combined2=title2&&creator2?title2+' '+creator2:'';
-        if(!img&&combined2) img=await search2(combined2);
-        if(!img&&creator2&&!isPerson2) img=await sum2(creator2);
-        if(!img&&creator2&&!isPerson2) img=await search2(creator2);
+        // Primary: prop=images infobox photo
+        if(!img&&lookup2) img=await tryWI2(lookup2);
+        // Summary fallback
+        if(!img&&lookup2) img=await sum2(lookup2);
+        // Search fallback
+        if(!img&&lookup2) img=await search2(lookup2);
+        // Try the other field
+        if(!img&&fallback2) img=await tryWI2(fallback2);
+        if(!img&&fallback2) img=await sum2(fallback2);
+        // Last resort query
+        if(!img&&query2&&query2!==lookup2) img=await tryWI2(query2);
+        if(!img&&query2&&query2!==lookup2) img=await sum2(query2);
         if(!img&&query2) img=await search2(query2);
         if(img) setWikiImg(img);
       })();
