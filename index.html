@@ -3167,7 +3167,7 @@ async function submitContact(e){
     btn.disabled=false;
     btn.textContent='⚡ Request More Info';
   }
-}function openContact(){document.getElementById('contactOverlay').classList.add('open');document.body.style.overflow='hidden';}
+}
 function closeContact(){document.getElementById('contactOverlay').classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('contactOverlay').addEventListener('click',function(e){if(e.target===this)closeContact();});});
 
