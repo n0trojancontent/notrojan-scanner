@@ -3184,7 +3184,8 @@ function handleShareMenu(){
   <div style="max-width:340px;width:100%;background:#020c06;border:2px solid var(--green);padding:28px;">
     <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;margin-bottom:20px;text-align:center;">// Share This Report</div>
     <button onclick="document.getElementById('shareMenuModal').remove();handleShare();" style="width:100%;padding:14px;background:rgba(0,255,106,0.08);border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:block;">📤 Share to Social Media</button>
-    <button onclick="document.getElementById('shareMenuModal').remove();handlePrint();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:16px;display:block;">🖨️ Save Full Report as PDF</button>
+    <button onclick="document.getElementById('shareMenuModal').remove();downloadFullColorPDF();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:6px;display:block;">🖥️ Download Full Color Report</button>
+    <button onclick="document.getElementById('shareMenuModal').remove();handlePrint();" style="width:100%;padding:14px;background:rgba(0,255,106,0.02);border:1px solid var(--green4);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:16px;display:block;">🖨️ Print-Friendly PDF</button>
     <div style="text-align:center;"><button onclick="document.getElementById('shareMenuModal').remove()" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button></div>
   </div>`;
   document.body.appendChild(modal);
@@ -3491,6 +3492,64 @@ function downloadShareCard(){
     const s=document.createElement('script');
     s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
     s.onload=go;s.onerror=finish;
+    document.head.appendChild(s);
+  }
+}
+
+function downloadFullColorPDF(){
+  if(!isRegistered()){
+    const pd=document.createElement('div');
+    pd.id='printGateDiv';
+    pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    pd.innerHTML='<div style="background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:400px;width:100%;padding:28px;text-align:center;"><div style="font-family:Barlow Condensed,sans-serif;font-size:1.3rem;font-weight:900;color:var(--green);margin-bottom:10px;">🌿 Join the NoT™ Green Community</div><div style="font-size:0.85rem;color:var(--white2);line-height:1.6;margin-bottom:20px;">Full color digital reports are a community perk. Join free to unlock.</div><div style="display:flex;gap:10px;justify-content:center;"><button onclick="document.getElementById(\'printGateDiv\').remove();" style="padding:10px 20px;background:transparent;border:1px solid var(--muted);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Maybe Later</button><button onclick="document.getElementById(\'printGateDiv\').remove();showGate(0,\'medium\');" style="padding:10px 20px;background:transparent;border:1px solid var(--green);color:var(--green);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Let\'s Do It!</button></div></div>';
+    document.body.appendChild(pd);
+    return;
+  }
+  const results=document.getElementById('results');
+  if(!results){alert('No report to download.');return;}
+  const r=window._lastResult;
+  const titleStr=(r?.content_id?.title||r?.title||r?.query||'NoTrojan')+'_Report';
+  const loader=document.createElement('div');
+  loader.id='pdfLoader';
+  loader.style.cssText='position:fixed;inset:0;background:rgba(2,12,6,0.97);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+  loader.innerHTML='<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#00ff6a;letter-spacing:0.14em;">// GENERATING FULL COLOR REPORT...</div><div style="width:220px;height:2px;background:#1a3a1a;"><div id="pdfBar" style="height:100%;background:#00ff6a;width:0%;transition:width 0.4s;"></div></div><div style="font-family:Share Tech Mono,monospace;font-size:0.58rem;color:#3a7a3a;letter-spacing:0.1em;">This may take a few seconds...</div>';
+  document.body.appendChild(loader);
+  const setBar=p=>{const b=document.getElementById('pdfBar');if(b)b.style.width=p+'%';};
+  function go(){
+    setBar(20);
+    html2canvas(results,{
+      backgroundColor:'#020c06',scale:1.5,useCORS:true,allowTaint:true,
+      scrollY:-window.scrollY,windowWidth:results.scrollWidth,windowHeight:results.scrollHeight
+    }).then(canvas=>{
+      setBar(80);
+      const imgData=canvas.toDataURL('image/jpeg',0.92);
+      const pdf=new window.jspdf.jsPDF({
+        orientation:canvas.width>canvas.height?'landscape':'portrait',
+        unit:'px',format:[canvas.width,canvas.height]
+      });
+      pdf.addImage(imgData,'JPEG',0,0,canvas.width,canvas.height);
+      setBar(100);
+      setTimeout(()=>{
+        pdf.save(titleStr.replace(/[^a-z0-9_-]/gi,'_')+'.pdf');
+        document.getElementById('pdfLoader')?.remove();
+      },400);
+    }).catch(()=>{
+      document.getElementById('pdfLoader')?.remove();
+      alert('Could not generate PDF. Try Print-Friendly PDF instead.');
+    });
+  }
+  if(window.jspdf){go();}
+  else{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload=()=>{
+      if(typeof html2canvas!=='undefined'){go();}
+      else{
+        const s2=document.createElement('script');
+        s2.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        s2.onload=go;document.head.appendChild(s2);
+      }
+    };
     document.head.appendChild(s);
   }
 }
