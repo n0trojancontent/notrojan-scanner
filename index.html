@@ -3092,45 +3092,59 @@ function fetchReportImage(r, col){
 
   if(!creator&&!title) return;
 
-  async function tryItunes(t,c){
-    try{
-      var q=encodeURIComponent((t||'')+(c?' '+c:''));
-      var res=await fetch('https://itunes.apple.com/search?term='+q+'&media=music&limit=1');
-      var d=await res.json();
-      if(d.results&&d.results.length>0){
-        var art=d.results[0].artworkUrl100;
-        return art?art.replace('100x100bb','600x600bb'):null;
-      }
-    }catch(e){}
-    return null;
-  }
   (async function(){
     var img=null;
-    var query=r?.query||'';
+    var PROXY='https://notrojan-proxy.ryanalanrogers.workers.dev';
 
-    // Songs/Albums: iTunes first — exact cover art, no Wikipedia guessing
-    if(isSong&&title) img=await tryItunes(title,creator);
+    async function tryProxy(query){
+      try{
+        var res=await fetch(PROXY+'/?q='+encodeURIComponent(query));
+        var d=await res.json();
+        if(d.imageUrl) return d.imageUrl;
+      }catch(e){}
+      return null;
+    }
 
-    // Persons: Wikipedia summary by name
+    async function tryProxyImg(imgUrl){
+      try{
+        var res=await fetch(PROXY+'/?img='+encodeURIComponent(imgUrl)+'&b64=1');
+        var d=await res.json();
+        return d.dataUrl||null;
+      }catch(e){}
+      return null;
+    }
+
+    // 1. Songs/Albums: search by "Title Artist" via proxy DDG lookup
+    if(isSong&&title){
+      var q=title+(creator?' '+creator:'');
+      img=await tryProxy(q);
+    }
+
+    // 2. Persons: search by name
     if(!img&&isPerson&&creator){
-      img=await trySummary(creator);
-      if(!img) img=await tryWikiImg(creator);
+      img=await tryProxy(creator);
     }
 
-    // Brands: Wikipedia by title
+    // 3. Brands: search by title
     if(!img&&isBrand&&title){
-      img=await trySummary(title);
-      if(!img) img=await tryWikiImg(title);
+      img=await tryProxy(title);
     }
 
-    // Generic fallback
-    if(!img&&title) img=await trySummary(title);
-    if(!img&&creator) img=await trySummary(creator);
+    // 4. Generic fallback
+    if(!img&&title) img=await tryProxy(title);
+    if(!img&&creator) img=await tryProxy(creator);
+
+    // 5. If we got a URL, proxy it through worker to avoid CORS/hotlink blocks
+    if(img&&img.startsWith('http')){
+      var proxied=await tryProxyImg(img);
+      if(proxied) img=proxied;
+    }
 
     console.log('[NoT IMG] final:', img?img.slice(0,80):'NO IMAGE FOUND');
     if(img) render(img);
   })();
 }
+
 
 
 function renderResults(r){
