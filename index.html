@@ -428,14 +428,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 
 @media print{
   header,nav,.nav-bar,.input-box,.prog-row,.err-bar,
-  .tab-panel:not(.active),.print-btn,footer,body::before,body::after,
-  .scan-hdr,.scanner-neon,.scroll-teaser,.print-hide,
-  #floatShareBtn,#shareMenuModal{display:none!important;}
+  .tab-panel:not(.active),.print-btn,footer,body::before,body::after{display:none!important;}
   body{background:#fff!important;color:#000!important;}
   .main{padding:0!important;max-width:100%!important;}
   .tab-panel.active{display:block!important;}
-  #results{display:block!important;margin-top:0!important;padding-top:0!important;}
-  #contentHeader{margin-top:0!important;padding-top:0!important;display:block!important;}
   .score-card,.sec{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;}
   .sc-num{color:#000!important;}
   *{color:#111!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
@@ -539,7 +535,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     <!-- SCROLL TEASER -->
     <div class="scroll-teaser">↓ Scroll down for cultural impact score and full analysis ↓</div>
 
-    <div class="print-hide" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
       <button id="floatShareBtn" onclick="handleShareMenu()" style="display:none;align-items:center;gap:8px;background:#020c06;border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;padding:12px 22px;cursor:pointer;text-transform:uppercase;box-shadow:0 0 20px rgba(0,255,106,0.3);transition:all 0.2s;position:fixed;bottom:24px;right:20px;z-index:9000;">📤 Share Report</button>
     </div>
@@ -3033,18 +3029,56 @@ function fetchReportImage(r, col){
     var img=null;
     var query=r?.query||'';
     var label=r?.content_id?.label||'';
-    // Try full AI title first
-    if(!img&&title) img=await trySummary(title);
-    if(!img&&title) img=await trySearch(title);
-    // For fictional characters, try the franchise/show title for poster
-    if(!img&&label&&label!==title) img=await trySearch(label);
-    // Try query + label combo for disambiguation
-    var combined=query&&label?query+' '+label:'';
-    if(!img&&combined) img=await trySearch(combined);
+    var publisher=r?.content_id?.label_publisher||r?.content_id?.publisher||'';
+
+    // Determine content category
+    var ct=(r?.content_id?.type||'').toLowerCase();
+    var isSong=ct==='song'||ct==='album'||ct==='music';
+    var isPerson=ct==='person'||ct==='athlete'||ct==='politician'||ct==='entrepreneur'||ct==='public figure'||ct==='creator'||ct==='sports commentary'||ct==='broadcaster'||ct==='anchor';
+
+    if(isSong&&title){
+      // Songs: use iTunes JSONP (works cross-origin, gets exact cover art)
+      try{
+        var q=encodeURIComponent(title+(creator?' '+creator:''));
+        var cb='itcb_'+Date.now();
+        await new Promise(function(resolve){
+          window[cb]=function(d){
+            delete window[cb];
+            var r2=d&&d.results&&d.results[0];
+            if(r2&&r2.artworkUrl100) img=r2.artworkUrl100.replace('100x100bb','600x600bb');
+            resolve();
+          };
+          var s=document.createElement('script');
+          s.src='https://itunes.apple.com/search?term='+q+'&media=music&limit=1&callback='+cb;
+          s.onerror=function(){delete window[cb];resolve();};
+          document.head.appendChild(s);
+          setTimeout(function(){if(window[cb]){delete window[cb];resolve();}},3000);
+        });
+      }catch(e){}
+    }
+
+    if(!img&&isPerson&&creator){
+      // Person: use publisher/label for disambiguation (e.g. "James Brown CBS Sports")
+      var personQuery=publisher?creator+' '+publisher:creator+' '+(ct||'');
+      if(!img) img=await trySummary(personQuery.trim());
+      if(!img) img=await trySearch(personQuery.trim());
+      // Only fall back to bare name if disambiguated search failed
+      if(!img) img=await trySummary(creator);
+    }
+
+    if(!img&&!isPerson&&!isSong){
+      // Brands, campaigns, shows, etc: title first
+      if(!img&&title) img=await trySummary(title);
+      if(!img&&title) img=await trySearch(title);
+      if(!img&&label&&label!==title) img=await trySearch(label);
+      var combined=query&&label?query+' '+label:'';
+      if(!img&&combined) img=await trySearch(combined);
+    }
+
+    // Last resort
     if(!img&&query&&query!==title) img=await trySummary(query);
-    if(!img&&creator) img=await trySummary(creator);
-    if(!img&&creator) img=await trySearch(creator);
     if(!img&&query) img=await trySearch(query);
+
     if(img) render(img);
   })();
 }
@@ -3184,8 +3218,7 @@ function handleShareMenu(){
   <div style="max-width:340px;width:100%;background:#020c06;border:2px solid var(--green);padding:28px;">
     <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;margin-bottom:20px;text-align:center;">// Share This Report</div>
     <button onclick="document.getElementById('shareMenuModal').remove();handleShare();" style="width:100%;padding:14px;background:rgba(0,255,106,0.08);border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:block;">📤 Share to Social Media</button>
-    <button onclick="document.getElementById('shareMenuModal').remove();downloadFullColorPDF();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:6px;display:block;">🖥️ Download Full Color Report</button>
-    <button onclick="document.getElementById('shareMenuModal').remove();handlePrint();" style="width:100%;padding:14px;background:rgba(0,255,106,0.02);border:1px solid var(--green4);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:16px;display:block;">🖨️ Print-Friendly PDF</button>
+    <button onclick="document.getElementById('shareMenuModal').remove();handlePrint();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:16px;display:block;">🖨️ Save Full Report as PDF</button>
     <div style="text-align:center;"><button onclick="document.getElementById('shareMenuModal').remove()" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button></div>
   </div>`;
   document.body.appendChild(modal);
@@ -3492,64 +3525,6 @@ function downloadShareCard(){
     const s=document.createElement('script');
     s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
     s.onload=go;s.onerror=finish;
-    document.head.appendChild(s);
-  }
-}
-
-function downloadFullColorPDF(){
-  if(!isRegistered()){
-    const pd=document.createElement('div');
-    pd.id='printGateDiv';
-    pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-    pd.innerHTML='<div style="background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:400px;width:100%;padding:28px;text-align:center;"><div style="font-family:Barlow Condensed,sans-serif;font-size:1.3rem;font-weight:900;color:var(--green);margin-bottom:10px;">🌿 Join the NoT™ Green Community</div><div style="font-size:0.85rem;color:var(--white2);line-height:1.6;margin-bottom:20px;">Full color digital reports are a community perk. Join free to unlock.</div><div style="display:flex;gap:10px;justify-content:center;"><button onclick="document.getElementById(\'printGateDiv\').remove();" style="padding:10px 20px;background:transparent;border:1px solid var(--muted);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Maybe Later</button><button onclick="document.getElementById(\'printGateDiv\').remove();showGate(0,\'medium\');" style="padding:10px 20px;background:transparent;border:1px solid var(--green);color:var(--green);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Let\'s Do It!</button></div></div>';
-    document.body.appendChild(pd);
-    return;
-  }
-  const results=document.getElementById('results');
-  if(!results){alert('No report to download.');return;}
-  const r=window._lastResult;
-  const titleStr=(r?.content_id?.title||r?.title||r?.query||'NoTrojan')+'_Report';
-  const loader=document.createElement('div');
-  loader.id='pdfLoader';
-  loader.style.cssText='position:fixed;inset:0;background:rgba(2,12,6,0.97);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-  loader.innerHTML='<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#00ff6a;letter-spacing:0.14em;">// GENERATING FULL COLOR REPORT...</div><div style="width:220px;height:2px;background:#1a3a1a;"><div id="pdfBar" style="height:100%;background:#00ff6a;width:0%;transition:width 0.4s;"></div></div><div style="font-family:Share Tech Mono,monospace;font-size:0.58rem;color:#3a7a3a;letter-spacing:0.1em;">This may take a few seconds...</div>';
-  document.body.appendChild(loader);
-  const setBar=p=>{const b=document.getElementById('pdfBar');if(b)b.style.width=p+'%';};
-  function go(){
-    setBar(20);
-    html2canvas(results,{
-      backgroundColor:'#020c06',scale:1.5,useCORS:true,allowTaint:true,
-      scrollY:-window.scrollY,windowWidth:results.scrollWidth,windowHeight:results.scrollHeight
-    }).then(canvas=>{
-      setBar(80);
-      const imgData=canvas.toDataURL('image/jpeg',0.92);
-      const pdf=new window.jspdf.jsPDF({
-        orientation:canvas.width>canvas.height?'landscape':'portrait',
-        unit:'px',format:[canvas.width,canvas.height]
-      });
-      pdf.addImage(imgData,'JPEG',0,0,canvas.width,canvas.height);
-      setBar(100);
-      setTimeout(()=>{
-        pdf.save(titleStr.replace(/[^a-z0-9_-]/gi,'_')+'.pdf');
-        document.getElementById('pdfLoader')?.remove();
-      },400);
-    }).catch(()=>{
-      document.getElementById('pdfLoader')?.remove();
-      alert('Could not generate PDF. Try Print-Friendly PDF instead.');
-    });
-  }
-  if(window.jspdf){go();}
-  else{
-    const s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-    s.onload=()=>{
-      if(typeof html2canvas!=='undefined'){go();}
-      else{
-        const s2=document.createElement('script');
-        s2.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-        s2.onload=go;document.head.appendChild(s2);
-      }
-    };
     document.head.appendChild(s);
   }
 }
