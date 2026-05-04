@@ -2048,8 +2048,7 @@ Score 90-100 (Certified): diagnosis affirms what makes this content a model. Spe
 CONTENT IDENTIFICATION — Always identify the content being scanned. Research from your training knowledge:
 - title: official title or name
 - creator: artist, brand, creator, or organization name
-- type: Song / Album / Campaign / Brand / Platform / Trend / Video / Creator / Person / Athlete / Politician / Entrepreneur / Public Figure / Other
-  (Creator = content creator, influencer, YouTuber, podcaster; use Person or a more specific type for everyone else)
+- type: Song / Album / Campaign / Brand / Platform / Trend / Video / Creator / Other
 - year: release or publication year (or "Unknown")
 - label: record label, publisher, parent company, or owner (or "Independent" / "Unknown")
 - description: one sentence — what this content is
@@ -2989,7 +2988,7 @@ function fetchReportImage(r, col){
   const contentType=(r.content_id?.type||'').toLowerCase();
   const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
   const isSong=contentType==='song'||contentType==='album'||contentType==='music';
-  const isPerson=contentType==='artist'||contentType==='person'||contentType==='athlete'||contentType==='politician'||contentType==='author'||contentType==='entrepreneur'||contentType==='public figure'||contentType==='creator';
+  const isPerson=contentType==='artist'||contentType==='person'||contentType==='athlete'||contentType==='politician'||contentType==='author';
   const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
   const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
@@ -3097,35 +3096,32 @@ function fetchReportImage(r, col){
     var img=null;
     var query=r?.query||'';
 
-    console.log('[NoT IMG] type='+contentType+' title='+title+' creator='+creator);
+    // 1. AI-provided URL is most reliable — use it first
+    if(aiImageUrl){
+      img=aiImageUrl;
+    }
 
-    // For songs/albums: search title first to get cover art, not artist photo
-    if(isSong&&title){
-      if(creator) img=await trySearch(title+' '+creator+' song');
-      if(!img) img=await trySummary(title+' (song)');
-      if(!img) img=await trySummary(title+' (album)');
+    // 2. For persons: Wikipedia summary by name (reliable headshot)
+    if(!img&&isPerson&&creator){
+      img=await trySummary(creator);
+      if(!img) img=await tryWikiImg(creator);
+    }
+
+    // 3. For brands: Wikipedia summary by title
+    if(!img&&isBrand&&title){
+      img=await trySummary(title);
       if(!img) img=await tryWikiImg(title);
     }
 
-    // For persons (artist, person, entrepreneur, etc): name directly
-    if(!img&&isPerson&&creator){
-      img=await tryWikiImg(creator);
-      if(!img) img=await trySummary(creator);
+    // 4. For songs/albums: Wikipedia summary by title only (avoid artist article)
+    if(!img&&isSong&&title){
+      img=await trySummary(title+' (song)');
+      if(!img) img=await trySummary(title+' (album)');
+      // Do NOT search by creator — pulls wrong photos
     }
 
-    // For brands/companies: title first
-    if(!img&&isBrand&&title){
-      img=await tryWikiImg(title);
-      if(!img) img=await trySummary(title);
-    }
-
-    // Generic fallback: title, then creator, then query
-    if(!img&&title) img=await tryWikiImg(title)||await trySummary(title);
-    if(!img&&creator) img=await tryWikiImg(creator)||await trySummary(creator);
-    if(!img&&query) img=await trySearch(query);
-
-    // AI-provided URL as last resort
-    if(!img&&aiImageUrl) img=aiImageUrl;
+    // 5. Generic: title summary
+    if(!img&&title) img=await trySummary(title);
 
     console.log('[NoT IMG] final:', img?img.slice(0,80):'NO IMAGE FOUND');
     if(img) render(img);
