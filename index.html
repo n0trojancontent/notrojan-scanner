@@ -442,27 +442,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
   a[href]:after{content:none!important;}
 }
 
-/* ── EMAIL GATE ── */
-.gate-overlay{position:fixed;inset:0;background:rgba(2,12,6,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
-.gate-box{background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:480px;width:100%;padding:32px 28px;position:relative;}
-.gate-badge{font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:10px;}
-.gate-title{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;color:var(--green);letter-spacing:0.04em;line-height:1.1;margin-bottom:6px;}
-.gate-sub{font-size:0.84rem;color:var(--white2);line-height:1.65;margin-bottom:18px;}
-.gate-perks{background:var(--bg2);border:1px solid var(--border);padding:12px 14px;margin-bottom:18px;}
-.gate-perk{font-size:0.78rem;color:var(--white2);line-height:1.7;padding:2px 0;}
-.gate-perk::before{content:'✓ ';color:var(--green2);font-weight:700;}
-.gate-inp{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--white);font-family:'Share Tech Mono',monospace;font-size:0.86rem;padding:11px 13px;outline:none;margin-bottom:10px;box-sizing:border-box;}
-.gate-inp:focus{border-color:var(--green3);}
-.gate-btn{width:100%;background:var(--green4);border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;font-weight:800;letter-spacing:0.2em;padding:13px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;margin-bottom:8px;}
-.gate-btn:hover{background:rgba(0,255,106,0.12);}
-.gate-note{font-size:0.68rem;color:var(--muted);text-align:center;line-height:1.5;}
-.gate-score-preview{display:flex;align-items:center;gap:16px;background:var(--bg2);border:1px solid var(--border);padding:14px 16px;margin-bottom:18px;position:relative;overflow:hidden;}
-.gate-score-num{font-family:'Barlow Condensed',sans-serif;font-size:2.8rem;font-weight:900;color:var(--green);line-height:1;filter:blur(0);}
-.gate-score-label{font-size:0.78rem;color:var(--white2);line-height:1.5;}
-.gate-blur-overlay{position:absolute;inset:0;background:linear-gradient(90deg,transparent 80px,rgba(2,12,6,0.96) 140px);display:flex;align-items:center;padding-left:110px;}
-.gate-blur-msg{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--green2);letter-spacing:0.08em;}
-.gate-trial-count{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);text-align:right;margin-bottom:6px;letter-spacing:0.08em;}
-
 /* ── NEON SCANNER DESCRIPTION ── */
 @keyframes neonPulse{
   0%,100%{text-shadow:0 0 7px rgba(0,255,106,0.9),0 0 14px rgba(0,255,106,0.6),0 0 21px rgba(0,255,106,0.4);opacity:1;}
@@ -3492,45 +3471,6 @@ function downloadShareCard(){
     const s=document.createElement('script');
     s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
     s.onload=go;s.onerror=finish;
-    document.head.appendChild(s);
-  }
-}
-
-function downloadFullColorPDF(){
-  if(!isRegistered()){
-    const pd=document.createElement('div');pd.id='printGateDiv';
-    pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-    pd.innerHTML='<div style="background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:400px;width:100%;padding:28px;text-align:center;"><div style="font-family:Barlow Condensed,sans-serif;font-size:1.3rem;font-weight:900;color:var(--green);margin-bottom:10px;">🌿 Join the NoT™ Green Community</div><div style="font-size:0.85rem;color:var(--white2);line-height:1.6;margin-bottom:20px;">Full color digital reports are a community perk. Join free to unlock.</div><div style="display:flex;gap:10px;justify-content:center;"><button onclick="document.getElementById(\'printGateDiv\').remove();" style="padding:10px 20px;background:transparent;border:1px solid var(--muted);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Maybe Later</button><button onclick="document.getElementById(\'printGateDiv\').remove();showGate(0,\'medium\');" style="padding:10px 20px;background:transparent;border:1px solid var(--green);color:var(--green);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Let\'s Do It!</button></div></div>';
-    document.body.appendChild(pd);return;
-  }
-  const results=document.getElementById('results');
-  if(!results){alert('No report to download.');return;}
-  const r=window._lastResult;
-  const titleStr=(r?.content_id?.title||r?.title||r?.query||'NoTrojan')+'_Report';
-  const loader=document.createElement('div');loader.id='pdfLoader';
-  loader.style.cssText='position:fixed;inset:0;background:rgba(2,12,6,0.97);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-  loader.innerHTML='<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#00ff6a;letter-spacing:0.14em;">// GENERATING FULL COLOR REPORT...</div><div style="width:220px;height:2px;background:#1a3a1a;"><div id="pdfBar" style="height:100%;background:#00ff6a;width:0%;transition:width 0.4s;"></div></div>';
-  document.body.appendChild(loader);
-  const setBar=p=>{const b=document.getElementById('pdfBar');if(b)b.style.width=p+'%';};
-  function go(){
-    setBar(20);
-    html2canvas(results,{backgroundColor:'#020c06',scale:1.5,useCORS:true,allowTaint:true,scrollY:-window.scrollY,windowWidth:results.scrollWidth,windowHeight:results.scrollHeight}).then(canvas=>{
-      setBar(80);
-      const imgData=canvas.toDataURL('image/jpeg',0.92);
-      const pdf=new window.jspdf.jsPDF({orientation:canvas.width>canvas.height?'landscape':'portrait',unit:'px',format:[canvas.width,canvas.height]});
-      pdf.addImage(imgData,'JPEG',0,0,canvas.width,canvas.height);
-      setBar(100);
-      setTimeout(()=>{pdf.save(titleStr.replace(/[^a-z0-9_-]/gi,'_')+'.pdf');document.getElementById('pdfLoader')?.remove();},400);
-    }).catch(()=>{document.getElementById('pdfLoader')?.remove();alert('Could not generate PDF. Try Print-Friendly PDF instead.');});
-  }
-  if(window.jspdf){go();}
-  else{
-    const s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-    s.onload=()=>{
-      if(typeof html2canvas!=='undefined'){go();}
-      else{const s2=document.createElement('script');s2.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s2.onload=go;document.head.appendChild(s2);}
-    };
     document.head.appendChild(s);
   }
 }
