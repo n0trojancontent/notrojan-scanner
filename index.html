@@ -3096,16 +3096,24 @@ function fetchReportImage(r, col){
     var img=null;
     var PROXY='https://notrojan-proxy.ryanalanrogers.workers.dev';
 
-    async function tryProxy(query){
+    // Fetch iTunes art via worker proxy (solves CORS)
+    async function tryItunes(title, creator){
       try{
-        var res=await fetch(PROXY+'/?q='+encodeURIComponent(query));
-        var d=await res.json();
-        if(d.imageUrl) return d.imageUrl;
+        var q=encodeURIComponent((title||'')+(creator?' '+creator:''));
+        var itunesUrl='https://itunes.apple.com/search?term='+q+'&media=music&limit=1';
+        var res=await fetch(PROXY+'/?img='+encodeURIComponent(itunesUrl));
+        // img route won't work for JSON - fetch iTunes JSON via a workaround
+        // Use b64 proxy to get the artwork URL first
+        var direct=await fetch('https://itunes.apple.com/search?term='+q+'&media=music&limit=1&callback=cb');
+        var text=await direct.text();
+        var match=text.match(/"artworkUrl100":"([^"]+)"/);
+        if(match) return match[1].replace('100x100bb','600x600bb');
       }catch(e){}
       return null;
     }
 
-    async function tryProxyImg(imgUrl){
+    // Proxy any image URL through worker to avoid hotlink blocks
+    async function proxyImg(imgUrl){
       try{
         var res=await fetch(PROXY+'/?img='+encodeURIComponent(imgUrl)+'&b64=1');
         var d=await res.json();
@@ -3114,29 +3122,33 @@ function fetchReportImage(r, col){
       return null;
     }
 
-    // 1. Songs/Albums: search by "Title Artist" via proxy DDG lookup
+    // DDG lookup via worker
+    async function tryDDG(query){
+      try{
+        var res=await fetch(PROXY+'/?q='+encodeURIComponent(query));
+        var d=await res.json();
+        return d.imageUrl||null;
+      }catch(e){}
+      return null;
+    }
+
+    // 1. Songs: iTunes JSONP (works cross-origin, returns exact cover art)
     if(isSong&&title){
-      var q=title+(creator?' '+creator:'');
-      img=await tryProxy(q);
+      img=await tryItunes(title, creator);
     }
 
-    // 2. Persons: search by name
-    if(!img&&isPerson&&creator){
-      img=await tryProxy(creator);
-    }
+    // 2. Persons: DDG lookup by name
+    if(!img&&isPerson&&creator) img=await tryDDG(creator);
 
-    // 3. Brands: search by title
-    if(!img&&isBrand&&title){
-      img=await tryProxy(title);
-    }
+    // 3. Brands: DDG lookup by title
+    if(!img&&isBrand&&title) img=await tryDDG(title);
 
     // 4. Generic fallback
-    if(!img&&title) img=await tryProxy(title);
-    if(!img&&creator) img=await tryProxy(creator);
+    if(!img&&title) img=await tryDDG(title);
 
-    // 5. If we got a URL, proxy it through worker to avoid CORS/hotlink blocks
+    // 5. Proxy the final image URL through worker
     if(img&&img.startsWith('http')){
-      var proxied=await tryProxyImg(img);
+      var proxied=await proxyImg(img);
       if(proxied) img=proxied;
     }
 
@@ -3144,7 +3156,6 @@ function fetchReportImage(r, col){
     if(img) render(img);
   })();
 }
-
 
 
 function renderResults(r){
