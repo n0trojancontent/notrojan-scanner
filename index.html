@@ -428,14 +428,19 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 
 @media print{
   header,nav,.nav-bar,.input-box,.prog-row,.err-bar,
-  .tab-panel:not(.active),.print-btn,footer,body::before,body::after{display:none!important;}
+  .tab-panel:not(.active),.print-btn,footer,body::before,body::after,
+  .scan-hdr,.scanner-neon,.scroll-teaser,#floatShareBtn,
+  .float-share-btn,#shareMenuModal{display:none!important;}
   body{background:#fff!important;color:#000!important;}
   .main{padding:0!important;max-width:100%!important;}
   .tab-panel.active{display:block!important;}
+  #results{display:block!important;margin-top:0!important;padding-top:0!important;}
+  #contentHeader{margin-top:0!important;padding-top:0!important;}
   .score-card,.sec{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;}
   .sc-num{color:#000!important;}
   *{color:#111!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
   a[href]:after{content:none!important;}
+  p[style*="text-align:center"],p[style*="text-align: center"]{display:none!important;}
 }
 
 /* ── EMAIL GATE ── */
@@ -2983,17 +2988,11 @@ function fetchReportImage(r, col){
   const score=r?.score||0;
   const title=r.content_id?.title||r.title||r.query||'';
   const creator=r.content_id?.creator||'';
-  const label=r.content_id?.label||'';
-  const aiImageUrl=r.content_id?.image_url||null;
-  const contentType=(r.content_id?.type||'').toLowerCase();
-  const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
-  const isSong=contentType==='song'||contentType==='album'||contentType==='music';
-  const isPerson=contentType==='artist'||contentType==='person'||contentType==='athlete'||contentType==='politician'||contentType==='author';
   const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
   const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
   const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
-  const horse=score<25?notRedLogo:score<50?notOrangeLogo:null;
+  const horse=score<25?notRedLogo:score<50?notOrangeLogo:null;  // no horse for green/yellow scores
 
   function render(imgUrl){
     box.innerHTML='';
@@ -3002,7 +3001,6 @@ function fetchReportImage(r, col){
       const img=document.createElement('img');
       img.style.cssText='display:block;width:120px;height:120px;object-fit:'+(isBrand?'contain':'cover')+';';
       img.src=imgUrl;
-      img.onerror=function(){box.removeChild(img);}; // remove broken images
       box.appendChild(img);
     }
     const td=document.createElement('div');
@@ -3019,140 +3017,35 @@ function fetchReportImage(r, col){
     }
   }
 
-  render(null); // show tint+horse immediately while fetching
+  render(null); // show tint+horse immediately
 
+  const contentType=(r.content_id?.type||'').toLowerCase();
+  const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
   var isLogoUrl=function(u){
-    if(isBrand) return false;
+    if(isBrand) return false; // brands: show logo/product image
     u=(u||'').toLowerCase();
     return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');
   };
-
-  // Wikipedia: get first infobox image via prop=images + imageinfo in one call
-  // This is the most reliable approach — works for artists, brands, athletes
-  var tryWikiImg=function(term){
-    if(!term) return Promise.resolve(null);
-    // Step 1: get list of images used on the article
-    return fetch('https://en.wikipedia.org/w/api.php?action=query&titles='+encodeURIComponent(term)+'&prop=images&imlimit=5&format=json&origin=*')
-      .then(function(res){return res.json();})
-      .then(function(d){
-        var pages=d&&d.query&&d.query.pages;
-        if(!pages) return null;
-        var page=Object.values(pages)[0];
-        if(!page||page.missing) return null;
-        var imgs=page.images||[];
-        // Filter to likely portrait/photo files — skip SVG, flags, logos, icons
-        var candidates=imgs.filter(function(im){
-          var n=(im.title||'').toLowerCase();
-          return !n.includes('.svg')&&!n.includes('flag')&&!n.includes('logo')&&
-                 !n.includes('icon')&&!n.includes('seal')&&!n.includes('award')&&
-                 !n.includes('signature')&&(n.includes('.jpg')||n.includes('.jpeg')||n.includes('.png'));
-        });
-        if(!candidates.length) return null;
-        // Step 2: get the actual URL for the first candidate
-        var imgTitle=candidates[0].title;
-        return fetch('https://en.wikipedia.org/w/api.php?action=query&titles='+encodeURIComponent(imgTitle)+'&prop=imageinfo&iiprop=url&format=json&origin=*')
-          .then(function(res2){return res2.json();})
-          .then(function(d2){
-            var p2=d2&&d2.query&&d2.query.pages;
-            if(!p2) return null;
-            var pg=Object.values(p2)[0];
-            var ii=pg&&pg.imageinfo&&pg.imageinfo[0];
-            var url=ii&&ii.url;
-            return url&&!isLogoUrl(url)?url:null;
-          }).catch(function(){return null;});
-      }).catch(function(){return null;});
-  };
-
-  // Wikipedia summary fallback — quick single call
-  var trySummary=function(term){
-    if(!term) return Promise.resolve(null);
-    return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(term))
-      .then(function(res){return res.json();})
-      .then(function(d){
-        if(!d||d.type==='disambiguation') return null;
-        var u=d.originalimage||d.thumbnail;
-        return u&&u.source&&!isLogoUrl(u.source)?u.source:null;
-      }).catch(function(){return null;});
-  };
-
-  // Wikipedia search → summary
-  var trySearch=function(term){
-    if(!term) return Promise.resolve(null);
-    return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(term)+'&srlimit=3&format=json&origin=*')
-      .then(function(res){return res.json();})
-      .then(function(d){
-        var results=d&&d.query&&d.query.search||[];
-        var titles=results.map(function(s){return s.title;}).filter(function(t){return t&&!t.toLowerCase().includes('disambiguation');});
-        if(!titles.length) return null;
-        return trySummary(titles[0]).then(function(img){
-          return img||trySummary(titles[1]||null);
-        });
-      }).catch(function(){return null;});
-  };
+  var trySummary=function(term){return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(term)).then(function(r){return r.json();}).then(function(d){var u=d&&(d.originalimage||d.thumbnail);return u&&u.source&&!isLogoUrl(u.source)?u.source:null;}).catch(function(){return null;});};
+  var trySearch=function(term){return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(term)+'&srlimit=1&format=json&origin=*').then(function(r){return r.json();}).then(function(d){var t=d&&d.query&&d.query.search&&d.query.search[0]&&d.query.search[0].title;return t?trySummary(t):null;}).catch(function(){return null;});};
 
   if(!creator&&!title) return;
-
   (async function(){
     var img=null;
-    var PROXY='https://notrojan-proxy.ryanalanrogers.workers.dev';
-
-    // Fetch iTunes art via worker proxy (solves CORS)
-    async function tryItunes(title, creator){
-      try{
-        var q=encodeURIComponent((title||'')+(creator?' '+creator:''));
-        var itunesUrl='https://itunes.apple.com/search?term='+q+'&media=music&limit=1';
-        var res=await fetch(PROXY+'/?img='+encodeURIComponent(itunesUrl));
-        // img route won't work for JSON - fetch iTunes JSON via a workaround
-        // Use b64 proxy to get the artwork URL first
-        var direct=await fetch('https://itunes.apple.com/search?term='+q+'&media=music&limit=1&callback=cb');
-        var text=await direct.text();
-        var match=text.match(/"artworkUrl100":"([^"]+)"/);
-        if(match) return match[1].replace('100x100bb','600x600bb');
-      }catch(e){}
-      return null;
-    }
-
-    // Proxy any image URL through worker to avoid hotlink blocks
-    async function proxyImg(imgUrl){
-      try{
-        var res=await fetch(PROXY+'/?img='+encodeURIComponent(imgUrl)+'&b64=1');
-        var d=await res.json();
-        return d.dataUrl||null;
-      }catch(e){}
-      return null;
-    }
-
-    // DDG lookup via worker
-    async function tryDDG(query){
-      try{
-        var res=await fetch(PROXY+'/?q='+encodeURIComponent(query));
-        var d=await res.json();
-        return d.imageUrl||null;
-      }catch(e){}
-      return null;
-    }
-
-    // 1. Songs: iTunes JSONP (works cross-origin, returns exact cover art)
-    if(isSong&&title){
-      img=await tryItunes(title, creator);
-    }
-
-    // 2. Persons: DDG lookup by name
-    if(!img&&isPerson&&creator) img=await tryDDG(creator);
-
-    // 3. Brands: DDG lookup by title
-    if(!img&&isBrand&&title) img=await tryDDG(title);
-
-    // 4. Generic fallback
-    if(!img&&title) img=await tryDDG(title);
-
-    // 5. Proxy the final image URL through worker
-    if(img&&img.startsWith('http')){
-      var proxied=await proxyImg(img);
-      if(proxied) img=proxied;
-    }
-
-    console.log('[NoT IMG] final:', img?img.slice(0,80):'NO IMAGE FOUND');
+    var query=r?.query||'';
+    var label=r?.content_id?.label||'';
+    // Try full AI title first
+    if(!img&&title) img=await trySummary(title);
+    if(!img&&title) img=await trySearch(title);
+    // For fictional characters, try the franchise/show title for poster
+    if(!img&&label&&label!==title) img=await trySearch(label);
+    // Try query + label combo for disambiguation
+    var combined=query&&label?query+' '+label:'';
+    if(!img&&combined) img=await trySearch(combined);
+    if(!img&&query&&query!==title) img=await trySummary(query);
+    if(!img&&creator) img=await trySummary(creator);
+    if(!img&&creator) img=await trySearch(creator);
+    if(!img&&query) img=await trySearch(query);
     if(img) render(img);
   })();
 }
@@ -3278,7 +3171,7 @@ async function submitContact(e){
     btn.disabled=false;
     btn.textContent='⚡ Request More Info';
   }
-}
+}function openContact(){document.getElementById('contactOverlay').classList.add('open');document.body.style.overflow='hidden';}
 function closeContact(){document.getElementById('contactOverlay').classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('contactOverlay').addEventListener('click',function(e){if(e.target===this)closeContact();});});
 
@@ -3419,11 +3312,7 @@ function handleShare(){
   {
     const creator2=r?.content_id?.creator||'';
     const title2=r?.content_id?.title||r?.query||'';
-    const label2=r?.content_id?.label||'';
-    const aiImageUrl2=r?.content_id?.image_url||null;
     const isBrand=(function(){var t=(r?.content_id?.type||'').toLowerCase();return t==='brand'||t==='company'||t==='product'||t==='organization';})();
-    const isSong2=(function(){var t=(r?.content_id?.type||'').toLowerCase();return t==='song'||t==='album'||t==='music';})();
-    const isPerson2=(function(){var t=(r?.content_id?.type||'').toLowerCase();return t==='artist'||t==='person'||t==='athlete'||t==='politician'||t==='author';})();
     const tint2=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
     const horse2=score<25?notRedLogo:score<50?notOrangeLogo:null;
 
@@ -3435,7 +3324,6 @@ function handleShare(){
         const img=document.createElement('img');
         img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:'+(isBrand?'contain':'cover')+';';
         img.src=imgUrl;
-        img.onerror=function(){imgBox.removeChild(img);};
         imgBox.appendChild(img);
       }
       const td=document.createElement('div');
@@ -3455,60 +3343,18 @@ function handleShare(){
     setWikiImg(null); // show tint+horse immediately
 
     var isLogo2=function(u){if(isBrand)return false;u=(u||'').toLowerCase();return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');};
-    var sum2=function(t){
-      if(!t) return Promise.resolve(null);
-      return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(t))
-        .then(function(r){return r.json();})
-        .then(function(d){if(!d||d.type==='disambiguation')return null;var u=d.originalimage||d.thumbnail;return u&&u.source&&!isLogo2(u.source)?u.source:null;})
-        .catch(function(){return null;});
-    };
-    var search2=function(t){
-      if(!t) return Promise.resolve(null);
-      return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(t)+'&srlimit=3&format=json&origin=*')
-        .then(function(r){return r.json();})
-        .then(function(d){
-          var results=d&&d.query&&d.query.search||[];
-          var titles=results.map(function(s){return s.title;}).filter(function(t){return t&&!t.toLowerCase().includes('disambiguation');});
-          if(!titles.length) return null;
-          return sum2(titles[0]).then(function(img){return img||sum2(titles[1]||null);});
-        }).catch(function(){return null;});
-    };
-    // prop=images + imageinfo — gets actual infobox photo URL
-    var tryWI2=function(term){
-      if(!term) return Promise.resolve(null);
-      return fetch('https://en.wikipedia.org/w/api.php?action=query&titles='+encodeURIComponent(term)+'&prop=images&imlimit=5&format=json&origin=*')
-        .then(function(r){return r.json();})
-        .then(function(d){
-          var pages=d&&d.query&&d.query.pages;if(!pages)return null;
-          var page=Object.values(pages)[0];if(!page||page.missing)return null;
-          var imgs=(page.images||[]).filter(function(im){var n=(im.title||'').toLowerCase();return !n.includes('.svg')&&!n.includes('flag')&&!n.includes('logo')&&!n.includes('icon')&&!n.includes('seal')&&!n.includes('award')&&!n.includes('signature')&&(n.includes('.jpg')||n.includes('.jpeg')||n.includes('.png'));});
-          if(!imgs.length)return null;
-          return fetch('https://en.wikipedia.org/w/api.php?action=query&titles='+encodeURIComponent(imgs[0].title)+'&prop=imageinfo&iiprop=url&format=json&origin=*')
-            .then(function(r2){return r2.json();})
-            .then(function(d2){var p2=d2&&d2.query&&d2.query.pages;if(!p2)return null;var pg=Object.values(p2)[0];var ii=pg&&pg.imageinfo&&pg.imageinfo[0];var url=ii&&ii.url;return url&&!isLogo2(url)?url:null;})
-            .catch(function(){return null;});
-        }).catch(function(){return null;});
-    };
+    var sum2=function(t){return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(t)).then(function(r){return r.json();}).then(function(d){var u=d&&(d.originalimage||d.thumbnail);return u&&u.source&&!isLogo2(u.source)?u.source:null;}).catch(function(){return null;});};
+    var search2=function(t){return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(t)+'&srlimit=1&format=json&origin=*').then(function(r){return r.json();}).then(function(d){var pt=d&&d.query&&d.query.search&&d.query.search[0]&&d.query.search[0].title;return pt?sum2(pt):null;}).catch(function(){return null;});};
 
     if(creator2||title2){
       (async function(){
         var img=null;
         var query2=r?.query||'';
-        var lookup2=(isPerson2||isSong2)?creator2:title2;
-        var fallback2=(isPerson2||isSong2)?title2:creator2;
-
-        // Primary: prop=images infobox photo
-        if(!img&&lookup2) img=await tryWI2(lookup2);
-        // Summary fallback
-        if(!img&&lookup2) img=await sum2(lookup2);
-        // Search fallback
-        if(!img&&lookup2) img=await search2(lookup2);
-        // Try the other field
-        if(!img&&fallback2) img=await tryWI2(fallback2);
-        if(!img&&fallback2) img=await sum2(fallback2);
-        // Last resort query
-        if(!img&&query2&&query2!==lookup2) img=await tryWI2(query2);
-        if(!img&&query2&&query2!==lookup2) img=await sum2(query2);
+        if(!img&&query2) img=await sum2(query2);
+        if(!img&&title2&&title2!==query2) img=await sum2(title2);
+        if(!img&&title2) img=await search2(title2);
+        if(!img&&creator2) img=await sum2(creator2);
+        if(!img&&creator2) img=await search2(creator2);
         if(!img&&query2) img=await search2(query2);
         if(img) setWikiImg(img);
       })();
