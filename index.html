@@ -3529,28 +3529,34 @@ function downloadFullColorPDF(){
 function handlePrint(){
   if(isRegistered()){
     const r=window._lastResult;
-    document.title='NoTrojan Report — '+(r?.content_id?.title||r?.title||r?.query||'NoTrojan');
-    // Elements to HIDE during print (have content but shouldn't show)
-    const toHide=['scan-hdr','input-box','scroll-teaser'].map(c=>document.querySelector('.'+c)).filter(Boolean);
-    const toHideIds=['swipeBanner','floatShareBtn'].map(id=>document.getElementById(id)).filter(Boolean);
-    const hideAll=[...toHide,...toHideIds];
-    // Elements to SHOW during print (JS sets display:none inline)
-    const results=document.getElementById('results');
+    const titleStr=(r?.content_id?.title||r?.title||r?.query||'NoTrojan Report');
+    // Grab the two sections we want to print
     const header=document.getElementById('contentHeader');
-    const wasResults=results?results.style.display:'';
-    const wasHeader=header?header.style.display:'';
-    // Apply
-    hideAll.forEach(el=>{el._wasDis=el.style.display;el.style.display='none';});
-    if(results) results.style.display='block';
-    if(header) header.style.display='block';
-    setTimeout(function(){
-      window.print();
-      setTimeout(function(){
-        hideAll.forEach(el=>{el.style.display=el._wasDis||'';});
-        if(results) results.style.display=wasResults;
-        if(header) header.style.display=wasHeader;
-      },1000);
-    },150);
+    const scoreCard=document.getElementById('scoreCard');
+    const sections=document.getElementById('results');
+    if(!header||!sections){alert('No report to print.');return;}
+    // Get all styles from the page
+    const styles=Array.from(document.styleSheets).map(ss=>{
+      try{return Array.from(ss.cssRules).map(r=>r.cssText).join('\n');}catch(e){return '';}
+    }).join('\n');
+    // Clone results content
+    const clone=sections.cloneNode(true);
+    // Remove elements we don't want in print
+    ['scroll-teaser','print-hide'].forEach(cls=>{
+      clone.querySelectorAll('.'+cls).forEach(el=>el.remove());
+    });
+    // Open print window
+    const pw=window.open('','_blank','width=900,height=700');
+    pw.document.write(`<!DOCTYPE html><html><head><title>NoTrojan Report — ${titleStr}</title>
+<style>
+body{font-family:Arial,sans-serif;background:#fff;color:#000;margin:20px;padding:0;}
+*{color:#111!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
+img{max-width:100%;}
+${styles}
+</style></head><body>${clone.innerHTML}</body></html>`);
+    pw.document.close();
+    pw.focus();
+    setTimeout(function(){pw.print();pw.close();},800);
   } else {
     const pd=document.createElement('div');
     pd.id='printGateDiv';
