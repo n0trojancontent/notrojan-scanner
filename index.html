@@ -3021,7 +3021,7 @@ function fetchReportImage(r, col){
     const desc=r.content_id?.description||r.description||'';
     const ct=r.content_id?.type||'';
     const t=r.content_id?.title||r.query||'';
-    const prompt=`Create a simple flat SVG icon (120x120px viewBox="0 0 120 120") representing: "${t}" type: ${ct} — "${desc}". Return ONLY the SVG element, nothing else. Use 2-3 simple symbolic shapes/icons matching the subject (e.g. scales, podium, book, microphone, gavel, globe). Background rect fill #0a1a0f. Icon strokes and fills #00cc55. No text elements.`;
+    const prompt=`Create a simple flat SVG icon (viewBox="0 0 120 120") representing: "${t}" type: ${ct} — "${desc}". Return ONLY the SVG element. Use 2-3 simple symbolic shapes matching the subject (scales of justice, gavel, podium, book, mic, globe, trophy, etc). Background rect fill="#0a1a0f". Icons: stroke="#00cc55" fill="none" or fill="#00cc55" at low opacity. No text.`;
     try{
       const resp=await fetch('https://notrojan-proxy.ryanalanrogers.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
       const d=await resp.json();
@@ -3046,18 +3046,36 @@ function fetchReportImage(r, col){
     var img=null;
     var query=r?.query||'';
     var label=r?.content_id?.label||'';
-    // Try full AI title first
+    var ct=(r?.content_id?.type||'').toLowerCase();
+    var isPerson=ct==='person'||ct==='athlete'||ct==='politician'||ct==='entrepreneur'||
+      ct==='public figure'||ct==='creator'||ct==='broadcaster'||ct==='anchor'||
+      ct==='tv host'||ct==='host'||ct==='journalist'||ct==='sports commentary'||
+      ct==='sportscaster'||ct==='commentator'||ct==='author'||ct==='actor'||
+      ct==='musician'||ct==='rapper'||ct==='singer';
+
+    if(isPerson){
+      generateSVGPlaceholder();
+      return;
+    }
+
+    if(isSong&&title){
+      try{
+        var itunesQ=encodeURIComponent(title+(creator?' '+creator:''));
+        var cb='itcb_'+Date.now();
+        await new Promise(function(resolve){
+          window[cb]=function(d){delete window[cb];var res=d&&d.results&&d.results[0];if(res&&res.artworkUrl100)img=res.artworkUrl100.replace('100x100bb','600x600bb');resolve();};
+          var sc=document.createElement('script');sc.src='https://itunes.apple.com/search?term='+itunesQ+'&media=music&limit=1&callback='+cb;sc.onerror=function(){delete window[cb];resolve();};document.head.appendChild(sc);
+          setTimeout(function(){if(window[cb]){delete window[cb];resolve();}},3000);
+        });
+      }catch(e){}
+    }
+
     if(!img&&title) img=await trySummary(title);
     if(!img&&title) img=await trySearch(title);
-    // For fictional characters, try the franchise/show title for poster
     if(!img&&label&&label!==title) img=await trySearch(label);
-    // Try query + label combo for disambiguation
     var combined=query&&label?query+' '+label:'';
     if(!img&&combined) img=await trySearch(combined);
-    if(!img&&query&&query!==title) img=await trySummary(query);
-    if(!img&&creator) img=await trySummary(creator);
-    if(!img&&creator) img=await trySearch(creator);
-    if(!img&&query) img=await trySearch(query);
+
     if(img) render(img);
     else generateSVGPlaceholder();
   })();
@@ -3544,17 +3562,14 @@ function handlePrint(){
   if(isRegistered()){
     const r=window._lastResult;
     document.title='NoTrojan Report — '+(r?.content_id?.title||r?.title||r?.query||'NoTrojan');
-    // JS show/hide — overcome inline display:none
     const toHide=Array.from(document.querySelectorAll('.scan-hdr,.input-box,.scroll-teaser,.print-hide,#swipeBanner,#floatShareBtn'));
     const results=document.getElementById('results');
     const header=document.getElementById('contentHeader');
-    // Save states
     toHide.forEach(el=>{el._pd=el.style.display;el.style.setProperty('display','none','important');});
     if(results){results._pd=results.style.display;results.style.setProperty('display','block','important');}
     if(header){header._pd=header.style.display;header.style.setProperty('display','block','important');}
     setTimeout(function(){
       window.print();
-      // Restore after print dialog closes
       setTimeout(function(){
         toHide.forEach(el=>{el.style.display=el._pd||'';});
         if(results) results.style.display=results._pd||'none';
