@@ -427,14 +427,24 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 .print-btn:hover{background:rgba(0,255,106,0.1);color:var(--green);}
 
 @media print{
-  header,nav,.nav-bar,.input-box,.prog-row,.err-bar,
-  .tab-panel:not(.active),.print-btn,footer,body::before,body::after{display:none!important;}
-  body{background:#fff!important;color:#000!important;}
-  .main{padding:0!important;max-width:100%!important;}
-  .tab-panel.active{display:block!important;}
-  .score-card,.sec{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;}
+  /* Hide everything by default */
+  body > *,
+  .tab-panel,
+  .scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,
+  #swipeBanner,#floatShareBtn,#shareMenuModal,
+  nav,header,.nav-bar,.nav-swipe-banner,
+  footer,body::before,body::after{display:none!important;}
+  /* Show only the report sections */
+  #tab-scanner,#results,#contentHeader,#scoreCard{display:block!important;}
+  body{background:#fff!important;color:#000!important;margin:0;padding:0;}
+  .main{padding:0!important;max-width:100%!important;display:block!important;}
+  #tab-scanner{padding:0!important;margin:0!important;}
+  #results{margin:0!important;padding:0!important;}
+  #contentHeader{margin:0!important;padding:13px 16px!important;display:block!important;}
+  #scoreCard{margin-top:0!important;}
+  .score-card,.sec{border:1px solid #ccc!important;break-inside:avoid;}
   .sc-num{color:#000!important;}
-  *{color:#111!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
+  *{background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
   a[href]:after{content:none!important;}
 }
 
@@ -3025,7 +3035,7 @@ function fetchReportImage(r, col){
     const desc=r.content_id?.description||r.description||'';
     const ct=r.content_id?.type||'';
     const t=r.content_id?.title||r.query||'';
-    const prompt=`Create a simple flat SVG icon (viewBox="0 0 120 120") representing: "${t}" type: ${ct} — "${desc}". Return ONLY the SVG element. Use 2-3 simple symbolic shapes matching the subject (scales of justice, gavel, podium, book, mic, globe, trophy, etc). Background rect fill="#0a1a0f". Icons: stroke="#00cc55" fill="none". No text.`;
+    const prompt=`Create a simple flat SVG icon (viewBox="0 0 120 120") representing: "${t}" type: ${ct} — "${desc}". Return ONLY the SVG element. Use 2-3 simple symbolic shapes (scales of justice, gavel, podium, book, mic, globe, trophy, etc). Background rect fill="#0a1a0f". Icons: stroke="#00cc55" fill="none". No text.`;
     try{
       const resp=await fetch('https://notrojan-proxy.ryanalanrogers.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
       const d=await resp.json();
@@ -3669,18 +3679,19 @@ function handlePrint(){
   if(isRegistered()){
     const r=window._lastResult;
     document.title='NoTrojan Report — '+(r?.content_id?.title||r?.title||r?.query||'NoTrojan');
-    const toHide=Array.from(document.querySelectorAll('.scan-hdr,.input-box,.scroll-teaser,.print-hide,#swipeBanner,#floatShareBtn'));
     const results=document.getElementById('results');
     const header=document.getElementById('contentHeader');
-    toHide.forEach(el=>{el._pd=el.style.display;el.style.setProperty('display','none','important');});
+    const scoreCard=document.getElementById('scoreCard');
+    // Force show only the report elements
     if(results){results._pd=results.style.display;results.style.setProperty('display','block','important');}
     if(header){header._pd=header.style.display;header.style.setProperty('display','block','important');}
+    if(scoreCard){scoreCard._pd=scoreCard.style.display;scoreCard.style.setProperty('display','block','important');}
     setTimeout(function(){
       window.print();
       setTimeout(function(){
-        toHide.forEach(el=>{el.style.display=el._pd||'';});
         if(results) results.style.display=results._pd||'none';
         if(header) header.style.display=header._pd||'none';
+        if(scoreCard) scoreCard.style.display=scoreCard._pd||'';
       },1500);
     },200);
   } else {
