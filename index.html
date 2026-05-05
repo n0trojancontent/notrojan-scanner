@@ -427,13 +427,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 .print-btn:hover{background:rgba(0,255,106,0.1);color:var(--green);}
 
 @media print{
-  /* Hide everything except the report */
   header,nav,.nav-bar,.nav-swipe-banner,footer,
   body::before,body::after,
   .scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,
   #swipeBanner,#floatShareBtn,#shareMenuModal,
   .tab-panel:not(#tab-scanner){display:none!important;}
-  /* Show the report sections */
   #tab-scanner{display:block!important;padding:0!important;margin:0!important;}
   #results{display:block!important;margin:0!important;padding:0!important;}
   #contentHeader{display:block!important;margin:0!important;padding:13px 16px!important;}
@@ -3102,11 +3100,12 @@ var isLogoUrl=function(u){
   (async function(){
     var img=null;
     var ct=(r?.content_id?.type||'').toLowerCase();
-    var isP=ct==='person'||ct==='athlete'||ct==='politician'||ct==='entrepreneur'||
-      ct==='public figure'||ct==='creator'||ct==='broadcaster'||ct==='anchor'||
-      ct==='tv host'||ct==='host'||ct==='journalist'||ct==='author'||ct==='actor'||
-      ct==='musician'||ct==='rapper'||ct==='singer'||ct==='sports commentary';
-    if(isP) return;
+    var isKnownMedia=ct==='song'||ct==='album'||ct==='brand'||ct==='company'||
+      ct==='platform'||ct==='product'||ct==='organization'||ct==='campaign'||
+      ct==='show'||ct==='tv show'||ct==='movie'||ct==='film'||ct==='video'||
+      ct==='trend'||ct==='game'||ct==='podcast';
+    if(!isKnownMedia) return; // blank box for everything else
+
     if(isSong&&title){
       try{
         var itunesQ=encodeURIComponent(title+(creator?' '+creator:''));
@@ -3463,11 +3462,13 @@ function handleShare(){
         var img=null;
         var query2=r?.query||'';
         var ct2=(r?.content_id?.type||'').toLowerCase();
-        var isP2=ct2==='person'||ct2==='athlete'||ct2==='politician'||ct2==='entrepreneur'||
-          ct2==='public figure'||ct2==='creator'||ct2==='broadcaster'||ct2==='anchor'||
-          ct2==='tv host'||ct2==='host'||ct2==='journalist'||ct2==='author'||ct2==='actor'||
-          ct2==='musician'||ct2==='rapper'||ct2==='singer'||ct2==='sports commentary';
-        if(isP2) return;
+        // Only look up images for known non-person types
+        var isKnownMedia2=ct2==='song'||ct2==='album'||ct2==='brand'||ct2==='company'||
+          ct2==='platform'||ct2==='product'||ct2==='organization'||ct2==='campaign'||
+          ct2==='show'||ct2==='tv show'||ct2==='movie'||ct2==='film'||ct2==='video'||
+          ct2==='trend'||ct2==='game'||ct2==='podcast';
+        if(!isKnownMedia2) return; // blank box for everything else
+
         var img2=null;
         if(isSong2&&title2){
           try{
@@ -3480,8 +3481,8 @@ function handleShare(){
             });
           }catch(e){}
         }
-        if(!img2&&title2) img2=await trySummary2(title2);
-        if(!img2&&title2) img2=await trySearch2(title2);
+        if(!img2&&title2) img2=await sum2(title2);
+        if(!img2&&title2) img2=await search2(title2);
         if(img2) setWikiImg(img2);
       })();
     }
@@ -3656,17 +3657,26 @@ function handlePrint(){
   if(isRegistered()){
     const r=window._lastResult;
     document.title='NoTrojan Report — '+(r?.content_id?.title||r?.title||r?.query||'NoTrojan');
+    // Hide every element in the scanner section
+    const hideEls=Array.from(document.querySelectorAll(
+      '.scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,'+
+      '.inp-lbl,.inp-row,.prog-row,.err-bar,#swipeBanner,#floatShareBtn,'+
+      '#scanBtn,#clearBtn,#urlInput,.fake-cursor,.cursor-wrap'
+    ));
     const results=document.getElementById('results');
     const header=document.getElementById('contentHeader');
-    if(results){results._pd=results.style.display;results.style.setProperty('display','block','important');}
-    if(header){header._pd=header.style.display;header.style.setProperty('display','block','important');}
+    // Force hide with inline style — overrides everything
+    hideEls.forEach(el=>{el._pd=el.style.display;el.style.cssText+=';display:none!important;';});
+    if(results){results._pd=results.style.display;results.style.cssText+=';display:block!important;';}
+    if(header){header._pd=header.style.display;header.style.cssText+=';display:block!important;';}
     setTimeout(function(){
       window.print();
       setTimeout(function(){
+        hideEls.forEach(el=>{el.style.display=el._pd||'';});
         if(results) results.style.display=results._pd||'none';
         if(header) header.style.display=header._pd||'none';
-      },1500);
-    },200);
+      },2000);
+    },400);
   } else {
     const pd=document.createElement('div');
     pd.id='printGateDiv';
