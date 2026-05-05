@@ -3038,7 +3038,7 @@ function fetchReportImage(r, col){
       const svgMatch=txt.match(/<svg[\s\S]*<\/svg>/i);
       if(svgMatch){const blob=new Blob([svgMatch[0]],{type:'image/svg+xml'});render(URL.createObjectURL(blob));}
     }catch(e){}
-  } while fetching
+  }
 
   var isLogoUrl=function(u){
     if(isBrand) return false;
