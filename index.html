@@ -3097,18 +3097,12 @@ var isLogoUrl=function(u){
 
   (async function(){
     var img=null;
-    var query=r?.query||'';
-    var label=r?.content_id?.label||'';
     var ct=(r?.content_id?.type||'').toLowerCase();
-    var isPersonType=ct==='person'||ct==='athlete'||ct==='politician'||ct==='entrepreneur'||
+    var isP=ct==='person'||ct==='athlete'||ct==='politician'||ct==='entrepreneur'||
       ct==='public figure'||ct==='creator'||ct==='broadcaster'||ct==='anchor'||
       ct==='tv host'||ct==='host'||ct==='journalist'||ct==='author'||ct==='actor'||
-      ct==='musician'||ct==='rapper'||ct==='singer'||ct==='sports commentary'||ct==='sportscaster';
-
-    if(isPersonType){
-      generateSVGPlaceholder();
-      return;
-    }
+      ct==='musician'||ct==='rapper'||ct==='singer'||ct==='sports commentary';
+    if(isP){generateSVGPlaceholder();return;}
 
     if(isSong&&title){
       try{
@@ -3121,11 +3115,8 @@ var isLogoUrl=function(u){
         });
       }catch(e){}
     }
-
     if(!img&&title) img=await trySummary(title);
     if(!img&&title) img=await trySearch(title);
-    if(!img&&label&&label!==title) img=await trySearch(label);
-
     if(img) render(img);
     else generateSVGPlaceholder();
   })();
@@ -3469,23 +3460,40 @@ function handleShare(){
       (async function(){
         var img=null;
         var query2=r?.query||'';
-        var lookup2=(isPerson2||isSong2)?creator2:title2;
-        var fallback2=(isPerson2||isSong2)?title2:creator2;
-
-        // Primary: prop=images infobox photo
-        if(!img&&lookup2) img=await tryWI2(lookup2);
-        // Summary fallback
-        if(!img&&lookup2) img=await sum2(lookup2);
-        // Search fallback
-        if(!img&&lookup2) img=await search2(lookup2);
-        // Try the other field
-        if(!img&&fallback2) img=await tryWI2(fallback2);
-        if(!img&&fallback2) img=await sum2(fallback2);
-        // Last resort query
-        if(!img&&query2&&query2!==lookup2) img=await tryWI2(query2);
-        if(!img&&query2&&query2!==lookup2) img=await sum2(query2);
-        if(!img&&query2) img=await search2(query2);
-        if(img) setWikiImg(img);
+        var ct2=(r?.content_id?.type||'').toLowerCase();
+        var isP2=ct2==='person'||ct2==='athlete'||ct2==='politician'||ct2==='entrepreneur'||
+          ct2==='public figure'||ct2==='creator'||ct2==='broadcaster'||ct2==='anchor'||
+          ct2==='tv host'||ct2==='host'||ct2==='journalist'||ct2==='author'||ct2==='actor'||
+          ct2==='musician'||ct2==='rapper'||ct2==='singer'||ct2==='sports commentary';
+        if(isP2){
+          // Generate SVG for share card too
+          const desc2=r?.content_id?.description||'';
+          const t2=r?.content_id?.title||r?.query||'';
+          const prompt2='Create a simple flat SVG icon (viewBox="0 0 120 120") for: '+t2+' type: '+ct2+'. Return ONLY the SVG element. Use 2-3 symbolic shapes. Background fill="#0a1a0f". Icons stroke="#00cc55". No text.';
+          fetch('https://notrojan-proxy.ryanalanrogers.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt2}]})})
+            .then(function(r){return r.json();})
+            .then(function(d){
+              const txt=(d.content&&d.content[0]&&d.content[0].text)||'';
+              const sm=txt.match(/<svg[\s\S]*<\/svg>/i);
+              if(sm){const blob=new Blob([sm[0]],{type:'image/svg+xml'});setWikiImg(URL.createObjectURL(blob));}
+            }).catch(function(){});
+          return;
+        }
+        var img2=null;
+        if(isSong2&&title2){
+          try{
+            var itunesQ2=encodeURIComponent(title2+(creator2?' '+creator2:''));
+            var cb2='itcb2_'+Date.now();
+            await new Promise(function(resolve){
+              window[cb2]=function(d){delete window[cb2];var res=d&&d.results&&d.results[0];if(res&&res.artworkUrl100)img2=res.artworkUrl100.replace('100x100bb','600x600bb');resolve();};
+              var sc2=document.createElement('script');sc2.src='https://itunes.apple.com/search?term='+itunesQ2+'&media=music&limit=1&callback='+cb2;sc2.onerror=function(){delete window[cb2];resolve();};document.head.appendChild(sc2);
+              setTimeout(function(){if(window[cb2]){delete window[cb2];resolve();}},3000);
+            });
+          }catch(e){}
+        }
+        if(!img2&&title2) img2=await trySummary2(title2);
+        if(!img2&&title2) img2=await trySearch2(title2);
+        if(img2) setWikiImg(img2);
       })();
     }
   }
