@@ -3024,6 +3024,26 @@ function fetchReportImage(r, col){
   }
 
   render(null); // show tint+horse immediately
+
+  async function generateSVGPlaceholder(){
+    const desc=(r.content_id?.description||r.description||'').slice(0,120);
+    const ct=r.content_id?.type||'';
+    const t=(r.content_id?.title||r.query||'').slice(0,60);
+    const prompt='Create a flat SVG icon (viewBox="0 0 120 120") for a '+ct+' named "'+t+'". '+desc+' Return ONLY the SVG element with no explanation. Use 2-3 relevant symbols (scales of justice, gavel, book, podium, mic, globe, star, trophy, musical note, film reel, etc). Background: rect fill="#0a1a0f" width="120" height="120". Symbol stroke="#00cc55" stroke-width="2" fill="none". No text labels.';
+    try{
+      const resp=await fetch('https://notrojan-proxy.ryanalanrogers.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})});
+      const d=await resp.json();
+      const txt=(d.content&&d.content[0]&&d.content[0].text)||'';
+      const svgMatch=txt.match(/<svg[\s\S]*<\/svg>/i);
+      if(svgMatch){
+        // Inject SVG directly into the image box
+        const svgStr=svgMatch[0];
+        const encoded='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgStr);
+        render(encoded);
+      }
+    }catch(e){}
+  }
+
 var isLogoUrl=function(u){
     if(isBrand) return false;
     u=(u||'').toLowerCase();
@@ -3475,7 +3495,7 @@ function handleShare(){
             .then(function(d){
               const txt=(d.content&&d.content[0]&&d.content[0].text)||'';
               const sm=txt.match(/<svg[\s\S]*<\/svg>/i);
-              if(sm){const blob=new Blob([sm[0]],{type:'image/svg+xml'});setWikiImg(URL.createObjectURL(blob));}
+              if(sm){const encoded2='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(sm[0]);setWikiImg(encoded2);}
             }).catch(function(){});
           return;
         }
