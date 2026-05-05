@@ -427,15 +427,19 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 .print-btn:hover{background:rgba(0,255,106,0.1);color:var(--green);}
 
 @media print{
-  body > *,.tab-panel,.scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,
-  #swipeBanner,#floatShareBtn,#shareMenuModal,nav,header,.nav-bar,.nav-swipe-banner,
-  footer,body::before,body::after{display:none!important;}
-  #tab-scanner,#results,#contentHeader,#scoreCard{display:block!important;}
+  /* Hide everything except the report */
+  header,nav,.nav-bar,.nav-swipe-banner,footer,
+  body::before,body::after,
+  .scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,
+  #swipeBanner,#floatShareBtn,#shareMenuModal,
+  .tab-panel:not(#tab-scanner){display:none!important;}
+  /* Show the report sections */
+  #tab-scanner{display:block!important;padding:0!important;margin:0!important;}
+  #results{display:block!important;margin:0!important;padding:0!important;}
+  #contentHeader{display:block!important;margin:0!important;padding:13px 16px!important;}
+  #scoreCard{display:block!important;margin-top:0!important;}
   body{background:#fff!important;color:#000!important;margin:0;padding:0;}
   .main{padding:0!important;max-width:100%!important;display:block!important;}
-  #results{margin:0!important;padding:0!important;}
-  #contentHeader{margin:0!important;padding:13px 16px!important;}
-  #scoreCard{margin-top:0!important;}
   .score-card,.sec{border:1px solid #ccc!important;break-inside:avoid;}
   .sc-num{color:#000!important;}
   *{background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
@@ -3102,8 +3106,7 @@ var isLogoUrl=function(u){
       ct==='public figure'||ct==='creator'||ct==='broadcaster'||ct==='anchor'||
       ct==='tv host'||ct==='host'||ct==='journalist'||ct==='author'||ct==='actor'||
       ct==='musician'||ct==='rapper'||ct==='singer'||ct==='sports commentary';
-    if(isP) return; // blank box with threat color — no wrong images
-
+    if(isP) return;
     if(isSong&&title){
       try{
         var itunesQ=encodeURIComponent(title+(creator?' '+creator:''));
@@ -3464,8 +3467,7 @@ function handleShare(){
           ct2==='public figure'||ct2==='creator'||ct2==='broadcaster'||ct2==='anchor'||
           ct2==='tv host'||ct2==='host'||ct2==='journalist'||ct2==='author'||ct2==='actor'||
           ct2==='musician'||ct2==='rapper'||ct2==='singer'||ct2==='sports commentary';
-        if(isP2) return; // blank box with threat color
-
+        if(isP2) return;
         var img2=null;
         if(isSong2&&title2){
           try{
