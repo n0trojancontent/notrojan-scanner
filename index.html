@@ -1640,7 +1640,7 @@ function showGate(score, ratingClass){
     // Pledge — prominent, centered, large
     + '<div style="background:rgba(0,255,106,0.08);border:2px solid var(--green);border-radius:2px;padding:20px;margin-bottom:18px;">'
     + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:0.65rem;color:var(--green);letter-spacing:0.14em;margin-bottom:12px;text-align:center;">// THE NoT™ GREEN PLEDGE</div>'
-    + '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.95rem;font-weight:500;color:var(--white);line-height:1.9;margin:0 0 16px 0;text-align:left;font-style:normal;"><strong>1. Explore</strong> — diverse sources &nbsp;·&nbsp; <strong>2. Engage</strong> — evaluate critically &nbsp;·&nbsp; <strong>3. Empower</strong> — act responsibly</p>'
+    + '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.95rem;font-weight:500;color:var(--white);line-height:1.9;margin:0 0 16px 0;text-align:left;font-style:normal;"><strong>1. Explore</strong> — identify and access information from diverse sources<br><strong>2. Engage</strong> — analyze and evaluate content critically, questioning sources, motives, reliability, and impact on the wellbeing of vulnerable individuals and communities<br><strong>3. Empower</strong> — create, share, and act responsibly with information</p>'
     + '<div style="display:flex;align-items:flex-start;gap:10px;">'
     + '<input type="checkbox" id="gatePledge" style="margin-top:4px;flex-shrink:0;width:18px;height:18px;cursor:pointer;accent-color:var(--green);" />'
     + '<label for="gatePledge" style="font-size:0.84rem;color:var(--white2);line-height:1.6;cursor:pointer;">I take this pledge. I agree to receive community emails. A confirmation will be sent to verify your email.</label>'
@@ -3100,12 +3100,15 @@ var isLogoUrl=function(u){
   (async function(){
     var img=null;
     var ct=(r?.content_id?.type||'').toLowerCase();
-    var isKnownMedia=ct==='song'||ct==='album'||ct==='brand'||ct==='company'||
-      ct==='platform'||ct==='product'||ct==='organization'||ct==='campaign'||
-      ct==='show'||ct==='tv show'||ct==='movie'||ct==='film'||ct==='video'||
-      ct==='trend'||ct==='game'||ct==='podcast';
-    if(!isKnownMedia) return; // blank box for everything else
+    // Only skip image lookup for pure person/creator types where name lookup returns wrong photos
+    var skipLookup=ct==='person'||ct==='athlete'||ct==='politician'||ct==='entrepreneur'||
+      ct==='public figure'||ct==='creator'||ct==='broadcaster'||ct==='anchor'||
+      ct==='tv host'||ct==='host'||ct==='journalist'||ct==='author'||ct==='actor'||
+      ct==='musician'||ct==='rapper'||ct==='singer'||ct==='comedian'||ct==='influencer'||
+      ct==='youtuber'||ct==='podcaster'||ct==='coach';
+    if(skipLookup) return;
 
+    // For everything else (song, show, character, brand, movie, trend, etc.) try to find image
     if(isSong&&title){
       try{
         var itunesQ=encodeURIComponent(title+(creator?' '+creator:''));
@@ -3119,6 +3122,7 @@ var isLogoUrl=function(u){
     }
     if(!img&&title) img=await trySummary(title);
     if(!img&&title) img=await trySearch(title);
+    if(!img&&creator&&creator!==title) img=await trySummary(creator);
     if(img) render(img);
   })();
 }
@@ -3462,12 +3466,12 @@ function handleShare(){
         var img=null;
         var query2=r?.query||'';
         var ct2=(r?.content_id?.type||'').toLowerCase();
-        // Only look up images for known non-person types
-        var isKnownMedia2=ct2==='song'||ct2==='album'||ct2==='brand'||ct2==='company'||
-          ct2==='platform'||ct2==='product'||ct2==='organization'||ct2==='campaign'||
-          ct2==='show'||ct2==='tv show'||ct2==='movie'||ct2==='film'||ct2==='video'||
-          ct2==='trend'||ct2==='game'||ct2==='podcast';
-        if(!isKnownMedia2) return; // blank box for everything else
+        var skipLookup2=ct2==='person'||ct2==='athlete'||ct2==='politician'||ct2==='entrepreneur'||
+          ct2==='public figure'||ct2==='creator'||ct2==='broadcaster'||ct2==='anchor'||
+          ct2==='tv host'||ct2==='host'||ct2==='journalist'||ct2==='author'||ct2==='actor'||
+          ct2==='musician'||ct2==='rapper'||ct2==='singer'||ct2==='comedian'||ct2==='influencer'||
+          ct2==='youtuber'||ct2==='podcaster'||ct2==='coach';
+        if(skipLookup2) return;
 
         var img2=null;
         if(isSong2&&title2){
@@ -3483,6 +3487,7 @@ function handleShare(){
         }
         if(!img2&&title2) img2=await sum2(title2);
         if(!img2&&title2) img2=await search2(title2);
+        if(!img2&&creator2&&creator2!==title2) img2=await sum2(creator2);
         if(img2) setWikiImg(img2);
       })();
     }
