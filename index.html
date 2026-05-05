@@ -427,14 +427,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 .print-btn:hover{background:rgba(0,255,106,0.1);color:var(--green);}
 
 @media print{
-  /* Hide everything by default */
-  body > *,
-  .tab-panel,
-  .scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,
-  #swipeBanner,#floatShareBtn,#shareMenuModal,
-  nav,header,.nav-bar,.nav-swipe-banner,
+  body > *,.tab-panel,.scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,
+  #swipeBanner,#floatShareBtn,#shareMenuModal,nav,header,.nav-bar,.nav-swipe-banner,
   footer,body::before,body::after{display:none!important;}
-  /* Show only the report sections */
   #tab-scanner,#results,#contentHeader,#scoreCard{display:block!important;}
   body{background:#fff!important;color:#000!important;margin:0;padding:0;}
   .main{padding:0!important;max-width:100%!important;display:block!important;}
@@ -3273,7 +3268,7 @@ async function submitContact(e){
     btn.textContent='⚡ Request More Info';
   }
 }
-function closeContact(){document.getElementById('contactOverlay').classList.remove('open');document.body.style.overflow='';}
+
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('contactOverlay').addEventListener('click',function(e){if(e.target===this)closeContact();});});
 
 function handleShareMenu(){
@@ -3681,17 +3676,13 @@ function handlePrint(){
     document.title='NoTrojan Report — '+(r?.content_id?.title||r?.title||r?.query||'NoTrojan');
     const results=document.getElementById('results');
     const header=document.getElementById('contentHeader');
-    const scoreCard=document.getElementById('scoreCard');
-    // Force show only the report elements
     if(results){results._pd=results.style.display;results.style.setProperty('display','block','important');}
     if(header){header._pd=header.style.display;header.style.setProperty('display','block','important');}
-    if(scoreCard){scoreCard._pd=scoreCard.style.display;scoreCard.style.setProperty('display','block','important');}
     setTimeout(function(){
       window.print();
       setTimeout(function(){
         if(results) results.style.display=results._pd||'none';
         if(header) header.style.display=header._pd||'none';
-        if(scoreCard) scoreCard.style.display=scoreCard._pd||'';
       },1500);
     },200);
   } else {
