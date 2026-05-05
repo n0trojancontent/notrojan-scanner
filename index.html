@@ -427,26 +427,23 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 .print-btn:hover{background:rgba(0,255,106,0.1);color:var(--green);}
 
 @media print{
-  header,nav,.nav-bar,.nav-swipe-banner,footer,
-  body::before,body::after,
-  .scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,
-  #swipeBanner,#floatShareBtn,#shareMenuModal,
-  .tab-panel:not(#tab-scanner){display:none!important;}
-  #tab-scanner{display:block!important;padding:0!important;margin:0!important;}
-  #results{display:block!important;margin:0!important;padding:0!important;}
-  #contentHeader{display:block!important;margin:0!important;padding:13px 16px!important;}
-  #scoreCard{display:block!important;margin-top:0!important;}
-  body{background:#fff!important;color:#000!important;margin:0;padding:0;}
-  .main{padding:0!important;max-width:100%!important;display:block!important;}
-  .score-card,.sec{border:1px solid #ccc!important;break-inside:avoid;}
+  header,nav,.nav-bar,.input-box,.prog-row,.err-bar,
+  .tab-panel:not(.active),.print-btn,footer,body::before,body::after,
+  .scan-hdr,.scanner-neon,.scroll-teaser,.print-hide,
+  #swipeBanner,#floatShareBtn,#shareMenuModal{display:none!important;}
+  body{background:#fff!important;color:#000!important;}
+  .main{padding:0!important;max-width:100%!important;}
+  .tab-panel.active{display:block!important;}
+  #results,#contentHeader{display:block!important;margin-top:0!important;padding-top:0!important;}
+  .score-card,.sec{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;}
   .sc-num{color:#000!important;}
-  *{background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
+  *{color:#111!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
   a[href]:after{content:none!important;}
 }
 
 /* ── EMAIL GATE ── */
 .gate-overlay{position:fixed;inset:0;background:rgba(2,12,6,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
-.gate-box{background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:480px;width:100%;padding:32px 28px;position:relative;max-height:90vh;overflow-y:auto;}
+.gate-box{background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:480px;width:100%;padding:32px 28px;position:relative;}
 .gate-badge{font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:10px;}
 .gate-title{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;color:var(--green);letter-spacing:0.04em;line-height:1.1;margin-bottom:6px;}
 .gate-sub{font-size:0.84rem;color:var(--white2);line-height:1.65;margin-bottom:18px;}
@@ -541,7 +538,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     <!-- SCROLL TEASER -->
     <div class="scroll-teaser">↓ Scroll down for cultural impact score and full analysis ↓</div>
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
+    <div class="print-hide" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
       <button id="floatShareBtn" onclick="handleShareMenu()" style="display:none;align-items:center;gap:8px;background:#020c06;border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;padding:12px 22px;cursor:pointer;text-transform:uppercase;box-shadow:0 0 20px rgba(0,255,106,0.3);transition:all 0.2s;position:fixed;bottom:24px;right:20px;z-index:9000;">📤 Share Report</button>
     </div>
@@ -1640,7 +1637,7 @@ function showGate(score, ratingClass){
     // Pledge — prominent, centered, large
     + '<div style="background:rgba(0,255,106,0.08);border:2px solid var(--green);border-radius:2px;padding:20px;margin-bottom:18px;">'
     + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:0.65rem;color:var(--green);letter-spacing:0.14em;margin-bottom:12px;text-align:center;">// THE NoT™ GREEN PLEDGE</div>'
-    + '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.95rem;font-weight:500;color:var(--white);line-height:1.9;margin:0 0 16px 0;text-align:left;font-style:normal;"><strong>1. Explore</strong> — identify and access information from diverse sources<br><strong>2. Engage</strong> — analyze and evaluate content critically, questioning sources, motives, reliability, and impact on the wellbeing of vulnerable individuals and communities<br><strong>3. Empower</strong> — create, share, and act responsibly with information</p>'
+    + '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.95rem;font-weight:500;color:var(--white);line-height:1.9;margin:0 0 16px 0;text-align:left;font-style:normal;">I pledge to:<br><br><strong>1. Explore</strong> &mdash; identify and access information from diverse sources<br><br><strong>2. Engage</strong> &mdash; analyze and evaluate content critically, questioning sources, motives, reliability, and impact on the wellbeing of vulnerable individuals and communities at large<br><br><strong>3. Empower</strong> &mdash; create, share, and act responsibly with information</p>'
     + '<div style="display:flex;align-items:flex-start;gap:10px;">'
     + '<input type="checkbox" id="gatePledge" style="margin-top:4px;flex-shrink:0;width:18px;height:18px;cursor:pointer;accent-color:var(--green);" />'
     + '<label for="gatePledge" style="font-size:0.84rem;color:var(--white2);line-height:1.6;cursor:pointer;">I take this pledge. I agree to receive community emails. A confirmation will be sent to verify your email.</label>'
@@ -3025,8 +3022,9 @@ function fetchReportImage(r, col){
     }
   }
 
-  render(null); // show tint+horse immediately
-var isLogoUrl=function(u){
+  render(null); // show tint+horse immediately while fetching
+
+  var isLogoUrl=function(u){
     if(isBrand) return false;
     u=(u||'').toLowerCase();
     return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');
@@ -3100,15 +3098,12 @@ var isLogoUrl=function(u){
   (async function(){
     var img=null;
     var ct=(r?.content_id?.type||'').toLowerCase();
-    // Only skip image lookup for pure person/creator types where name lookup returns wrong photos
     var skipLookup=ct==='person'||ct==='athlete'||ct==='politician'||ct==='entrepreneur'||
       ct==='public figure'||ct==='creator'||ct==='broadcaster'||ct==='anchor'||
       ct==='tv host'||ct==='host'||ct==='journalist'||ct==='author'||ct==='actor'||
       ct==='musician'||ct==='rapper'||ct==='singer'||ct==='comedian'||ct==='influencer'||
       ct==='youtuber'||ct==='podcaster'||ct==='coach';
     if(skipLookup) return;
-
-    // For everything else (song, show, character, brand, movie, trend, etc.) try to find image
     if(isSong&&title){
       try{
         var itunesQ=encodeURIComponent(title+(creator?' '+creator:''));
@@ -3472,7 +3467,6 @@ function handleShare(){
           ct2==='musician'||ct2==='rapper'||ct2==='singer'||ct2==='comedian'||ct2==='influencer'||
           ct2==='youtuber'||ct2==='podcaster'||ct2==='coach';
         if(skipLookup2) return;
-
         var img2=null;
         if(isSong2&&title2){
           try{
@@ -3658,30 +3652,28 @@ function downloadFullColorPDF(){
   function loadH2C(cb){if(typeof html2canvas!=='undefined'){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=cb;s.onerror=function(){removeLoader();};document.head.appendChild(s);}
   loadH2C(function(){loadJsPDF(function(){setBar(10);doCapture();});});
 }
+// beforeprint/afterprint — most reliable cross-browser approach
+window.addEventListener('beforeprint',function(){
+  var toHide=document.querySelectorAll('.scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,#swipeBanner,#floatShareBtn,.prog-row,.err-bar');
+  toHide.forEach(function(el){el.setAttribute('data-ph',el.style.display||'');el.style.setProperty('display','none','important');});
+  var results=document.getElementById('results');
+  var header=document.getElementById('contentHeader');
+  if(results){results.setAttribute('data-ph-r',results.style.display||'');results.style.setProperty('display','block','important');results.style.setProperty('margin','0','important');results.style.setProperty('padding','0','important');}
+  if(header){header.setAttribute('data-ph-h',header.style.display||'');header.style.setProperty('display','block','important');header.style.setProperty('margin','0','important');}
+});
+window.addEventListener('afterprint',function(){
+  document.querySelectorAll('[data-ph]').forEach(function(el){el.style.display=el.getAttribute('data-ph');el.removeAttribute('data-ph');});
+  var results=document.getElementById('results');
+  var header=document.getElementById('contentHeader');
+  if(results){results.style.display=results.getAttribute('data-ph-r')||'none';results.removeAttribute('data-ph-r');}
+  if(header){header.style.display=header.getAttribute('data-ph-h')||'none';header.removeAttribute('data-ph-h');}
+});
+
 function handlePrint(){
   if(isRegistered()){
     const r=window._lastResult;
     document.title='NoTrojan Report — '+(r?.content_id?.title||r?.title||r?.query||'NoTrojan');
-    // Hide every element in the scanner section
-    const hideEls=Array.from(document.querySelectorAll(
-      '.scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,'+
-      '.inp-lbl,.inp-row,.prog-row,.err-bar,#swipeBanner,#floatShareBtn,'+
-      '#scanBtn,#clearBtn,#urlInput,.fake-cursor,.cursor-wrap'
-    ));
-    const results=document.getElementById('results');
-    const header=document.getElementById('contentHeader');
-    // Force hide with inline style — overrides everything
-    hideEls.forEach(el=>{el._pd=el.style.display;el.style.cssText+=';display:none!important;';});
-    if(results){results._pd=results.style.display;results.style.cssText+=';display:block!important;';}
-    if(header){header._pd=header.style.display;header.style.cssText+=';display:block!important;';}
-    setTimeout(function(){
-      window.print();
-      setTimeout(function(){
-        hideEls.forEach(el=>{el.style.display=el._pd||'';});
-        if(results) results.style.display=results._pd||'none';
-        if(header) header.style.display=header._pd||'none';
-      },2000);
-    },400);
+    window.print();
   } else {
     const pd=document.createElement('div');
     pd.id='printGateDiv';
