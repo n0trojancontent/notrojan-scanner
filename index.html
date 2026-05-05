@@ -3529,23 +3529,28 @@ function downloadFullColorPDF(){
 function handlePrint(){
   if(isRegistered()){
     const r=window._lastResult;
-    const titleStr=(r?.content_id?.title||r?.title||r?.query||'NoTrojan Report');
-    document.title='NoTrojan Report — '+titleStr;
-    // Temporarily force-show elements with inline display:none
+    document.title='NoTrojan Report — '+(r?.content_id?.title||r?.title||r?.query||'NoTrojan');
+    // Elements to HIDE during print (have content but shouldn't show)
+    const toHide=['scan-hdr','input-box','scroll-teaser'].map(c=>document.querySelector('.'+c)).filter(Boolean);
+    const toHideIds=['swipeBanner','floatShareBtn'].map(id=>document.getElementById(id)).filter(Boolean);
+    const hideAll=[...toHide,...toHideIds];
+    // Elements to SHOW during print (JS sets display:none inline)
     const results=document.getElementById('results');
     const header=document.getElementById('contentHeader');
     const wasResults=results?results.style.display:'';
     const wasHeader=header?header.style.display:'';
+    // Apply
+    hideAll.forEach(el=>{el._wasDis=el.style.display;el.style.display='none';});
     if(results) results.style.display='block';
     if(header) header.style.display='block';
-    // Print then restore
     setTimeout(function(){
       window.print();
       setTimeout(function(){
+        hideAll.forEach(el=>{el.style.display=el._wasDis||'';});
         if(results) results.style.display=wasResults;
         if(header) header.style.display=wasHeader;
       },1000);
-    },100);
+    },150);
   } else {
     const pd=document.createElement('div');
     pd.id='printGateDiv';
