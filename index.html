@@ -3030,13 +3030,13 @@ function fetchReportImage(r, col){
     const desc=r.content_id?.description||r.description||'';
     const ct=r.content_id?.type||'';
     const t=r.content_id?.title||r.query||'';
-    const prompt=`Create a simple flat SVG icon (viewBox="0 0 120 120") representing: "${t}" type: ${ct} — "${desc}". Return ONLY the SVG element. Use 2-3 simple symbolic shapes (scales of justice, gavel, podium, book, mic, globe, trophy, etc). Background rect fill="#0a1a0f". Icons: stroke="#00cc55" fill="none". No text.`;
+    const prompt=`Create a simple flat SVG icon (viewBox="0 0 120 120") representing: "${t}" type: ${ct} — "${desc}". Return ONLY the SVG element. Use 2-3 simple symbolic shapes. Background rect fill="#0a1a0f". Icons: stroke="#00cc55" fill="none". No text.`;
     try{
       const resp=await fetch('https://notrojan-proxy.ryanalanrogers.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
       const d=await resp.json();
       const txt=(d.content&&d.content[0]&&d.content[0].text)||'';
-      const m=txt.match(/<svg[\s\S]*<\/svg>/i);
-      if(m){const blob=new Blob([m[0]],{type:'image/svg+xml'});render(URL.createObjectURL(blob));}
+      const svgMatch=txt.match(/<svg[\s\S]*<\/svg>/i);
+      if(svgMatch){const blob=new Blob([svgMatch[0]],{type:'image/svg+xml'});render(URL.createObjectURL(blob));}
     }catch(e){}
   } while fetching
 
