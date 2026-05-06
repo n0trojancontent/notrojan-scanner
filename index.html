@@ -3804,7 +3804,7 @@ function handlePrint(){
     document.head.appendChild(ps);
 
     // Hide scanner UI
-    var toHide=results.parentElement.querySelectorAll('.scan-hdr,.input-box,.scroll-teaser,.print-hide,.prog-row,.err-bar,.scanner-neon');
+    var toHide=document.querySelectorAll('.scan-hdr,.input-box,.scroll-teaser,.print-hide,.prog-row,.err-bar,.scanner-neon,#floatShareBtn,#swipeBanner');
     toHide.forEach(function(el){el.setAttribute('data-wph',el.style.display||'');el.style.display='none';});
 
     var loader=document.createElement('div');loader.id='printLoader';
@@ -3816,10 +3816,12 @@ function handlePrint(){
       var l=document.getElementById('printLoader');if(l)l.remove();
       var s=document.getElementById('printCaptureStyle');if(s)s.remove();
       toHide.forEach(function(el){el.style.display=el.getAttribute('data-wph')||'';el.removeAttribute('data-wph');});
+      results.style.display='none';
+      var ch=document.getElementById('contentHeader');if(ch)ch.style.display='none';
     }
     function doCapture(){
       setBar(20);
-      html2canvas(results,{backgroundColor:'#ffffff',scale:1.5,useCORS:true,allowTaint:true,scrollY:-window.scrollY,windowWidth:document.documentElement.scrollWidth}).then(function(canvas){
+      html2canvas(results,{backgroundColor:'#ffffff',scale:1.5,useCORS:true,allowTaint:true,scrollY:0,windowWidth:document.documentElement.scrollWidth}).then(function(canvas){
         setBar(70);
         var imgData=canvas.toDataURL('image/jpeg',0.92);
         var jsPDF=window.jspdf.jsPDF;
@@ -3835,7 +3837,15 @@ function handlePrint(){
     }
     function loadJsPDF(cb){if(window.jspdf){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=cb;s.onerror=function(){cleanup();};document.head.appendChild(s);}
     function loadH2C(cb){if(typeof html2canvas!=='undefined'){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=cb;s.onerror=function(){cleanup();};document.head.appendChild(s);}
-    setTimeout(function(){loadH2C(function(){loadJsPDF(function(){setBar(10);doCapture();});});},100);
+    // Make results visible before capture
+    results.style.display='block';
+    var ch=document.getElementById('contentHeader');
+    if(ch)ch.style.display='block';
+    // Make results and all children visible before capture
+    results.style.setProperty('display','block','important');
+    var ch=document.getElementById('contentHeader');
+    if(ch)ch.style.setProperty('display','block','important');
+    setTimeout(function(){loadH2C(function(){loadJsPDF(function(){setBar(10);doCapture();});});},150);
   } else {
     const pd=document.createElement('div');
     pd.id='printGateDiv';
