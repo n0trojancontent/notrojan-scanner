@@ -3682,7 +3682,7 @@ function downloadShareCard(){
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
-      // Direct PNG download
+      // Download image then show share confirmation
       const link=document.createElement('a');
       link.download=`notrojan-${title}-score-card.png`;
       link.href=canvas.toDataURL('image/png');
@@ -3773,7 +3773,7 @@ function handlePrint(){
     document.head.appendChild(ps);
 
     // Hide scanner UI and elements inside results that create gaps
-    var toHide=document.querySelectorAll('.scan-hdr,.input-box,.scroll-teaser,.print-hide,.prog-row,.err-bar,.scanner-neon,#floatShareBtn,#swipeBanner');
+    var toHide=document.querySelectorAll('.scroll-teaser,.print-hide');
     toHide.forEach(function(el){el.setAttribute('data-wph',el.style.cssText||'');el.style.cssText='display:none!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;';});
 
     // Save original display state then make visible for capture
@@ -3794,6 +3794,12 @@ function handlePrint(){
       toHide.forEach(function(el){el.style.cssText=el.getAttribute('data-wph')||'';el.removeAttribute('data-wph');});
       results.style.display=resultsOrigDisplay;
       if(ch)ch.style.display=chOrigDisplay;
+      // Scroll back to report
+      setTimeout(function(){
+        var sc=document.getElementById('scoreCard');
+        if(sc)sc.scrollIntoView({behavior:'smooth',block:'start'});
+        else results.scrollIntoView({behavior:'smooth',block:'start'});
+      },100);
     }
     function doCapture(){
       setBar(20);
