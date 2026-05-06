@@ -3682,43 +3682,12 @@ function downloadShareCard(){
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
-      // Try native Web Share API first (mobile)
-      if(navigator.share && navigator.canShare){
-        try{
-          canvas.toBlob(async blob=>{
-            const file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-            if(navigator.canShare({files:[file]})){
-              await navigator.share({
-                files:[file],
-                title:`NoT™ Score Card — ${r?.content_id?.title||r?.title||r?.query||''}`,
-                text:`NoTrojan Score™: ${r?.score}/100 — ${r?.rating}\n\nnotrojan.com`
-              });
-              finish();
-              return;
-            }
-            // Fall back to download
-            const link=document.createElement('a');
-            link.download=`notrojan-${title}-score-card.png`;
-            link.href=canvas.toDataURL('image/png');
-            link.click();
-            finish();
-          },'image/png');
-        }catch(e){
-          // User cancelled or error — fall back to download
-          const link=document.createElement('a');
-          link.download=`notrojan-${title}-score-card.png`;
-          link.href=canvas.toDataURL('image/png');
-          link.click();
-          finish();
-        }
-      } else {
-        // Desktop — just download
-        const link=document.createElement('a');
-        link.download=`notrojan-${title}-score-card.png`;
-        link.href=canvas.toDataURL('image/png');
-        link.click();
-        finish();
-      }
+      // Direct PNG download
+      const link=document.createElement('a');
+      link.download=`notrojan-${title}-score-card.png`;
+      link.href=canvas.toDataURL('image/png');
+      link.click();
+      finish();
     }).catch(()=>finish());
   };
   if(typeof html2canvas!=='undefined'){go();}
@@ -3750,7 +3719,7 @@ function downloadFullColorPDF(){
       var pdf=new jsPDF({orientation:canvas.width>canvas.height?'l':'p',unit:'px',format:[canvas.width/1.5,canvas.height/1.5]});
       pdf.addImage(imgData,'JPEG',0,0,canvas.width/1.5,canvas.height/1.5);
       setBar(100);
-      setTimeout(function(){var blobUrl=pdf.output('bloburl');removeLoader();window.open(blobUrl,'_blank');},300);
+      setTimeout(function(){pdf.save(titleStr+'.pdf');removeLoader();},300);
     }).catch(function(){removeLoader();alert('PDF generation failed.');});
   }
   function loadJsPDF(cb){if(window.jspdf){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=cb;s.onerror=function(){removeLoader();};document.head.appendChild(s);}
@@ -3792,60 +3761,9 @@ window.addEventListener('afterprint',function(){
 
 function handlePrint(){
   if(isRegistered()){
-    var results=document.getElementById('results');
-    if(!results||results.style.display==='none'){alert('Please run a scan first.');return;}
-    var r=window._lastResult;
-    var titleStr=((r&&r.content_id&&r.content_id.title)?r.content_id.title:(r&&r.query?r.query:'NoTrojan')).replace(/[^a-z0-9_-]/gi,'_')+'_Print_Report';
-
-    // Inject white theme override
-    var ps=document.createElement('style');
-    ps.id='printCaptureStyle';
-    ps.textContent=':root{--bg:#ffffff;--bg2:#f8f8f8;--surface:#ffffff;--surface2:#f5f5f5;--border:#cccccc;--border2:#dddddd;--green:#007a30;--green2:#007a30;--green3:#007a30;--green4:#e8f5ee;--white:#111111;--white2:#333333;--muted:#666666;--red:#c41e1e;--red2:#c41e1e;--red3:#c41e1e;--orange:#cc6600;--yellow:#c8a800;}body,body *{color:#111!important;}';
-    document.head.appendChild(ps);
-
-    // Hide scanner UI
-    var toHide=document.querySelectorAll('.scan-hdr,.input-box,.scroll-teaser,.print-hide,.prog-row,.err-bar,.scanner-neon,#floatShareBtn,#swipeBanner');
-    toHide.forEach(function(el){el.setAttribute('data-wph',el.style.display||'');el.style.display='none';});
-
-    var loader=document.createElement('div');loader.id='printLoader';
-    loader.style.cssText='position:fixed;inset:0;background:rgba(255,255,255,0.97);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-    loader.innerHTML='<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#007a30;letter-spacing:0.14em;">// GENERATING PRINT-FRIENDLY REPORT...</div><div style="width:220px;height:2px;background:#ccc;"><div id="printBar" style="height:100%;background:#007a30;width:0%;transition:width 0.4s;"></div></div>';
-    document.body.appendChild(loader);
-    function setBar(p){var b=document.getElementById('printBar');if(b)b.style.width=p+'%';}
-    function cleanup(){
-      var l=document.getElementById('printLoader');if(l)l.remove();
-      var s=document.getElementById('printCaptureStyle');if(s)s.remove();
-      toHide.forEach(function(el){el.style.display=el.getAttribute('data-wph')||'';el.removeAttribute('data-wph');});
-      results.style.display='none';
-      var ch=document.getElementById('contentHeader');if(ch)ch.style.display='none';
-    }
-    function doCapture(){
-      setBar(20);
-      html2canvas(results,{backgroundColor:'#ffffff',scale:1.5,useCORS:true,allowTaint:true,scrollY:0,windowWidth:document.documentElement.scrollWidth}).then(function(canvas){
-        setBar(70);
-        var imgData=canvas.toDataURL('image/jpeg',0.92);
-        var jsPDF=window.jspdf.jsPDF;
-        var pdf=new jsPDF({orientation:canvas.width>canvas.height?'l':'p',unit:'px',format:[canvas.width/1.5,canvas.height/1.5]});
-        pdf.addImage(imgData,'JPEG',0,0,canvas.width/1.5,canvas.height/1.5);
-        setBar(100);
-        setTimeout(function(){
-          var blobUrl=pdf.output('bloburl');
-          cleanup();
-          window.open(blobUrl,'_blank');
-        },300);
-      }).catch(function(){cleanup();alert('PDF generation failed.');});
-    }
-    function loadJsPDF(cb){if(window.jspdf){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=cb;s.onerror=function(){cleanup();};document.head.appendChild(s);}
-    function loadH2C(cb){if(typeof html2canvas!=='undefined'){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=cb;s.onerror=function(){cleanup();};document.head.appendChild(s);}
-    // Make results visible before capture
-    results.style.display='block';
-    var ch=document.getElementById('contentHeader');
-    if(ch)ch.style.display='block';
-    // Make results and all children visible before capture
-    results.style.setProperty('display','block','important');
-    var ch=document.getElementById('contentHeader');
-    if(ch)ch.style.setProperty('display','block','important');
-    setTimeout(function(){loadH2C(function(){loadJsPDF(function(){setBar(10);doCapture();});});},150);
+    const r=window._lastResult;
+    document.title='NoTrojan Report — '+(r?.content_id?.title||r?.title||r?.query||'NoTrojan');
+    window.print();
   } else {
     const pd=document.createElement('div');
     pd.id='printGateDiv';
