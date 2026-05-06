@@ -446,11 +446,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 
 /* ── EMAIL GATE ── */
 .gate-overlay{position:fixed;inset:0;background:rgba(2,12,6,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
-.gate-box{background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:480px;width:100%;padding:18px;position:relative;}
+.gate-box{background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:480px;width:100%;padding:14px;position:relative;max-height:92vh;overflow-y:auto;}
 .gate-badge{font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:10px;}
 .gate-title{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;color:var(--green);letter-spacing:0.04em;line-height:1.1;margin-bottom:6px;}
-.gate-sub{font-size:0.84rem;color:var(--white2);line-height:1.65;margin-bottom:18px;}
-.gate-perks{background:var(--bg2);border:1px solid var(--border);padding:12px 14px;margin-bottom:18px;}
+.gate-sub{font-size:0.8rem;color:var(--white2);line-height:1.5;margin-bottom:10px;}
+.gate-perks{background:var(--bg2);border:1px solid var(--border);padding:8px 12px;margin-bottom:10px;}
 .gate-perk{font-size:0.78rem;color:var(--white2);line-height:1.7;padding:2px 0;}
 .gate-perk::before{content:'✓ ';color:var(--green2);font-weight:700;}
 .gate-inp{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--white);font-family:'Share Tech Mono',monospace;font-size:0.86rem;padding:11px 13px;outline:none;margin-bottom:10px;box-sizing:border-box;}
@@ -458,7 +458,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 .gate-btn{width:100%;background:var(--green4);border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;font-weight:800;letter-spacing:0.2em;padding:13px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;margin-bottom:8px;}
 .gate-btn:hover{background:rgba(0,255,106,0.12);}
 .gate-note{font-size:0.68rem;color:var(--muted);text-align:center;line-height:1.5;}
-.gate-score-preview{display:flex;align-items:center;gap:16px;background:var(--bg2);border:1px solid var(--border);padding:14px 16px;margin-bottom:18px;position:relative;overflow:hidden;}
+.gate-score-preview{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border);padding:10px 12px;margin-bottom:10px;position:relative;overflow:hidden;}
 .gate-score-num{font-family:'Barlow Condensed',sans-serif;font-size:2.8rem;font-weight:900;color:var(--green);line-height:1;filter:blur(0);}
 .gate-score-label{font-size:0.78rem;color:var(--white2);line-height:1.5;}
 .gate-blur-overlay{position:absolute;inset:0;background:linear-gradient(90deg,transparent 80px,rgba(2,12,6,0.96) 140px);display:flex;align-items:center;padding-left:110px;}
@@ -1625,11 +1625,11 @@ function showGate(score, ratingClass){
     + '</div>';
 
   // Main join form
-  const joinHTML = '<div style="background:var(--bg2);border:1px solid var(--border2);border-top:3px solid var(--green);padding:18px;margin-bottom:12px;">'
-    + '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:1rem;font-weight:900;color:var(--green);letter-spacing:0.08em;margin-bottom:4px;">🌿 JOIN THE NoT™ GREEN COMMUNITY — FREE</div>'
-    + '<div style="font-size:0.8rem;color:var(--white2);line-height:1.6;margin-bottom:12px;">You\'ve used your 2 free scans. Join free to keep scanning — and help us raise Cultural Influence Intelligence for youth and communities.</div>'
+  const joinHTML = '<div style="background:var(--bg2);border:1px solid var(--border2);border-top:3px solid var(--green);padding:12px;margin-bottom:10px;">'
+    + '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.95rem;font-weight:900;color:var(--green);letter-spacing:0.08em;margin-bottom:3px;">🌿 JOIN THE NoT™ GREEN COMMUNITY — FREE</div>'
+    + '<div style="font-size:0.76rem;color:var(--white2);line-height:1.5;margin-bottom:8px;">You\'ve used your 2 free scans. Join free to keep scanning — and help us raise Cultural Influence Intelligence for youth and communities.</div>'
     // Perks
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:14px;">'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px;">'
     + '<div class="gate-perk">✅ 10 scans per month</div>'
     + '<div class="gate-perk">✅ Full scan reports</div>'
     + '<div class="gate-perk">✅ 10% off NoT™ merch</div>'
@@ -1638,9 +1638,9 @@ function showGate(score, ratingClass){
     + '<div class="gate-perk">✅ Community resources</div>'
     + '</div>'
     // Pledge — prominent, centered, large
-    + '<div style="background:rgba(0,255,106,0.08);border:2px solid var(--green);border-radius:2px;padding:20px;margin-bottom:18px;">'
-    + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:0.65rem;color:var(--green);letter-spacing:0.14em;margin-bottom:12px;text-align:center;">// THE NoT™ GREEN PLEDGE</div>'
-    + '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.95rem;font-weight:500;color:var(--white);line-height:1.4;margin:0 0 8px 0;text-align:left;font-style:normal;"><strong>1. Explore</strong> &mdash; identify and access information from diverse sources<br><strong>2. Engage</strong> &mdash; analyze and evaluate content critically, questioning sources, motives, reliability, and impact on the wellbeing of vulnerable individuals and communities at large<br><strong>3. Empower</strong> &mdash; create, share, and act responsibly with information</p>'
+    + '<div style="background:rgba(0,255,106,0.08);border:2px solid var(--green);border-radius:2px;padding:10px 12px;margin-bottom:10px;">'
+    + '<div style="font-family:\'Share Tech Mono\',monospace;font-size:0.6rem;color:var(--green);letter-spacing:0.14em;margin-bottom:6px;text-align:center;">// THE NoT™ GREEN PLEDGE</div>'
+    + '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.85rem;font-weight:500;color:var(--white);line-height:1.35;margin:0 0 6px 0;text-align:left;font-style:normal;"><strong>1. Explore</strong> &mdash; identify and access information from diverse sources<br><strong>2. Engage</strong> &mdash; analyze and evaluate content critically, questioning sources, motives, reliability, and impact on the wellbeing of vulnerable individuals and communities at large<br><strong>3. Empower</strong> &mdash; create, share, and act responsibly with information</p>'
     + '<div style="display:flex;align-items:flex-start;gap:10px;">'
     + '<input type="checkbox" id="gatePledge" style="margin-top:4px;flex-shrink:0;width:18px;height:18px;cursor:pointer;accent-color:var(--green);" />'
     + '<label for="gatePledge" style="font-size:0.84rem;color:var(--white2);line-height:1.6;cursor:pointer;">I take this pledge. I agree to receive community emails.</label>'
@@ -1652,7 +1652,7 @@ function showGate(score, ratingClass){
     + '</div>';
 
   // Already a member row
-  const memberHTML = '<div style="background:var(--bg2);border:1px solid var(--border2);padding:14px;margin-bottom:12px;">'
+  const memberHTML = '<div style="background:var(--bg2);border:1px solid var(--border2);padding:10px;margin-bottom:8px;">'
     + '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.8rem;font-weight:900;color:var(--muted);letter-spacing:0.08em;margin-bottom:8px;">ALREADY A COMMUNITY MEMBER?</div>'
     + '<div style="display:flex;gap:8px;">'
     + '<input type="email" class="gate-inp" id="memberEmail" placeholder="Enter your confirmed community email" style="margin-bottom:0;flex:1;" />'
