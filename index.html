@@ -3719,7 +3719,7 @@ function downloadFullColorPDF(){
       var pdf=new jsPDF({orientation:canvas.width>canvas.height?'l':'p',unit:'px',format:[canvas.width/1.5,canvas.height/1.5]});
       pdf.addImage(imgData,'JPEG',0,0,canvas.width/1.5,canvas.height/1.5);
       setBar(100);
-      setTimeout(function(){pdf.save(titleStr+'.pdf');removeLoader();},300);
+      setTimeout(function(){var blobUrl=pdf.output('bloburl');removeLoader();window.open(blobUrl,'_blank');},300);
     }).catch(function(){removeLoader();alert('PDF generation failed.');});
   }
   function loadJsPDF(cb){if(window.jspdf){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=cb;s.onerror=function(){removeLoader();};document.head.appendChild(s);}
