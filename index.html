@@ -3641,20 +3641,10 @@ function shareViaEmail(){
 }
 
 function shareToInstagram(){
-  // Download card then open Instagram
   downloadShareCard();
-  setTimeout(()=>{
-    alert('Image downloaded! Open Instagram, create a new post, and select the downloaded image.');
-    window.open('https://www.instagram.com/', '_blank');
-  }, 1500);
 }
 function shareToTikTok(){
-  // Download card then open TikTok
   downloadShareCard();
-  setTimeout(()=>{
-    alert('Image downloaded! Open TikTok, create a new post, and select the downloaded image.');
-    window.open('https://www.tiktok.com/upload', '_blank');
-  }, 1500);
 }
 function downloadShareCard(){
   const card=document.getElementById('notShareCard');
@@ -3682,11 +3672,13 @@ function downloadShareCard(){
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
-      // Download image then show share confirmation
-      const link=document.createElement('a');
-      link.download=`notrojan-${title}-score-card.png`;
-      link.href=canvas.toDataURL('image/png');
-      link.click();
+      // Open image in new tab, show share confirmation
+      const imgWin=window.open('','_blank');
+      if(imgWin){
+        const src=canvas.toDataURL('image/png');
+        imgWin.document.write(`<html><head><title>NoTrojan Score Card</title><style>body{margin:0;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;}img{max-width:100%;}p{color:#aaa;font-size:13px;margin-top:12px;}strong{color:#00ff6a;}</style></head><body><img src="${src}"/><p>Right-click the image → <strong>Save image as</strong> to save, then share to social media.</p></body></html>`);
+        imgWin.document.close();
+      }
       finish();
     }).catch(()=>finish());
   };
