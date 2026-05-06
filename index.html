@@ -3774,11 +3774,13 @@ function handlePrint(){
 
     // Hide scanner UI and elements inside results that create gaps
     var toHide=document.querySelectorAll('.scan-hdr,.input-box,.scroll-teaser,.print-hide,.prog-row,.err-bar,.scanner-neon,#floatShareBtn,#swipeBanner');
-    toHide.forEach(function(el){el.setAttribute('data-wph',el.style.display||'');el.style.display='none';});
+    toHide.forEach(function(el){el.setAttribute('data-wph',el.style.cssText||'');el.style.cssText='display:none!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;';});
 
-    // Make results and contentHeader visible
-    results.style.setProperty('display','block','important');
+    // Save original display state then make visible for capture
+    var resultsOrigDisplay=results.style.display;
     var ch=document.getElementById('contentHeader');
+    var chOrigDisplay=ch?ch.style.display:'';
+    results.style.setProperty('display','block','important');
     if(ch)ch.style.setProperty('display','block','important');
 
     var loader=document.createElement('div');loader.id='printLoader';
@@ -3789,9 +3791,9 @@ function handlePrint(){
     function cleanup(){
       var l=document.getElementById('printLoader');if(l)l.remove();
       var s=document.getElementById('printCaptureStyle');if(s)s.remove();
-      toHide.forEach(function(el){el.style.display=el.getAttribute('data-wph')||'';el.removeAttribute('data-wph');});
-      results.style.display='none';
-      if(ch)ch.style.display='none';
+      toHide.forEach(function(el){el.style.cssText=el.getAttribute('data-wph')||'';el.removeAttribute('data-wph');});
+      results.style.display=resultsOrigDisplay;
+      if(ch)ch.style.display=chOrigDisplay;
     }
     function doCapture(){
       setBar(20);
