@@ -3122,12 +3122,26 @@ function fetchReportImage(r, col){
   (async function(){
     var img=null;
     var ct=(r?.content_id?.type||'').toLowerCase();
-    var skipLookup=ct==='person'||ct==='athlete'||ct==='politician'||ct==='entrepreneur'||
-      ct==='public figure'||ct==='creator'||ct==='broadcaster'||ct==='anchor'||
-      ct==='tv host'||ct==='host'||ct==='journalist'||ct==='author'||ct==='actor'||
-      ct==='musician'||ct==='rapper'||ct==='singer'||ct==='comedian'||ct==='influencer'||
+    // Skip image lookup ONLY for privacy-risk or low-profile types
+    var skipLookup=ct==='creator'||ct==='broadcaster'||ct==='anchor'||
+      ct==='tv host'||ct==='host'||ct==='journalist'||ct==='influencer'||
       ct==='youtuber'||ct==='podcaster'||ct==='coach';
     if(skipLookup) return;
+
+    // For well-known public figures (actor, musician, rapper, singer, athlete,
+    // politician, author, entrepreneur, public figure, comedian, person) —
+    // use the name/title directly against Wikipedia first
+    var isPublicFigure=ct==='actor'||ct==='musician'||ct==='rapper'||ct==='singer'||
+      ct==='athlete'||ct==='politician'||ct==='author'||ct==='entrepreneur'||
+      ct==='public figure'||ct==='comedian'||ct==='person';
+    if(isPublicFigure&&(creator||title)){
+      var personName=creator||title;
+      var img=await trySummary(personName);
+      if(!img) img=await trySearch(personName);
+      if(img) render(img);
+      return;
+    }
+
     if(isSong&&title){
       try{
         var itunesQ=encodeURIComponent(title+(creator?' '+creator:''));
@@ -3485,12 +3499,24 @@ function handleShare(){
         var img=null;
         var query2=r?.query||'';
         var ct2=(r?.content_id?.type||'').toLowerCase();
-        var skipLookup2=ct2==='person'||ct2==='athlete'||ct2==='politician'||ct2==='entrepreneur'||
-          ct2==='public figure'||ct2==='creator'||ct2==='broadcaster'||ct2==='anchor'||
-          ct2==='tv host'||ct2==='host'||ct2==='journalist'||ct2==='author'||ct2==='actor'||
-          ct2==='musician'||ct2==='rapper'||ct2==='singer'||ct2==='comedian'||ct2==='influencer'||
+        // Skip image lookup ONLY for privacy-risk or low-profile types
+        var skipLookup2=ct2==='creator'||ct2==='broadcaster'||ct2==='anchor'||
+          ct2==='tv host'||ct2==='host'||ct2==='journalist'||ct2==='influencer'||
           ct2==='youtuber'||ct2==='podcaster'||ct2==='coach';
         if(skipLookup2) return;
+
+        // For well-known public figures — use name directly on Wikipedia
+        var isPublicFigure2=ct2==='actor'||ct2==='musician'||ct2==='rapper'||ct2==='singer'||
+          ct2==='athlete'||ct2==='politician'||ct2==='author'||ct2==='entrepreneur'||
+          ct2==='public figure'||ct2==='comedian'||ct2==='person';
+        if(isPublicFigure2&&(creator2||title2)){
+          var personName2=creator2||title2;
+          var img2=await sum2(personName2);
+          if(!img2) img2=await search2(personName2);
+          if(img2) setWikiImg(img2);
+          return;
+        }
+
         var img2=null;
         if(isSong2&&title2){
           try{
