@@ -427,74 +427,44 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 .print-btn:hover{background:rgba(0,255,106,0.1);color:var(--green);}
 
 @media print{
-  /* ── HIDE ALL UI CHROME ── */
-  header,nav,.nav-bar,.input-box,.prog-row,.err-bar,
-  .tab-panel:not(.active),.print-btn,footer,
-  body::before,body::after,
-  .scan-hdr,.scanner-neon,.scroll-teaser,.print-hide,
+  /* ── HIDE EVERYTHING EXCEPT #results ── */
+  body > *:not(.main){display:none!important;}
+  .main > *:not(#tab-scanner){display:none!important;}
+  #tab-scanner > *:not(#results){display:none!important;}
+  header,nav,.nav-bar,footer,body::before,body::after,
+  .scan-hdr,.input-box,.scanner-neon,.scroll-teaser,.print-hide,
   #swipeBanner,#floatShareBtn,#shareMenuModal,
-  .gate-overlay,.contact-overlay,
-  #shareBlock,#shareMenuModal,.share-btn,
-  #scanInputSection{display:none!important;height:0!important;min-height:0!important;overflow:hidden!important;}
+  .gate-overlay,.contact-overlay,.share-btn,
+  .prog-row,.err-bar,.tab-panel:not(.active){display:none!important;}
 
   /* ── PAGE BASE ── */
-  html,body{margin:0!important;padding:0!important;background:#fff!important;color:#111!important;font-family:'Barlow',sans-serif!important;}
+  html,body{margin:0!important;padding:0!important;background:#fff!important;color:#111!important;}
   body::before,body::after{display:none!important;}
 
-  /* ── LAYOUT ── */
-  .main{padding:0!important;margin:0!important;max-width:100%!important;}
-  .tab-panel.active{display:block!important;padding:0!important;margin:0!important;}
-  #tab-scanner{padding:0!important;margin:0!important;}
-  #results{display:block!important;margin:0!important;padding:0!important;}
+  /* ── STRIP ALL LAYOUT ── */
+  .main{all:unset!important;display:block!important;}
+  .tab-panel.active{all:unset!important;display:block!important;}
+  #tab-scanner{all:unset!important;display:block!important;}
 
-  /* ── CONTENT HEADER ── */
-  #contentHeader{display:block!important;margin:0 0 8px 0!important;padding:12px!important;background:#fff!important;border:1px solid #ccc!important;}
+  /* ── RESULTS FLUSH TO TOP ── */
+  #results{display:block!important;margin:0!important;padding:0!important;position:static!important;}
+  #contentHeader{display:block!important;margin:0 0 8px 0!important;padding:12px!important;border:1px solid #ccc!important;}
 
-  /* ── FORCE BLACK TEXT, TRANSPARENT BG ON ALL, THEN EXPLICITLY SET WHITE WHERE NEEDED ── */
-  *{color:#111!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;animation:none!important;border-color:#ccc!important;}
-  body,#results,#contentHeader,.score-card,.sec,.fw-pillar,.troy-index,
-  .rubric-section,.rating-key,.sec-hd,.rubric-hd,.troy-hd,
-  .fw-brodie,.troy-visual,.troy-info,.troy-body{background:#fff!important;}
+  /* ── WHITE BACKGROUND + BLACK TEXT EVERYWHERE ── */
+  *{color:#111!important;background:#fff!important;box-shadow:none!important;text-shadow:none!important;animation:none!important;border-color:#ccc!important;}
 
-  /* ── SCORE CARD ── */
-  .score-card{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;margin-bottom:8px!important;}
-  .sc-num-block{border-right:1px solid #ccc!important;border-bottom:none!important;}
-  .sc-num{color:#111!important;font-size:3rem!important;}
-  .sc-tier-badge,.sc-rating{color:#111!important;}
+  /* ── SECTION HEADERS LIGHT GRAY ── */
+  .sec-hd,.rubric-hd,.fw-pillar-hd,.troy-hd,.sechd{background:#f0f0f0!important;}
 
-  /* ── SECTIONS ── */
-  .sec{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;margin-bottom:8px!important;}
-  .sec-hd{background:#f5f5f5!important;border-bottom:1px solid #ccc!important;color:#111!important;}
+  /* ── KEEP SCORE COLOR ── */
+  .sc-num,.sc-title,.fs-score,.troy-score-num,.troy-rating{color:inherit!important;}
 
-  /* ── RUBRIC ── */
-  .rubric-hd{background:#f5f5f5!important;border-left:2px solid #999!important;color:#111!important;}
-  .rubric-hd span{color:#555!important;}
-  .rubric-row{border-bottom:1px solid #eee!important;}
-  .rubric-bar-fill{background:#999!important;}
-
-  /* ── PILLARS ── */
-  .fw-pillar{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;}
-  .fw-pillar-hd{background:#f5f5f5!important;color:#111!important;}
-  .fw-brodie{background:#f9f9f9!important;border-left:2px solid #999!important;}
-  .fw-brodie-lbl{color:#555!important;}
-
-  /* ── TROY INDEX ── */
-  .troy-index{border:1px solid #ccc!important;break-inside:avoid;}
-  .troy-hd{background:#f5f5f5!important;border-bottom:1px solid #ccc!important;}
-  .troy-hd-label,.troy-hd-title{color:#111!important;}
-  .troy-visual{border-right:1px solid #ccc!important;}
-  .troy-desc,.troy-char,.troy-chars-lbl{color:#555!important;}
-  .troy-remediation{border-left:2px solid #999!important;color:#555!important;font-style:italic;}
-  .troy-remediation-lbl{color:#777!important;}
-
-  /* ── RATING KEY TABLE ── */
-  .rating-key table,.rating-key th,.rating-key td{border:1px solid #ccc!important;background:#fff!important;color:#111!important;}
-  .rating-key th{background:#f5f5f5!important;}
+  /* ── BREAKS ── */
+  .score-card,.sec,.fw-pillar,.troy-index{break-inside:avoid;margin-bottom:8px!important;}
 
   /* ── MISC ── */
   a[href]:after{content:none!important;}
   .img-loading{display:none!important;}
-  canvas{display:block!important;}
 }
 
 /* ── EMAIL GATE ── */
@@ -561,7 +531,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
      SCANNER
 ══════════════════════════════════════ -->
 <div id="tab-scanner" class="tab-panel active">
-  <div id="scanInputSection">
   <div class="scan-hdr">
     <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:600;letter-spacing:0.15em;color:var(--white);">NoT™ Cultural Influence Decoder™</h2><div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:8px;">Cultural Influence Intelligence System™</div>
     <p class="scanner-neon">Enter details of your favorite creator, song, brand, movie, or campaign below. Check the score!</p>
@@ -578,7 +547,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     </div>
     <div class="err-bar" id="errBar"></div>
   </div>
-  </div><!-- /scanInputSection -->
 
   <div id="results" style="display:none">
 
@@ -3762,64 +3730,50 @@ function downloadFullColorPDF(){
 }
 // beforeprint/afterprint — most reliable cross-browser approach
 window.addEventListener('beforeprint',function(){
-  var toHide=document.querySelectorAll('#scanInputSection,header,nav,.nav-bar,.scroll-teaser,.print-hide,#swipeBanner,#floatShareBtn,.prog-row,.err-bar');
-  toHide.forEach(function(el){
-    el.setAttribute('data-ph',el.style.display||'');
-    el.setAttribute('data-ph-h2',el.style.height||'');
-    el.style.setProperty('display','none','important');
-    el.style.setProperty('height','0','important');
-    el.style.setProperty('min-height','0','important');
-    el.style.setProperty('overflow','hidden','important');
+  // Hide scan input section completely
+  ['.scan-hdr','.input-box','.scanner-neon','.scroll-teaser','.print-hide',
+   '#swipeBanner','#floatShareBtn','.prog-row','.err-bar','header','nav','.nav-bar'
+  ].forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(el){
+      el.setAttribute('data-pv',el.style.cssText||'');
+      el.style.cssText='display:none!important;height:0!important;min-height:0!important;overflow:hidden!important;padding:0!important;margin:0!important;border:none!important;';
+    });
   });
+  // Strip padding from layout wrappers
+  ['.main','#tab-scanner'].forEach(function(sel){
+    var el=document.querySelector(sel);
+    if(el){el.setAttribute('data-pv2',el.style.cssText||'');el.style.cssText='padding:0!important;margin:0!important;';}
+  });
+  // Ensure results and header are visible
   var results=document.getElementById('results');
   var header=document.getElementById('contentHeader');
-  var main=document.querySelector('.main');
-  var tabScanner=document.getElementById('tab-scanner');
-  if(main){main.style.setProperty('padding','0','important');main.style.setProperty('margin','0','important');}
-  if(tabScanner){tabScanner.style.setProperty('padding','0','important');tabScanner.style.setProperty('margin','0','important');}
-  if(results){results.setAttribute('data-ph-r',results.style.display||'');results.style.setProperty('display','block','important');results.style.setProperty('margin','0','important');results.style.setProperty('padding','0','important');}
-  if(header){header.setAttribute('data-ph-h',header.style.display||'');header.style.setProperty('display','block','important');header.style.setProperty('margin','0','important');}
+  if(results){results.setAttribute('data-pv3',results.style.cssText||'');results.style.cssText='display:block!important;margin:0!important;padding:0!important;';}
+  if(header){header.setAttribute('data-pv4',header.style.cssText||'');header.style.cssText='display:block!important;margin:0 0 8px 0!important;';}
 });
 window.addEventListener('afterprint',function(){
-  document.querySelectorAll('[data-ph]').forEach(function(el){
-    el.style.display=el.getAttribute('data-ph');
-    el.style.height=el.getAttribute('data-ph-h2')||'';
-    el.style.minHeight='';el.style.overflow='';
-    el.removeAttribute('data-ph');el.removeAttribute('data-ph-h2');
+  ['.scan-hdr','.input-box','.scanner-neon','.scroll-teaser','.print-hide',
+   '#swipeBanner','#floatShareBtn','.prog-row','.err-bar','header','nav','.nav-bar'
+  ].forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(el){
+      el.style.cssText=el.getAttribute('data-pv')||'';
+      el.removeAttribute('data-pv');
+    });
+  });
+  ['.main','#tab-scanner'].forEach(function(sel){
+    var el=document.querySelector(sel);
+    if(el){el.style.cssText=el.getAttribute('data-pv2')||'';el.removeAttribute('data-pv2');}
   });
   var results=document.getElementById('results');
   var header=document.getElementById('contentHeader');
-  if(results){results.style.display=results.getAttribute('data-ph-r')||'none';results.removeAttribute('data-ph-r');}
-  if(header){header.style.display=header.getAttribute('data-ph-h')||'none';header.removeAttribute('data-ph-h');}
+  if(results){results.style.cssText=results.getAttribute('data-pv3')||'';results.removeAttribute('data-pv3');}
+  if(header){header.style.cssText=header.getAttribute('data-pv4')||'';header.removeAttribute('data-pv4');}
 });
 
 function handlePrint(){
   if(isRegistered()){
-    var results=document.getElementById('results');
-    if(!results||results.style.display==='none'){alert('Please run a scan first.');return;}
-    var r=window._lastResult;
-    var titleStr=((r&&r.content_id&&r.content_id.title)?r.content_id.title:(r&&r.query?r.query:'NoTrojan')).replace(/[^a-z0-9_-]/gi,'_')+'_Print_Report';
-    var loader=document.createElement('div');loader.id='printLoader';
-    loader.style.cssText='position:fixed;inset:0;background:rgba(255,255,255,0.97);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-    loader.innerHTML='<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#007a30;letter-spacing:0.14em;">// GENERATING PRINT-FRIENDLY REPORT...</div><div style="width:220px;height:2px;background:#ccc;"><div id="printBar" style="height:100%;background:#007a30;width:0%;transition:width 0.4s;"></div></div>';
-    document.body.appendChild(loader);
-    function setBar(p){var b=document.getElementById('printBar');if(b)b.style.width=p+'%';}
-    function removeLoader(){var l=document.getElementById('printLoader');if(l)l.remove();}
-    function doCapture(){
-      setBar(20);
-      html2canvas(results,{backgroundColor:'#ffffff',scale:1.5,useCORS:true,allowTaint:true,scrollY:-window.scrollY,windowWidth:document.documentElement.scrollWidth}).then(function(canvas){
-        setBar(70);
-        var imgData=canvas.toDataURL('image/jpeg',0.92);
-        var jsPDF=window.jspdf.jsPDF;
-        var pdf=new jsPDF({orientation:canvas.width>canvas.height?'l':'p',unit:'px',format:[canvas.width/1.5,canvas.height/1.5]});
-        pdf.addImage(imgData,'JPEG',0,0,canvas.width/1.5,canvas.height/1.5);
-        setBar(100);
-        setTimeout(function(){pdf.save(titleStr+'.pdf');removeLoader();},300);
-      }).catch(function(){removeLoader();alert('PDF generation failed.');});
-    }
-    function loadJsPDF(cb){if(window.jspdf){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=cb;s.onerror=function(){removeLoader();};document.head.appendChild(s);}
-    function loadH2C(cb){if(typeof html2canvas!=='undefined'){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=cb;s.onerror=function(){removeLoader();};document.head.appendChild(s);}
-    loadH2C(function(){loadJsPDF(function(){setBar(10);doCapture();});});
+    const r=window._lastResult;
+    document.title='NoTrojan Report — '+(r?.content_id?.title||r?.title||r?.query||'NoTrojan');
+    window.print();
   } else {
     const pd=document.createElement('div');
     pd.id='printGateDiv';
