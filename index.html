@@ -3393,11 +3393,11 @@ function handleShare(){
   if(existing) existing.remove();
   const modal=document.createElement('div');
   modal.id='shareCardModal';
-  modal.style.cssText='position:fixed;inset:0;background:#020c06;z-index:99999;display:flex;flex-direction:column;overflow-y:auto;';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px;';
 
   modal.innerHTML=`
-  <div style="width:100%;">
-    <div id="notShareCard" style="background:#020c06;padding:22px;font-family:'Barlow Condensed',sans-serif;">
+  <div style="width:100%;max-width:420px;">
+    <div id="notShareCard" style="background:#020c06;padding:20px;font-family:'Barlow Condensed',sans-serif;border:3px solid ${col};border-top:5px solid ${col};aspect-ratio:5/7;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;">
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid ${col}33;padding-bottom:10px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
