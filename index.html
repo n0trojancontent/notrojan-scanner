@@ -3692,22 +3692,18 @@ function downloadShareCard(){
     // Restore buttons after capture
     if(btns)btns.style.display='grid';
     extraBtns.forEach(el=>{el.style.display='';});
-      // Show save button popup — user clicks to save
       const src=canvas.toDataURL('image/png');
+      // Show confirm popup — no image preview, no borders, just save or cancel
+      const existing2=document.getElementById('saveCardPopup');
+      if(existing2)existing2.remove();
       const savePopup=document.createElement('div');
       savePopup.id='saveCardPopup';
-      savePopup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-      const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      savePopup.innerHTML=`<div style="background:#020c06;border:1px solid var(--green);border-top:3px solid var(--green);max-width:420px;width:100%;padding:24px;text-align:center;max-height:90vh;overflow-y:auto;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:900;color:var(--green);letter-spacing:0.1em;margin-bottom:8px;">📲 YOUR SCORE CARD IS READY</div>
-        ${isMobile
-          ? `<div style="font-size:0.82rem;color:var(--white2);line-height:1.6;margin-bottom:12px;">Press and hold the image below, then tap <strong style="color:var(--green);">Save Image</strong>.</div>
-             <img src="${src}" style="width:100%;border:1px solid var(--green);margin-bottom:14px;" />
-             <button onclick="document.getElementById('saveCardPopup').remove();finish();" style="width:100%;padding:14px;background:transparent;border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;">DONE</button>`
-          : `<div style="font-size:0.82rem;color:var(--white2);line-height:1.6;margin-bottom:18px;">Click below to save your Score Card image.</div>
-             <a href="${src}" download="notrojan-${title}-score-card.png" style="display:block;width:100%;padding:14px;background:transparent;border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:10px;box-sizing:border-box;text-align:center;" onclick="document.getElementById('saveCardPopup').remove();finish();">💾 SAVE IMAGE</a>`
-        }
-        <button onclick="document.getElementById('saveCardPopup').remove();finish();" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button>
+      savePopup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+      savePopup.innerHTML=`<div style="background:#020c06;border:1px solid var(--green);border-top:3px solid var(--green);max-width:400px;width:100%;padding:28px;text-align:center;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:900;color:var(--green);letter-spacing:0.1em;margin-bottom:8px;">📲 YOUR SCORE CARD IS READY</div>
+        <div style="font-size:0.82rem;color:var(--white2);line-height:1.6;margin-bottom:20px;">Tap below to save your full-size Score Card, then share on social media.</div>
+        <a href="${src}" download="notrojan-score-card.png" onclick="document.getElementById('saveCardPopup').remove();finish();" style="display:block;width:100%;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:12px;box-sizing:border-box;">💾 Save to Photos</a>
+        <button onclick="document.getElementById('saveCardPopup').remove();" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button>
       </div>`;
       document.body.appendChild(savePopup);
     }).catch(()=>finish());
