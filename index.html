@@ -3696,13 +3696,17 @@ function downloadShareCard(){
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     // Clone the card into a hidden off-screen div for clean capture
     const clone=card.cloneNode(true);
-    // Copy exact computed styles from original card
     const cardStyle=window.getComputedStyle(card);
-    const cardBorder=cardStyle.border||cardStyle.borderTop;
-    clone.style.cssText='position:fixed;left:-9999px;top:0;width:'+card.offsetWidth+'px;background:#020c06;padding:22px;font-family:\'Barlow Condensed\',sans-serif;z-index:-1;box-sizing:border-box;border:'+cardStyle.border+';border-top:'+cardStyle.borderTop+';';
-    document.body.appendChild(clone);
-    html2canvas(clone,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,width:clone.offsetWidth,height:clone.offsetHeight}).then(async canvas=>{
-      document.body.removeChild(clone);
+    const borderColor=cardStyle.borderTopColor;
+    // Create wrapper with border so clone inherits it cleanly
+    const wrapper=document.createElement('div');
+    const cardW=Math.min(card.offsetWidth,420);
+    wrapper.style.cssText='position:fixed;left:-9999px;top:0;background:#020c06;display:inline-block;width:'+cardW+'px;border:3px solid '+borderColor+';border-top:5px solid '+borderColor+';box-sizing:border-box;';
+    clone.style.cssText='background:#020c06;padding:20px;font-family:\'Barlow Condensed\',sans-serif;width:100%;box-sizing:border-box;border:none;';
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+    html2canvas(wrapper,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+      document.body.removeChild(wrapper);
       const src=canvas.toDataURL('image/png');
       // Show preview popup
       const existing2=document.getElementById('saveCardPopup');
@@ -3718,7 +3722,7 @@ function downloadShareCard(){
       `;
       document.body.appendChild(savePopup);
     }).catch(()=>{
-      document.body.removeChild(clone);
+      if(wrapper.parentNode)document.body.removeChild(wrapper);
       finish();
     });
   };
