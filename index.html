@@ -1238,7 +1238,7 @@ No Trojan® is a cultural influence scoring and detection system that evaluates 
 </div><!-- /tab-howNOT -->
 
 
-<div id="tab-certify" class="tab-panel">   <!-- FLOATING CTA -->   <div id="certify-cta" style="position:fixed;bottom:28px;right:28px;z-index:888;display:none;">     <button onclick="openContact()" style="background:var(--green4);border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;padding:13px 22px;cursor:pointer;box-shadow:0 0 18px rgba(0,255,106,0.25);">📬 Get More Info</button>   </div>   
+<div id="tab-certify" class="tab-panel">   <!-- FLOATING CTA -->   <div id="certify-cta" style="position:fixed;bottom:28px;right:28px;z-index:888;display:none;">     <button onclick="openContact()" style="background:#000;border:1.5px solid #00ff6a;border-radius:20px;color:#00ff6a;font-family:'Share Tech Mono',monospace;font-size:0.72rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:8px 16px;cursor:pointer;animation:not-back-pulse 2s ease-in-out infinite;white-space:nowrap;">📬 Get More Info</button>   </div>   
   <div class="ct-title">NoT™ Ever Green Cultural Influence Intelligence Institute</div>
   <div class="ct-hero">
     <div class="ct-badge">🌿 Decoding media. Building cultural influence intelligence.</div>
@@ -1895,6 +1895,9 @@ function switchNav(id,btn){
     target.style.cssText='display:block!important';
   }
   if(btn)btn.classList.add('active');
+  // Show/hide certify floating CTA
+  var cta = document.getElementById('certify-cta');
+  if(cta) cta.style.display = (id === 'certify') ? 'block' : 'none';
 }
 
 // Init on load
