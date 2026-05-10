@@ -3662,13 +3662,22 @@ function downloadShareCard(){
   const card=document.getElementById('notShareCard');
   if(!card) return;
   const btn=document.getElementById('socialShareBtn');
-  if(btn){btn.textContent='⏳ Saving to share to social media...';btn.disabled=true;btn.style.opacity='0.7';}
+  if(btn){btn.disabled=true;btn.style.opacity='0.7';}
+  // Show status in separate div, not inside the button
+  const existingStatus=document.getElementById('shareStatus');
+  if(existingStatus)existingStatus.remove();
+  const statusDiv=document.createElement('div');
+  statusDiv.id='shareStatus';
+  statusDiv.style.cssText='text-align:center;font-family:\'Barlow Condensed\',sans-serif;font-size:0.8rem;color:var(--green);letter-spacing:0.1em;padding:8px 0;';
+  statusDiv.textContent='⏳ Saving to share to social media...';
+  const btnsDiv=document.getElementById('shareCardBtns');
+  if(btnsDiv)btnsDiv.parentNode.insertBefore(statusDiv,btnsDiv);
   window._shareFinish=()=>{};
   const finish=()=>{
   window._shareFinish=finish;
     if(btn){
-      btn.textContent='✅ Saved!';btn.style.opacity='1';
-      setTimeout(()=>{btn.textContent='📲 Share to Social Media';btn.disabled=false;},3000);
+      btn.textContent='IG / TikTok';btn.style.opacity='1';btn.disabled=false;
+      const s=document.getElementById('shareStatus');if(s)s.remove();
     }
     // Show branded popup
     const existing=document.getElementById('shareConfirmPopup');
