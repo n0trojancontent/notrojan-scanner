@@ -3696,9 +3696,12 @@ function downloadShareCard(){
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     // Clone the card into a hidden off-screen div for clean capture
     const clone=card.cloneNode(true);
-    clone.style.cssText='position:fixed;left:-9999px;top:0;width:420px;background:#020c06;padding:22px;font-family:\'Barlow Condensed\',sans-serif;z-index:-1;';
+    // Copy exact computed styles from original card
+    const cardStyle=window.getComputedStyle(card);
+    const cardBorder=cardStyle.border||cardStyle.borderTop;
+    clone.style.cssText='position:fixed;left:-9999px;top:0;width:'+card.offsetWidth+'px;background:#020c06;padding:22px;font-family:\'Barlow Condensed\',sans-serif;z-index:-1;box-sizing:border-box;border:'+cardStyle.border+';border-top:'+cardStyle.borderTop+';';
     document.body.appendChild(clone);
-    html2canvas(clone,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+    html2canvas(clone,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,width:clone.offsetWidth,height:clone.offsetHeight}).then(async canvas=>{
       document.body.removeChild(clone);
       const src=canvas.toDataURL('image/png');
       // Show preview popup
