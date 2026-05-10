@@ -3695,18 +3695,18 @@ function downloadShareCard(){
     if(btns)btns.style.display='grid';
     extraBtns.forEach(el=>{el.style.display='';});
       const src=canvas.toDataURL('image/png');
-      // Show confirm popup — no image preview, no borders, just save or cancel
+      // Show preview popup with card image, save or cancel
       const existing2=document.getElementById('saveCardPopup');
       if(existing2)existing2.remove();
       const savePopup=document.createElement('div');
       savePopup.id='saveCardPopup';
-      savePopup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-      savePopup.innerHTML=`<div style="background:#020c06;border:1px solid var(--green);border-top:3px solid var(--green);max-width:400px;width:100%;padding:28px;text-align:center;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:900;color:var(--green);letter-spacing:0.1em;margin-bottom:8px;">📲 YOUR SCORE CARD IS READY</div>
-        <div style="font-size:0.82rem;color:var(--white2);line-height:1.6;margin-bottom:20px;">Tap below to save your full-size Score Card, then share on social media.</div>
-        <a href="${src}" download="notrojan-score-card.png" onclick="document.getElementById('saveCardPopup').remove();window._shareFinish&&window._shareFinish();" style="display:block;width:100%;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:12px;box-sizing:border-box;">💾 Save to Photos</a>
-        <button onclick="document.getElementById('saveCardPopup').remove();" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button>
-      </div>`;
+      savePopup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
+      savePopup.innerHTML=`
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:900;color:var(--green);letter-spacing:0.1em;margin-bottom:12px;text-align:center;">📲 YOUR SCORE CARD IS READY</div>
+        <img src="${src}" style="width:100%;max-width:360px;display:block;margin:0 auto 16px;box-shadow:0 0 20px rgba(0,255,106,0.3);" />
+        <a href="${src}" download="notrojan-score-card.png" onclick="document.getElementById('saveCardPopup').remove();window._shareFinish&&window._shareFinish();" style="display:block;width:100%;max-width:360px;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:10px;box-sizing:border-box;text-align:center;">💾 Save to Photos</a>
+        <button onclick="document.getElementById('saveCardPopup').remove();" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;margin-top:4px;">✕ Cancel</button>
+      `;
       document.body.appendChild(savePopup);
     }).catch(()=>finish());
   };
