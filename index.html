@@ -1731,8 +1731,8 @@ function showGate(score, ratingClass){
 
   gate.appendChild(box);
   document.body.appendChild(gate);
-  // Generate captcha
-  (function(){
+  // Generate captcha after DOM renders
+  setTimeout(function(){
     var a=Math.floor(Math.random()*9)+1;
     var b=Math.floor(Math.random()*9)+1;
     var ops=['+','+','+',' × '];
@@ -1742,8 +1742,8 @@ function showGate(score, ratingClass){
     window._captchaAns=ans;
     var el=document.getElementById('captchaQ');
     if(el) el.textContent=q;
-  })();
-  setTimeout(function(){ var e=document.getElementById('gateEmail'); if(e) e.focus(); }, 100);
+    var e=document.getElementById('gateEmail'); if(e) e.focus();
+  }, 100);
 }
 
 function goToPaidSignup(){
