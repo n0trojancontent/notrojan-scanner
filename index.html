@@ -3694,21 +3694,12 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
-    // Hide ONLY the buttons div before capture
-    const btns=document.getElementById('shareCardBtns');
-    const shareLink=document.querySelector('#shareCardModal .share-link-row');
-    const closeRow=document.querySelector('#shareCardModal .close-row');
-    const statusRow=document.getElementById('shareStatus');
-    if(btns)btns.style.visibility='hidden';
-    if(shareLink)shareLink.style.visibility='hidden';
-    if(closeRow)closeRow.style.visibility='hidden';
-    if(statusRow)statusRow.style.visibility='hidden';
-    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
-      // Restore buttons immediately after capture
-      if(btns)btns.style.visibility='visible';
-      if(shareLink)shareLink.style.visibility='visible';
-      if(closeRow)closeRow.style.visibility='visible';
-      if(statusRow)statusRow.style.visibility='visible';
+    // Clone the card into a hidden off-screen div for clean capture
+    const clone=card.cloneNode(true);
+    clone.style.cssText='position:fixed;left:-9999px;top:0;width:420px;background:#020c06;padding:22px;font-family:\'Barlow Condensed\',sans-serif;z-index:-1;';
+    document.body.appendChild(clone);
+    html2canvas(clone,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+      document.body.removeChild(clone);
       const src=canvas.toDataURL('image/png');
       // Show preview popup
       const existing2=document.getElementById('saveCardPopup');
@@ -3724,7 +3715,7 @@ function downloadShareCard(){
       `;
       document.body.appendChild(savePopup);
     }).catch(()=>{
-      if(btns)btns.style.visibility='visible';
+      document.body.removeChild(clone);
       finish();
     });
   };
