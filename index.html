@@ -3456,10 +3456,10 @@ function handleShare(){
       <button onclick="shareViaText()" style="padding:12px 8px;background:rgba(100,180,255,0.08);border:1px solid #64b4ff;color:#64b4ff;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;white-space:nowrap;">Text</button>
       <button onclick="shareViaEmail()" style="padding:12px 8px;background:rgba(255,200,50,0.08);border:1px solid #ffc832;color:#ffc832;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;white-space:nowrap;">Email</button>
     </div>
-    <div style="margin-top:8px;">
+    <div class="share-link-row" style="margin-top:8px;">
       <button onclick="copyShareLink()" style="width:100%;padding:10px;background:transparent;border:1px solid #333;color:#666;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">🔗 Share Link — notrojan.com</button>
     </div>
-    <div style="margin-top:8px;text-align:center;">
+    <div class="close-row" style="margin-top:8px;text-align:center;">
       <button onclick="document.getElementById('shareCardModal').remove()" style="background:transparent;border:none;color:#444;font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Close</button>
     </div>
   </div>`;
@@ -3694,17 +3694,23 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
-    // Hide buttons before capture so they don't appear in the saved image
+    // Hide ONLY the buttons div before capture
     const btns=document.getElementById('shareCardBtns');
-    const extraBtns=document.querySelectorAll('#shareCardModal > div > div:not(#notShareCard)');
-    if(btns)btns.style.display='none';
-    extraBtns.forEach(el=>{if(el.id!=='notShareCard')el.style.display='none';});
-    html2canvas(card,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true}).then(async canvas=>{
-    // Restore buttons after capture
-    if(btns)btns.style.display='grid';
-    extraBtns.forEach(el=>{el.style.display='';});
+    const shareLink=document.querySelector('#shareCardModal .share-link-row');
+    const closeRow=document.querySelector('#shareCardModal .close-row');
+    const statusRow=document.getElementById('shareStatus');
+    if(btns)btns.style.visibility='hidden';
+    if(shareLink)shareLink.style.visibility='hidden';
+    if(closeRow)closeRow.style.visibility='hidden';
+    if(statusRow)statusRow.style.visibility='hidden';
+    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+      // Restore buttons immediately after capture
+      if(btns)btns.style.visibility='visible';
+      if(shareLink)shareLink.style.visibility='visible';
+      if(closeRow)closeRow.style.visibility='visible';
+      if(statusRow)statusRow.style.visibility='visible';
       const src=canvas.toDataURL('image/png');
-      // Show preview popup with card image, save or cancel
+      // Show preview popup
       const existing2=document.getElementById('saveCardPopup');
       if(existing2)existing2.remove();
       const savePopup=document.createElement('div');
@@ -3712,12 +3718,15 @@ function downloadShareCard(){
       savePopup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
       savePopup.innerHTML=`
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:900;color:var(--green);letter-spacing:0.1em;margin-bottom:12px;text-align:center;">📲 YOUR SCORE CARD IS READY</div>
-        <img src="${src}" style="width:100%;max-width:360px;display:block;margin:0 auto 16px;box-shadow:0 0 20px rgba(0,255,106,0.3);" />
-        <a href="${src}" download="notrojan-score-card.png" onclick="document.getElementById('saveCardPopup').remove();window._shareFinish&&window._shareFinish();" style="display:block;width:100%;max-width:360px;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:10px;box-sizing:border-box;text-align:center;">💾 Save to Photos</a>
+        <img src="${src}" style="width:100%;max-width:320px;display:block;margin:0 auto 16px;box-shadow:0 0 20px rgba(0,255,106,0.3);" />
+        <a href="${src}" download="notrojan-score-card.png" onclick="document.getElementById('saveCardPopup').remove();window._shareFinish&&window._shareFinish();" style="display:block;width:100%;max-width:320px;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:10px;box-sizing:border-box;text-align:center;">💾 Save to Photos</a>
         <button onclick="document.getElementById('saveCardPopup').remove();" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;margin-top:4px;">✕ Cancel</button>
       `;
       document.body.appendChild(savePopup);
-    }).catch(()=>finish());
+    }).catch(()=>{
+      if(btns)btns.style.visibility='visible';
+      finish();
+    });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
