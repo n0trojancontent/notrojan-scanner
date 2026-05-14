@@ -3053,18 +3053,28 @@ function fetchReportImage(r, col){
     var img=null;
     var query=r?.query||'';
     var label=r?.content_id?.label||'';
-    // Try full AI title first
-    if(!img&&title) img=await trySummary(title);
-    if(!img&&title) img=await trySearch(title);
-    // For fictional characters, try the franchise/show title for poster
+    var typeStr=(r?.content_id?.type||'').toLowerCase();
+    // Build specific combos
+    var titleCreator=title&&creator?title+' '+creator:'';
+    var titleType=title&&typeStr&&(typeStr==='song'||typeStr==='album'||typeStr==='film'||typeStr==='movie'||typeStr==='tv show')?title+'_'+typeStr.replace(/ /g,'_'):'';
+    // 1. Title + creator together (most specific — e.g. "Hero Mariah Carey")
+    if(!img&&titleCreator) img=await trySummary(titleCreator);
+    if(!img&&titleCreator) img=await trySearch(titleCreator);
+    // 2. Title with type disambiguation (e.g. "Hero_song")
+    if(!img&&titleType) img=await trySummary(titleType);
+    // 3. Label/franchise combo
     if(!img&&label&&label!==title) img=await trySearch(label);
-    // Try query + label combo for disambiguation
     var combined=query&&label?query+' '+label:'';
     if(!img&&combined) img=await trySearch(combined);
+    // 4. Full query
     if(!img&&query&&query!==title) img=await trySummary(query);
+    if(!img&&query) img=await trySearch(query);
+    // 5. Creator alone (fallback to artist photo)
     if(!img&&creator) img=await trySummary(creator);
     if(!img&&creator) img=await trySearch(creator);
-    if(!img&&query) img=await trySearch(query);
+    // 6. Title alone (last resort — most likely to mismatch)
+    if(!img&&title) img=await trySummary(title);
+    if(!img&&title) img=await trySearch(title);
     if(img) render(img);
   })();
 }
@@ -3370,12 +3380,24 @@ function handleShare(){
       (async function(){
         var img=null;
         var query2=r?.query||'';
+        var type2=(r?.content_id?.type||'').toLowerCase();
+        // Build disambiguated search terms
+        var titleCreator=title2&&creator2?title2+' '+creator2:'';
+        var titleType=title2&&type2&&(type2==='song'||type2==='album'||type2==='film'||type2==='movie'||type2==='tv show')?title2+'_'+type2.replace(/ /g,'_'):'';
+        // 1. Title + creator together (most specific — e.g. "Hero Mariah Carey")
+        if(!img&&titleCreator) img=await sum2(titleCreator);
+        if(!img&&titleCreator) img=await search2(titleCreator);
+        // 2. Title with type disambiguation (e.g. "Hero_song")
+        if(!img&&titleType) img=await sum2(titleType);
+        // 3. Full original query
         if(!img&&query2) img=await sum2(query2);
-        if(!img&&title2&&title2!==query2) img=await sum2(title2);
-        if(!img&&title2) img=await search2(title2);
+        if(!img&&query2) img=await search2(query2);
+        // 4. Creator alone (fallback to artist photo)
         if(!img&&creator2) img=await sum2(creator2);
         if(!img&&creator2) img=await search2(creator2);
-        if(!img&&query2) img=await search2(query2);
+        // 5. Title alone (last resort — most likely to mismatch)
+        if(!img&&title2) img=await sum2(title2);
+        if(!img&&title2) img=await search2(title2);
         if(img) setWikiImg(img);
       })();
     }
