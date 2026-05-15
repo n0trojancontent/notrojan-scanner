@@ -434,8 +434,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
   .tab-panel.active{display:block!important;}
   .score-card,.sec{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;}
   .sc-num{color:#000!important;}
-  *{color:#111!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
+  *{color:#111!important;box-shadow:none!important;text-shadow:none!important;}
   a[href]:after{content:none!important;}
+  /* Preserve horse overlay box in print */
+  #reportImgBox{background:#111!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  #reportImgBox img{display:block!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  #reportImgBox div{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
 }
 
 /* ── EMAIL GATE ── */
@@ -883,11 +887,11 @@ No Trojan® is a cultural influence scoring and detection system that evaluates 
     <div class="secbody" style="padding:0">
       <table class="ltable">
 <tr><th>Score</th><th>Rating</th><th>Content Health</th><th>Meaning</th></tr>
-<tr><td><span class="slbl" style="color:#7fff00">90–100</span></td><td><div style="display:flex;align-items:center;gap:8px;"><img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png" style="width:36px;height:43px;object-fit:contain;" alt="Certified NoTrojan"/><span class="pill pill-cert" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;">Certified NoTrojan®</span></div></td><td><span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:#7fff00;box-shadow:0 0 5px #7fff00;vertical-align:middle;margin-right:4px;"></span><span style="color:#7fff00;font-weight:800;">NoT™ Green</span></td><td>Model citizen influence. Strengthens all three pillars.</td></tr>
+<tr><td><span class="slbl" style="color:#7fff00">90–100</span></td><td><div style="display:flex;align-items:center;gap:8px;"><img src="https://raw.githubusercontent.com/n0trojancontent/notrojan-scanner/main/notrojan_green_transparent_sm.png" style="width:36px;height:43px;object-fit:contain;" alt="Certified NoTrojan"/><span class="pill pill-cert" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;">Certified NoTrojan®</span></div></td><td><span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:#7fff00;box-shadow:0 0 5px #7fff00;vertical-align:middle;margin-right:4px;"></span><span style="color:#7fff00;font-weight:800;">NoT™ Green</span></td><td>Model citizen influence. Strengthens all three pillars.</td></tr>
 <tr><td><span class="slbl" style="color:#5ED67A">75–89</span></td><td><span class="pill pill-green">🟢 Positive Influence</span></td><td style="color:#5ED67A">🟢 Green</td><td>Strong alignment. Minor threats present but don't dominate.</td></tr>
 <tr><td><span class="slbl" style="color:var(--yellow)">50–74</span></td><td><span class="pill pill-yellow">🟡 Neutral / Mixed</span></td><td style="color:var(--yellow)">🟡 Yellow</td><td>Positive potential alongside threats that pull score to neutral.</td></tr>
 <tr><td><span class="slbl" style="color:var(--orange)">25–49</span></td><td><span class="pill pill-orange">🟠 At Risk</span></td><td style="color:var(--orange)">🟠 Orange</td><td>Threats outweigh positives across one or more pillars.</td></tr>
-<tr><td><span class="slbl" style="color:var(--red3)">0–24</span></td><td><div style="display:flex;align-items:center;gap:8px;"><img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png" style="width:36px;height:43px;object-fit:contain;" alt="Trojan Level Threat"/><span class="pill pill-red" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;">Trojan-Level Threat</span></div></td><td style="color:var(--red3)">🔴 Red</td><td>Harmful programming dominates. High community risk.</td></tr>
+<tr><td><span class="slbl" style="color:var(--red3)">0–24</span></td><td><div style="display:flex;align-items:center;gap:8px;"><img src="https://raw.githubusercontent.com/n0trojancontent/notrojan-scanner/main/notrojan_red_transparent_sm.png" style="width:36px;height:43px;object-fit:contain;" alt="Trojan Level Threat"/><span class="pill pill-red" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;">Trojan-Level Threat</span></div></td><td style="color:var(--red3)">🔴 Red</td><td>Harmful programming dominates. High community risk.</td></tr>
 </table>
     </div>
   </div>
@@ -3007,9 +3011,9 @@ function fetchReportImage(r, col){
   const score=r?.score||0;
   const title=r.content_id?.title||r.title||r.query||'';
   const creator=r.content_id?.creator||'';
-  const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
-  const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
-  const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
+  const notGreenLogo='https://raw.githubusercontent.com/n0trojancontent/notrojan-scanner/main/notrojan_green_transparent_sm.png';
+  const notRedLogo='https://raw.githubusercontent.com/n0trojancontent/notrojan-scanner/main/notrojan_red_transparent_sm.png';
+  const notOrangeLogo='https://raw.githubusercontent.com/n0trojancontent/notrojan-scanner/main/notrojan_orange_transparent_sm.png';
   const contentType=(r.content_id?.type||'').toLowerCase();
   const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
   const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
@@ -3022,6 +3026,7 @@ function fetchReportImage(r, col){
       const img=document.createElement('img');
       img.crossOrigin='anonymous';
       img.style.cssText='display:block;width:120px;height:120px;object-fit:'+(isBrand?'contain':'cover')+';position:absolute;inset:0;';
+      img.onerror=function(){this.remove();}; // remove broken icon, show tint+horse cleanly
       img.src=imgUrl;
       box.appendChild(img);
     }
@@ -3113,7 +3118,7 @@ function renderResults(r){
   document.getElementById('scVerdict').innerHTML=`<div class="pill pill-${r.ratingClass}">${em} ${r.rating}</div><div class="sc-title" style="color:${col}">${r.rating}</div><div class="sc-meaning">${r.verdictMeaning}</div>`;
 
   // Inject score legend
-  document.getElementById('scoreLegend').innerHTML='<div class="sec" style="margin-bottom:0;"><div class="sechd"><span>📊</span><span class="seclbl">NoTrojan Score™ — Rating Key</span></div><div class="secbody" style="padding:0"><table class="ltable"><tr><th>Score</th><th>Rating</th><th>Content Health</th><th>Meaning</th></tr><tr><td><span class="slbl" style="color:#7fff00">90–100</span></td><td><div style="display:flex;align-items:center;gap:8px;"><img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png" style="width:36px;height:43px;object-fit:contain;" alt="Certified NoTrojan"/><span class="pill pill-cert" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;">Certified NoTrojan®</span></div></td><td><span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:#7fff00;box-shadow:0 0 5px #7fff00;vertical-align:middle;margin-right:4px;"></span><span style="color:#7fff00;font-weight:800;">NoT™ Green</span></td><td>Model citizen influence. Strengthens all three pillars.</td></tr><tr><td><span class="slbl" style="color:#5ED67A">75–89</span></td><td><span class="pill pill-green">🟢 Positive Influence</span></td><td style="color:#5ED67A">🟢 Green</td><td>Strong alignment. Minor threats present but don\'t dominate.</td></tr><tr><td><span class="slbl" style="color:var(--yellow)">50–74</span></td><td><span class="pill pill-yellow">🟡 Neutral / Mixed</span></td><td style="color:var(--yellow)">🟡 Yellow</td><td>Positive potential alongside threats that pull score to neutral.</td></tr><tr><td><span class="slbl" style="color:var(--orange)">25–49</span></td><td><span class="pill pill-orange">🟠 At Risk</span></td><td style="color:var(--orange)">🟠 Orange</td><td>Threats outweigh positives across one or more pillars.</td></tr><tr><td><span class="slbl" style="color:var(--red3)">0–24</span></td><td><div style="display:flex;align-items:center;gap:8px;"><img src="https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png" style="width:36px;height:43px;object-fit:contain;" alt="Trojan Level Threat"/><span class="pill pill-red" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;">Trojan-Level Threat</span></div></td><td style="color:var(--red3)">🔴 Red</td><td>Harmful programming dominates. High community risk.</td></tr></table></div></div>';
+  document.getElementById('scoreLegend').innerHTML='<div class="sec" style="margin-bottom:0;"><div class="sechd"><span>📊</span><span class="seclbl">NoTrojan Score™ — Rating Key</span></div><div class="secbody" style="padding:0"><table class="ltable"><tr><th>Score</th><th>Rating</th><th>Content Health</th><th>Meaning</th></tr><tr><td><span class="slbl" style="color:#7fff00">90–100</span></td><td><div style="display:flex;align-items:center;gap:8px;"><img src="https://raw.githubusercontent.com/n0trojancontent/notrojan-scanner/main/notrojan_green_transparent_sm.png" style="width:36px;height:43px;object-fit:contain;" alt="Certified NoTrojan"/><span class="pill pill-cert" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;">Certified NoTrojan®</span></div></td><td><span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:#7fff00;box-shadow:0 0 5px #7fff00;vertical-align:middle;margin-right:4px;"></span><span style="color:#7fff00;font-weight:800;">NoT™ Green</span></td><td>Model citizen influence. Strengthens all three pillars.</td></tr><tr><td><span class="slbl" style="color:#5ED67A">75–89</span></td><td><span class="pill pill-green">🟢 Positive Influence</span></td><td style="color:#5ED67A">🟢 Green</td><td>Strong alignment. Minor threats present but don\'t dominate.</td></tr><tr><td><span class="slbl" style="color:var(--yellow)">50–74</span></td><td><span class="pill pill-yellow">🟡 Neutral / Mixed</span></td><td style="color:var(--yellow)">🟡 Yellow</td><td>Positive potential alongside threats that pull score to neutral.</td></tr><tr><td><span class="slbl" style="color:var(--orange)">25–49</span></td><td><span class="pill pill-orange">🟠 At Risk</span></td><td style="color:var(--orange)">🟠 Orange</td><td>Threats outweigh positives across one or more pillars.</td></tr><tr><td><span class="slbl" style="color:var(--red3)">0–24</span></td><td><div style="display:flex;align-items:center;gap:8px;"><img src="https://raw.githubusercontent.com/n0trojancontent/notrojan-scanner/main/notrojan_red_transparent_sm.png" style="width:36px;height:43px;object-fit:contain;" alt="Trojan Level Threat"/><span class="pill pill-red" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;">Trojan-Level Threat</span></div></td><td style="color:var(--red3)">🔴 Red</td><td>Harmful programming dominates. High community risk.</td></tr></table></div></div>';
   // Render Troy Health Index™ with malware-specific damage mapping
   // renderTroyHealth called after stacking sections
   setTimeout(()=>renderTroyHealth(r.score, col, r.rating, r.bside.malware||[], r.bside.threatCategories||[]),10);
@@ -3335,9 +3340,9 @@ function handleShare(){
   const schoolImageFlags2=['pornograph','onlyfans','xxx','nudity','gore','graphic violence','snuff','torture','beheading','execution','mass shooting','child abuse','child exploitation','csam','hentai','explicit sexual'];
   const hasExplicitImagery2=schoolImageFlags2.some(f=>allThreats.some(t=>t.includes(f)));
 
-  const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
-  const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
-  const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
+  const notGreenLogo='https://raw.githubusercontent.com/n0trojancontent/notrojan-scanner/main/notrojan_green_transparent_sm.png';
+  const notRedLogo='https://raw.githubusercontent.com/n0trojancontent/notrojan-scanner/main/notrojan_red_transparent_sm.png';
+  const notOrangeLogo='https://raw.githubusercontent.com/n0trojancontent/notrojan-scanner/main/notrojan_orange_transparent_sm.png';
 
   // Fetch image for share card
   {
@@ -3357,8 +3362,8 @@ function handleShare(){
         const img=document.createElement('img');
         img.crossOrigin='anonymous';
         img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:'+(isBrand?'contain':'cover')+';';
+        img.onerror=function(){this.remove();if(shareBtn){shareBtn.disabled=false;shareBtn.style.opacity='';}};
         img.onload=function(){if(shareBtn){shareBtn.disabled=false;shareBtn.style.opacity='';}};
-        img.onerror=function(){if(shareBtn){shareBtn.disabled=false;shareBtn.style.opacity='';}};
         img.src=imgUrl;
         imgBox.appendChild(img);
       }
@@ -3579,6 +3584,7 @@ function downloadFullColorPDF(){
         backgroundColor:'#020c06',
         scale:1.5,
         useCORS:true,
+        allowTaint:true,
         logging:false,
         scrollY:-window.scrollY,
         windowWidth:document.documentElement.scrollWidth
