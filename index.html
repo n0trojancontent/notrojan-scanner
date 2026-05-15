@@ -492,7 +492,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     <button class="nav-btn" onclick="switchNav('whyNOT',this)">🔬 Why NoT™?</button>
     <button class="nav-btn" onclick="switchNav('howNOT',this)">📡 How NoT™?</button>
     <button class="nav-btn" onclick="switchNav('certify',this)">🏆 Certify &amp; Train</button>
-    <a href="https://no-trojan-content.myshopify.com" target="_blank" class="nav-btn store-btn">🧢 Wear NoT™ ↗</a>
+    <button class="nav-btn store-btn" onclick="switchNav('store',this)">🧢 NoT™ Fashion</button>
     <button class="nav-btn" onclick="openContact()">📬 Contact</button><div class="nav-scroll-hint" id="scrollHint">›</div>
   </div>
 </div>
@@ -3010,36 +3010,37 @@ function fetchReportImage(r, col){
   const notGreenLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_green_transparent_sm.png';
   const notRedLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_red_transparent_sm.png';
   const notOrangeLogo='https://n0trojancontent.github.io/notrojan-scanner/notrojan_orange_transparent_sm.png';
+  const contentType=(r.content_id?.type||'').toLowerCase();
+  const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
   const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
-  const horse=score<25?notRedLogo:score<50?notOrangeLogo:null;  // no horse for green/yellow scores
+  const horse=score<25?notRedLogo:score<50?notOrangeLogo:score<75?notOrangeLogo:notGreenLogo;
 
   function render(imgUrl){
     box.innerHTML='';
     box.style.cssText='width:120px;height:120px;min-width:120px;max-width:120px;max-height:120px;flex-shrink:0;background:var(--bg2);overflow:hidden;position:relative;display:block;';
     if(imgUrl){
       const img=document.createElement('img');
-      img.style.cssText='display:block;width:120px;height:120px;object-fit:'+(isBrand?'contain':'cover')+';';
+      img.crossOrigin='anonymous';
+      img.style.cssText='display:block;width:120px;height:120px;object-fit:'+(isBrand?'contain':'cover')+';position:absolute;inset:0;';
       img.src=imgUrl;
       box.appendChild(img);
     }
     const td=document.createElement('div');
-    td.style.cssText='position:absolute;inset:0;background:'+tint+';';
+    td.style.cssText='position:absolute;inset:0;background:'+tint+';pointer-events:none;';
     box.appendChild(td);
     if(horse){
       const hd=document.createElement('div');
-      hd.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+      hd.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;';
       const hi=document.createElement('img');
+      hi.crossOrigin='anonymous';
       hi.src=horse;
-      hi.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
+      hi.style.cssText='width:85%;height:85%;object-fit:contain;opacity:0.92;';
       hd.appendChild(hi);
       box.appendChild(hd);
     }
   }
 
   render(null); // show tint+horse immediately
-
-  const contentType=(r.content_id?.type||'').toLowerCase();
-  const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
   var isLogoUrl=function(u){
     if(isBrand) return false; // brands: show logo/product image
     u=(u||'').toLowerCase();
@@ -3344,15 +3345,20 @@ function handleShare(){
     const title2=r?.content_id?.title||r?.query||'';
     const isBrand=(function(){var t=(r?.content_id?.type||'').toLowerCase();return t==='brand'||t==='company'||t==='product'||t==='organization';})();
     const tint2=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
-    const horse2=score<25?notRedLogo:score<50?notOrangeLogo:null;
+    const horse2=score<25?notRedLogo:score<50?notOrangeLogo:score<75?notOrangeLogo:notGreenLogo;
 
     const setWikiImg=function(imgUrl){
       const imgBox=document.getElementById('wikiImgBox');
       if(!imgBox) return;
       imgBox.innerHTML='';
+      const shareBtn=document.getElementById('socialShareBtn');
+      if(shareBtn&&imgUrl){shareBtn.disabled=true;shareBtn.style.opacity='0.5';}
       if(imgUrl){
         const img=document.createElement('img');
+        img.crossOrigin='anonymous';
         img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:'+(isBrand?'contain':'cover')+';';
+        img.onload=function(){if(shareBtn){shareBtn.disabled=false;shareBtn.style.opacity='';}};
+        img.onerror=function(){if(shareBtn){shareBtn.disabled=false;shareBtn.style.opacity='';}};
         img.src=imgUrl;
         imgBox.appendChild(img);
       }
@@ -3361,16 +3367,17 @@ function handleShare(){
       imgBox.appendChild(td);
       if(horse2){
         const hd=document.createElement('div');
-        hd.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+        hd.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;';
         const hi=document.createElement('img');
+        hi.crossOrigin='anonymous';
         hi.src=horse2;
-        hi.style.cssText='width:60%;height:60%;object-fit:contain;opacity:0.95;';
+        hi.style.cssText='width:85%;height:85%;object-fit:contain;opacity:0.92;';
         hd.appendChild(hi);
         imgBox.appendChild(hd);
       }
     };
 
-    setWikiImg(null); // show tint+horse immediately
+    setWikiImg(null); // show tint+horse immediately while image fetches
 
     var isLogo2=function(u){if(isBrand)return false;u=(u||'').toLowerCase();return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');};
     var sum2=function(t){return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(t)).then(function(r){return r.json();}).then(function(d){var u=d&&(d.originalimage||d.thumbnail);return u&&u.source&&!isLogo2(u.source)?u.source:null;}).catch(function(){return null;});};
@@ -3489,7 +3496,9 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
-    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+    // Small delay to ensure all images (wiki + horse overlay) are fully painted
+    setTimeout(()=>{
+    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,logging:false}).then(async canvas=>{
       // Try native Web Share API first (mobile)
       if(navigator.share && navigator.canShare){
         try{
@@ -3528,6 +3537,7 @@ function downloadShareCard(){
         finish();
       }
     }).catch(()=>finish());
+    },600);
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
@@ -3539,41 +3549,75 @@ function downloadShareCard(){
 }
 
 function downloadFullColorPDF(){
+  if(!isRegistered()){showGate();return;}
   var results=document.getElementById('results');
   if(!results||results.style.display==='none'){alert('Please run a scan first.');return;}
   var r=window._lastResult;
   var titleStr=((r&&r.content_id&&r.content_id.title)?r.content_id.title:(r&&r.query?r.query:'NoTrojan')).replace(/[^a-z0-9_-]/gi,'_')+'_Report';
+
+  // Build loader overlay with X close button
   var loader=document.createElement('div');loader.id='pdfLoader';
   loader.style.cssText='position:fixed;inset:0;background:rgba(2,12,6,0.97);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-  loader.innerHTML='<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#00ff6a;letter-spacing:0.14em;">// GENERATING FULL COLOR REPORT...</div><div style="width:220px;height:2px;background:#1a3a1a;"><div id="pdfBar" style="height:100%;background:#00ff6a;width:0%;transition:width 0.4s;"></div></div>';
+  loader.innerHTML=''
+    +'<button onclick="document.getElementById(\'pdfLoader\').remove();" style="position:absolute;top:18px;right:20px;background:transparent;border:none;color:#4a7a5a;font-family:Share Tech Mono,monospace;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button>'
+    +'<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#00ff6a;letter-spacing:0.14em;">// GENERATING FULL COLOR REPORT...</div>'
+    +'<div style="width:220px;height:2px;background:#1a3a1a;"><div id="pdfBar" style="height:100%;background:#00ff6a;width:0%;transition:width 0.4s;"></div></div>'
+    +'<div id="pdfStatus" style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:#4a7a5a;letter-spacing:0.1em;"></div>';
   document.body.appendChild(loader);
-  function setBar(p){var b=document.getElementById('pdfBar');if(b)b.style.width=p+'%';}
-  function removeLoader(){var l=document.getElementById('pdfLoader');if(l)l.remove();}
-  function doCapture(){
-    setBar(20);
-    html2canvas(results,{backgroundColor:'#020c06',scale:1.5,useCORS:true,allowTaint:true,scrollY:-window.scrollY,windowWidth:document.documentElement.scrollWidth}).then(function(canvas){
-      setBar(70);
-      var imgData=canvas.toDataURL('image/jpeg',0.90);
-      var jsPDF=window.jspdf.jsPDF;
-      var pdf=new jsPDF({orientation:canvas.width>canvas.height?'l':'p',unit:'px',format:[canvas.width/1.5,canvas.height/1.5]});
-      pdf.addImage(imgData,'JPEG',0,0,canvas.width/1.5,canvas.height/1.5);
-      setBar(100);
-      setTimeout(function(){
-        var blob=pdf.output('blob');
-        var blobUrl=URL.createObjectURL(blob);
-        var a=document.createElement('a');
-        a.href=blobUrl;
-        a.download=titleStr+'.pdf';
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(blobUrl);},1000);
-        removeLoader();
-      },300);
-    }).catch(function(){removeLoader();alert('PDF generation failed.');});
+
+  function setBar(p,msg){
+    var b=document.getElementById('pdfBar');if(b)b.style.width=p+'%';
+    var s=document.getElementById('pdfStatus');if(s&&msg)s.textContent=msg;
   }
-  function loadJsPDF(cb){if(window.jspdf){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=cb;s.onerror=function(){removeLoader();};document.head.appendChild(s);}
+  function removeLoader(){var l=document.getElementById('pdfLoader');if(l)l.remove();}
+
+  function doCapture(){
+    setBar(20,'Capturing report...');
+    // Delay to ensure horse overlays are fully painted
+    setTimeout(function(){
+      html2canvas(results,{
+        backgroundColor:'#020c06',
+        scale:1.5,
+        useCORS:true,
+        logging:false,
+        scrollY:-window.scrollY,
+        windowWidth:document.documentElement.scrollWidth
+      }).then(function(canvas){
+        setBar(70,'Building PDF...');
+        var imgData=canvas.toDataURL('image/jpeg',0.90);
+        var jsPDF=window.jspdf.jsPDF;
+        var pw=canvas.width/1.5, ph=canvas.height/1.5;
+        var pdf=new jsPDF({orientation:pw>ph?'l':'p',unit:'px',format:[pw,ph],compress:true});
+        pdf.addImage(imgData,'JPEG',0,0,pw,ph,undefined,'FAST');
+        setBar(95,'Saving...');
+        setTimeout(function(){
+          var pdfBlob=pdf.output('blob');
+          var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+          if(isIOS){
+            // iOS: open in new tab so user can use share sheet to save
+            var blobUrl=URL.createObjectURL(pdfBlob);
+            removeLoader();
+            window.open(blobUrl,'_blank');
+            setTimeout(function(){URL.revokeObjectURL(blobUrl);},30000);
+          } else {
+            // Android/Desktop: direct download
+            var a=document.createElement('a');
+            a.href=URL.createObjectURL(pdfBlob);
+            a.download=titleStr+'.pdf';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href);},1500);
+            removeLoader();
+          }
+        },300);
+      }).catch(function(e){removeLoader();alert('PDF generation failed. Try the Print-Friendly option instead.');});
+    },500);
+  }
+
+  function loadJsPDF(cb){if(window.jspdf){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=cb;s.onerror=function(){removeLoader();alert('Could not load PDF library.');};document.head.appendChild(s);}
   function loadH2C(cb){if(typeof html2canvas!=='undefined'){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=cb;s.onerror=function(){removeLoader();};document.head.appendChild(s);}
-  loadH2C(function(){loadJsPDF(function(){setBar(10);doCapture();});});
+  setBar(5,'Loading libraries...');
+  loadH2C(function(){loadJsPDF(function(){setBar(10,'Ready...');doCapture();});});
 }
 
 function handlePrint(){
