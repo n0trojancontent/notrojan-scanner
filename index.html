@@ -436,10 +436,18 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
   .sc-num{color:#000!important;}
   *{color:#111!important;box-shadow:none!important;text-shadow:none!important;}
   a[href]:after{content:none!important;}
-  /* Preserve horse overlay box in print */
-  #reportImgBox{background:#111!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-  #reportImgBox img{display:block!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-  #reportImgBox div{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  /* Preserve image box, tint overlay, and horse in print */
+  #reportImgBox,
+  #reportImgBox *{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+    color-adjust:exact!important;
+  }
+  #reportImgBox{background:#111!important;}
+  #reportImgBox div[style*="background:rgba"]{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
 }
 
 /* ── EMAIL GATE ── */
@@ -1522,7 +1530,87 @@ No Trojan® is a cultural influence scoring and detection system that evaluates 
 
   </div><!-- /tab-certify -->
 
+<div id="tab-store" class="tab-panel">
+  <div style="max-width:720px;margin:0 auto;padding:24px 16px 48px;">
 
+    <div style="border-left:3px solid var(--gold);padding-left:14px;margin-bottom:24px;">
+      <div style="font-family:var(--font-stm);font-size:0.58rem;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">// NoT™ Fashion</div>
+      <div style="font-family:var(--font-bc);font-size:2.2rem;font-weight:900;letter-spacing:0.06em;color:var(--white);line-height:1.1;">NoT™ <span style="color:var(--gold);">Fashion</span></div>
+      <div style="font-family:var(--font-bc);font-size:0.82rem;font-weight:600;letter-spacing:0.14em;color:var(--gold);text-transform:uppercase;margin-top:4px;">Cultural Influence Intelligence System™</div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border2);border-top:3px solid var(--gold);padding:20px;margin-bottom:14px;">
+      <div style="font-family:var(--font-stm);font-size:0.56rem;letter-spacing:0.16em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">// The Trojan Horse Principle</div>
+      <div style="font-family:var(--font-bc);font-size:1.4rem;font-weight:900;color:var(--white);margin-bottom:10px;">No Trojan Horses</div>
+      <p style="font-size:0.88rem;color:var(--white2);line-height:1.75;margin-bottom:10px;">For nearly three thousand years, the Trojan Horse has symbolized a gift carrying hidden consequences beneath the surface.</p>
+      <p style="font-size:0.88rem;color:var(--white2);line-height:1.75;margin-bottom:10px;">Technology, media, advertising, entertainment, and online influence systems can operate similarly — delivering music, trends, humor, language, identity, and connection while also transmitting values, behaviors, incentives, and cultural programming.</p>
+      <p style="font-size:0.92rem;font-style:italic;color:var(--green2);line-height:1.6;border-left:2px solid var(--gold);padding-left:12px;margin-bottom:10px;">As within, so without.</p>
+      <p style="font-size:0.88rem;color:var(--white2);line-height:1.75;">What enters the individual operating system eventually shapes communities, culture, and public life.</p>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border2);border-top:3px solid var(--green3);padding:20px;margin-bottom:14px;">
+      <div style="font-family:var(--font-stm);font-size:0.56rem;letter-spacing:0.16em;color:var(--green2);text-transform:uppercase;margin-bottom:8px;">// Culture is Code</div>
+      <div style="font-family:var(--font-bc);font-size:1.4rem;font-weight:900;color:var(--white);margin-bottom:10px;">Culture is Code</div>
+      <p style="font-size:0.88rem;color:var(--white2);line-height:1.75;margin-bottom:8px;">Culture spreads through stories, symbols, images, trends, language, behaviors, and memes.</p>
+      <p style="font-size:0.88rem;color:var(--white2);line-height:1.75;margin-bottom:8px;">Some codes strengthen individual and community well-being. Others produce a net negative social impact.</p>
+      <p style="font-size:0.92rem;font-weight:700;color:var(--green);line-height:1.6;">Every individual and corporate action is a unit of culture.</p>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border2);border-top:3px solid var(--green);padding:20px;margin-bottom:14px;">
+      <div style="font-family:var(--font-stm);font-size:0.56rem;letter-spacing:0.16em;color:var(--green);text-transform:uppercase;margin-bottom:8px;">// What We Believe</div>
+      <div style="font-family:var(--font-bc);font-size:1.4rem;font-weight:900;color:var(--white);margin-bottom:14px;">What We Believe</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);flex-shrink:0;margin-top:2px;">▸</span><span style="font-size:0.88rem;color:var(--white2);line-height:1.7;">We believe social responsibility is the ethical responsibility to act for the greater good.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);flex-shrink:0;margin-top:2px;">▸</span><span style="font-size:0.88rem;color:var(--white2);line-height:1.7;">We believe community impact is the ultimate measure of influence.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);flex-shrink:0;margin-top:2px;">▸</span><span style="font-size:0.88rem;color:var(--white2);line-height:1.7;">We believe constructive culture begins with conscious participation.</span></div>
+      </div>
+      <p style="font-size:0.88rem;color:var(--white2);line-height:1.75;">No Trojan® is a call to question popular culture, evaluate influence consciously, and promote healthier communities through socially responsible participation.</p>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border2);border-top:3px solid var(--gold);padding:20px;margin-bottom:14px;">
+      <div style="font-family:var(--font-stm);font-size:0.56rem;letter-spacing:0.16em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">// The 3 E's of Social Responsibility™</div>
+      <div style="font-family:var(--font-bc);font-size:1.4rem;font-weight:900;color:var(--white);margin-bottom:18px;">The 3 E's of Social Responsibility™</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="border-left:3px solid var(--gold);padding-left:14px;">
+          <div style="font-family:var(--font-bc);font-size:1.05rem;font-weight:900;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px;">Explore™</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--green2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px;">Raise awareness.</div>
+          <p style="font-size:0.86rem;color:var(--white2);line-height:1.7;margin-bottom:5px;">The signal creates curiosity, interrupts passive consumption, and encourages people to look deeper.</p>
+          <p style="font-size:0.82rem;font-style:italic;color:var(--muted);">"What does that mean?" "What is NoT™?"</p>
+        </div>
+        <div style="border-left:3px solid var(--gold);padding-left:14px;">
+          <div style="font-family:var(--font-bc);font-size:1.05rem;font-weight:900;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px;">Engage™</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--green2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px;">Encourage constructive social discourse.</div>
+          <p style="font-size:0.86rem;color:var(--white2);line-height:1.7;">The signal creates discussion, questioning, evaluation, interpretation, and conscious engagement with media, messaging, and systems of influence.</p>
+        </div>
+        <div style="border-left:3px solid var(--gold);padding-left:14px;">
+          <div style="font-family:var(--font-bc);font-size:1.05rem;font-weight:900;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px;">Empower™</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--green2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px;">Promote social responsibility.</div>
+          <p style="font-size:0.86rem;color:var(--white2);line-height:1.7;">Wearing NoT Fashion™ represents visible participation in constructive culture, responsible influence, and healthier community standards.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border2);border-top:3px solid var(--gold);padding:20px;margin-bottom:14px;">
+      <div style="font-family:var(--font-stm);font-size:0.56rem;letter-spacing:0.16em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">// NoT Fashion™</div>
+      <div style="font-family:var(--font-bc);font-size:1.4rem;font-weight:900;color:var(--white);margin-bottom:10px;">NoT Fashion™</div>
+      <p style="font-size:0.88rem;color:var(--white2);line-height:1.75;margin-bottom:10px;">Fashion is deeper than it looks.</p>
+      <p style="font-size:0.88rem;color:var(--white2);line-height:1.75;margin-bottom:10px;">Fashion helps shape trends, styles, conventions, customs, attitudes, language, beliefs, aesthetics, lifestyles, norms, and social practices through exposure, imitation, participation, and cultural influence.</p>
+      <p style="font-size:0.88rem;color:var(--white2);line-height:1.75;margin-bottom:14px;">Fashion helps shape what people admire, repeat, normalize, and aspire toward.</p>
+      <p style="font-size:0.88rem;color:var(--green2);font-weight:700;line-height:1.75;margin-bottom:6px;">NoT Fashion™ is designed to:</p>
+      <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:20px;">
+        <div style="font-size:0.88rem;color:var(--white2);">▸ Raise awareness.</div>
+        <div style="font-size:0.88rem;color:var(--white2);">▸ Encourage constructive social discourse.</div>
+        <div style="font-size:0.88rem;color:var(--white2);">▸ Promote social responsibility.</div>
+      </div>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border2);font-size:0.92rem;font-style:italic;color:var(--gold);text-align:center;letter-spacing:0.04em;">"For those who have ears…"</div>
+    </div>
+
+    <div style="text-align:center;margin-top:24px;">
+      <a href="https://no-trojan-content.myshopify.com" target="_blank" style="display:inline-block;background:var(--gold);color:#000;font-family:var(--font-bc);font-size:1rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;padding:14px 32px;text-decoration:none;">🧢 Shop NoT Fashion™ ↗</a>
+    </div>
+
+  </div>
+</div><!-- /tab-store -->
 
 </div><!-- /main -->
 
@@ -3019,8 +3107,8 @@ function fetchReportImage(r, col){
   const notOrangeLogo='data:image/png;base64,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';
   const contentType=(r.content_id?.type||'').toLowerCase();
   const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
-  const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
-  const horse=score<25?notRedLogo:score<50?notOrangeLogo:score<75?notOrangeLogo:notGreenLogo;
+  const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.45)':'rgba(0,255,106,0.5)';
+  const horse=score<25?notRedLogo:score<50?notOrangeLogo:score<75?notOrangeLogo:null;
 
   function render(imgUrl){
     box.innerHTML='';
@@ -3033,7 +3121,7 @@ function fetchReportImage(r, col){
       box.appendChild(img);
     }
     const td=document.createElement('div');
-    td.style.cssText='position:absolute;inset:0;background:'+tint+';pointer-events:none;';
+    td.style.cssText='position:absolute;inset:0;background:'+tint+';pointer-events:none;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;';
     box.appendChild(td);
     if(horse){
       const hd=document.createElement('div');
@@ -3381,8 +3469,8 @@ function handleShare(){
     const creator2=r?.content_id?.creator||'';
     const title2=r?.content_id?.title||r?.query||'';
     const isBrand=(function(){var t=(r?.content_id?.type||'').toLowerCase();return t==='brand'||t==='company'||t==='product'||t==='organization';})();
-    const tint2=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.25)':'rgba(0,255,106,0.3)';
-    const horse2=score<25?notRedLogo:score<50?notOrangeLogo:score<75?notOrangeLogo:notGreenLogo;
+    const tint2=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.45)':'rgba(0,255,106,0.5)';
+    const horse2=score<25?notRedLogo:score<50?notOrangeLogo:score<75?notOrangeLogo:null;
 
     const setWikiImg=function(imgUrl){
       const imgBox=document.getElementById('wikiImgBox');
@@ -3399,7 +3487,7 @@ function handleShare(){
         imgBox.appendChild(img);
       }
       const td=document.createElement('div');
-      td.style.cssText='position:absolute;inset:0;background:'+tint2+';pointer-events:none;';
+      td.style.cssText='position:absolute;inset:0;background:'+tint2+';pointer-events:none;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;';
       imgBox.appendChild(td);
       if(horse2){
         const hd=document.createElement('div');
@@ -3534,7 +3622,7 @@ function downloadShareCard(){
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     // Small delay to ensure all images (wiki + horse overlay) are fully painted
     setTimeout(()=>{
-    html2canvas(card,{backgroundColor:'#000',scale:3,useCORS:true,logging:false,width:380,windowWidth:380}).then(async canvas=>{
+    html2canvas(card,{backgroundColor:'#000',scale:3,useCORS:true,allowTaint:true,logging:false,width:380,windowWidth:380}).then(async canvas=>{
       // Try native Web Share API first (mobile)
       if(navigator.share && navigator.canShare){
         try{
