@@ -3280,7 +3280,7 @@ function handleShare(){
 
         <!-- IMPACT SECTION -->
         ${impactBullets.length?`
-        <div style="margin-bottom:4px;flex-shrink:0;">
+        <div style="margin-bottom:4px;flex-shrink:0;border-top:1px solid ${col}22;padding-top:4px;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;letter-spacing:0.1em;color:${col};text-transform:uppercase;margin-bottom:2px;">${impactLabel}</div>
           ${catHtml}
           ${impactBullets.slice(0,3).map(b=>`<div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:${impactColor};padding:1px 0;line-height:1.3;">• ${b}</div>`).join('')}
