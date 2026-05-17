@@ -3233,7 +3233,7 @@ function handleShare(){
 
   modal.innerHTML=`
   <div style="max-width:500px;width:100%;">
-    <div id="notShareCard" style="background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:22px;font-family:'Barlow Condensed',sans-serif;">
+    <div id="notShareCard" style="width:400px;height:500px;background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:22px;font-family:'Barlow Condensed',sans-serif;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;margin:0 auto;">
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid ${col}33;padding-bottom:10px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
@@ -3286,7 +3286,7 @@ function handleShare(){
       <!-- Troy -->
       ${troyRating?`<div style="margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index™: ${troyRating}</div>`:''}
       <!-- Footer -->
-      <div style="border-top:1px solid ${col}33;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="margin-top:auto;border-top:1px solid ${col}33;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:0.65rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details, visit:</div>
         <div style="font-size:0.9rem;font-weight:900;color:${col};letter-spacing:0.12em;">notrojan.com</div>
       </div>
@@ -3457,11 +3457,13 @@ function downloadShareCard(){
     const fname=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/[^a-z0-9]/gi,'-').toLowerCase();
     setTimeout(()=>{
       card.scrollIntoView({block:'start'});
-      html2canvas(card,{backgroundColor:'#000',scale:3,useCORS:true,allowTaint:true,logging:false,width:card.offsetWidth,windowWidth:card.offsetWidth}).then(canvas=>{
-        const link=document.createElement('a');
-        link.download=`notrojan-${fname}-score-card.png`;
-        link.href=canvas.toDataURL('image/png');
-        document.body.appendChild(link);link.click();document.body.removeChild(link);
+      html2canvas(card,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true,logging:false,width:400,height:500,windowWidth:400}).then(canvas=>{
+        const blobUrl=canvas.toDataURL('image/png');
+        const win=window.open('','_blank');
+        if(win){
+          win.document.write('<html><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+blobUrl+'" style="max-width:100%;height:auto;"><p style="color:#fff;font-family:monospace;text-align:center;font-size:12px;padding:10px;">Press and hold (iOS) or right-click (desktop) to save image</p></body></html>');
+          win.document.close();
+        }
         finish();
       }).catch(()=>finish());
     },800);
