@@ -2975,7 +2975,7 @@ function fetchReportImage(r, col){
   const contentType=(r.content_id?.type||'').toLowerCase();
   const isBrand=contentType==='brand'||contentType==='company'||contentType==='product'||contentType==='organization';
   const tint=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.45)':'rgba(0,255,106,0.5)';
-  const horse=score<25?notRedLogo:score<50?notOrangeLogo:score<75?notOrangeLogo:null;
+  const horse=score<25?notRedLogo:score<50?notOrangeLogo:null;
 
   function render(imgUrl){
     box.innerHTML='';
@@ -3229,16 +3229,15 @@ function handleShare(){
       box-sizing:border-box;
       margin:0 auto;
     ">
-      <!-- The card itself — fixed height portrait trading card -->
+      <!-- The card itself — sits inside the black mat -->
       <div style="
         width:100%;
-        height:480px;
         background:#020c06;
         border-left:3px solid ${col};
         border-right:3px solid ${col};
         border-top:6px solid ${col};
         border-bottom:6px solid ${col};
-        padding:14px;
+        padding:14px 14px 36px 14px;
         font-family:'Barlow Condensed',sans-serif;
         box-sizing:border-box;
         position:relative;
@@ -3265,6 +3264,7 @@ function handleShare(){
           <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Year</div><div style="font-size:0.82rem;font-weight:800;color:#fff;">${year}</div></div>
           <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Label / Publisher</div><div style="font-size:0.82rem;font-weight:800;color:#fff;line-height:1.2;">${publisher}</div></div>
         </div>
+        ${description?`<div style="margin-top:6px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Description</div><div style="font-size:0.72rem;color:#aaa;line-height:1.4;">${description.substring(0,100)}${description.length>100?'...':''}</div></div>`:''}
       </div>
 
       <!-- Score + Image row -->
@@ -3295,7 +3295,7 @@ function handleShare(){
       ${troyRating?`<div style="margin-bottom:8px;font-family:'Share Tech Mono',monospace;font-size:0.48rem;color:${col}88;letter-spacing:0.08em;">🏛 Troy Health Index™: ${troyRating}</div>`:''}
 
       <!-- Footer -->
-      <div style="position:absolute;bottom:14px;left:14px;right:14px;border-top:1px solid ${col}33;padding-top:8px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="margin-top:12px;border-top:1px solid ${col}33;padding-top:8px;display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:0.55rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details, visit:</div>
         <div style="font-size:0.85rem;font-weight:900;color:${col};letter-spacing:0.12em;font-family:'Barlow Condensed',sans-serif;">notrojan.com</div>
       </div>
@@ -3338,7 +3338,7 @@ function handleShare(){
     const title2=r?.content_id?.title||r?.query||'';
     const isBrand=(function(){var t=(r?.content_id?.type||'').toLowerCase();return t==='brand'||t==='company'||t==='product'||t==='organization';})();
     const tint2=score<25?'rgba(196,30,30,0.45)':score<50?'rgba(255,140,0,0.45)':score<75?'rgba(255,200,0,0.3)':score<90?'rgba(0,200,80,0.45)':'rgba(0,255,106,0.5)';
-    const horse2=score<25?notRedLogo:score<50?notOrangeLogo:score<75?notOrangeLogo:null;
+    const horse2=score<25?notRedLogo:score<50?notOrangeLogo:null;
 
     const setWikiImg=function(imgUrl){
       const imgBox=document.getElementById('wikiImgBox');
@@ -3490,7 +3490,7 @@ function downloadShareCard(){
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     // Small delay to ensure all images (wiki + horse overlay) are fully painted
     setTimeout(()=>{
-    html2canvas(card,{backgroundColor:'#000',scale:3,useCORS:true,allowTaint:true,logging:false,width:380,height:528,windowWidth:380}).then(async canvas=>{
+    html2canvas(card,{backgroundColor:'#000',scale:3,useCORS:true,allowTaint:true,logging:false,width:380,windowWidth:380}).then(async canvas=>{
       // Try native Web Share API first (mobile)
       if(navigator.share && navigator.canShare){
         try{
