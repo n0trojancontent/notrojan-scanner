@@ -914,6 +914,7 @@ No Trojan® is a cultural influence scoring and detection system that evaluates 
       <div class="catrow"><div class="catn">Sexual Exploitation Culture <span style="color:var(--red3);font-size:0.68rem;margin-left:7px">↓ EOS · SI · GC</span></div><div class="catd">Content reducing individuals to sexual objects or normalizing exploitation as entertainment.</div></div>
       <div class="catrow"><div class="catn">Ego / Status Programming <span style="color:var(--red3);font-size:0.68rem;margin-left:7px">↓ EOS · SI</span></div><div class="catd">Messaging equating self-worth with social rank — cultivating insecurity and comparison-driven behavior.</div></div>
       <div class="catrow"><div class="catn">Learned Helplessness / Identity Limitation <span style="color:var(--red3);font-size:0.68rem;margin-left:7px">↓ EOS · GC</span></div><div class="catd">Narratives reinforcing ceilings on potential — anti-education messaging, victimhood as permanent identity.</div></div>
+      <div class="catrow"><div class="catn">Rogue Authority <span style="color:var(--red3);font-size:0.68rem;margin-left:7px">↓ EOS · GC</span></div><div class="catd">Unqualified voices presented as credible experts — dangerous guidance amplified to vulnerable audiences by engagement algorithms.</div></div>
     </div>
   </div>
   <div class="sec">
@@ -2008,7 +2009,7 @@ G6 Public Health & Safety: Replicated at scale produces safer healthier communit
 
 MALWARE TYPES (identify up to 3): Trojan,Virus,Worm,Ransomware,Spyware,Adware,Rootkit,Botnet,Keylogger,Backdoor,Fileless,Logic Bomb,Mobile Malware,Cryptojacking,Downloader,Scareware,Rogue Authority,Malvertising,Infostealer
 
-THREAT CATEGORIES (list all present): High-Risk Lifestyle Behavior,Substance Use/Vice,Glorification of Anti-Social Behavior,Conspicuous Consumption,Profanity/Degrading Language,Sexual Exploitation Culture,Ego/Status Programming,Learned Helplessness/Identity Limitation
+THREAT CATEGORIES (list all present): High-Risk Lifestyle Behavior,Substance Use/Vice,Glorification of Anti-Social Behavior,Conspicuous Consumption,Profanity/Degrading Language,Sexual Exploitation Culture,Ego/Status Programming,Learned Helplessness/Identity Limitation,Rogue Authority
 
 BREVITY — all text fields SHORT:
 indicators: max 3 per pillar, 8 words max each
@@ -3224,13 +3225,14 @@ function handleShare(){
     <div id="notShareCard" style="
       width:380px;
       background:#000;
-      padding:32px 28px;
+      padding:24px 20px;
       box-sizing:border-box;
       margin:0 auto;
     ">
-      <!-- The card itself — sits inside the black mat -->
+      <!-- The card itself — fixed height portrait trading card -->
       <div style="
         width:100%;
+        height:480px;
         background:#020c06;
         border-left:3px solid ${col};
         border-right:3px solid ${col};
@@ -3293,7 +3295,7 @@ function handleShare(){
       ${troyRating?`<div style="margin-bottom:8px;font-family:'Share Tech Mono',monospace;font-size:0.48rem;color:${col}88;letter-spacing:0.08em;">🏛 Troy Health Index™: ${troyRating}</div>`:''}
 
       <!-- Footer -->
-      <div style="margin-top:12px;border-top:1px solid ${col}33;padding-top:8px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="position:absolute;bottom:14px;left:14px;right:14px;border-top:1px solid ${col}33;padding-top:8px;display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:0.55rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details, visit:</div>
         <div style="font-size:0.85rem;font-weight:900;color:${col};letter-spacing:0.12em;font-family:'Barlow Condensed',sans-serif;">notrojan.com</div>
       </div>
@@ -3488,7 +3490,7 @@ function downloadShareCard(){
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     // Small delay to ensure all images (wiki + horse overlay) are fully painted
     setTimeout(()=>{
-    html2canvas(card,{backgroundColor:'#000',scale:3,useCORS:true,allowTaint:true,logging:false,width:380,windowWidth:380}).then(async canvas=>{
+    html2canvas(card,{backgroundColor:'#000',scale:3,useCORS:true,allowTaint:true,logging:false,width:380,height:528,windowWidth:380}).then(async canvas=>{
       // Try native Web Share API first (mobile)
       if(navigator.share && navigator.canShare){
         try{
