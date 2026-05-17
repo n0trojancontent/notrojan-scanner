@@ -3217,90 +3217,69 @@ function handleShare(){
   if(existing) existing.remove();
   const modal=document.createElement('div');
   modal.id='shareCardModal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:flex-start;justify-content:center;padding:20px 10px;overflow-y:auto;';
 
   modal.innerHTML=`
-  <div style="max-width:460px;width:100%;padding:0 0 16px 0;">
-    <!-- Outer black mat — fixed width so card floats visibly smaller than IG frame -->
-    <div id="notShareCard" style="
-      width:380px;
-      background:#000;
-      padding:24px 20px;
-      box-sizing:border-box;
-      margin:0 auto;
-    ">
-      <!-- The card itself — sits inside the black mat -->
-      <div style="
-        width:100%;
-        background:#020c06;
-        border-left:3px solid ${col};
-        border-right:3px solid ${col};
-        border-top:6px solid ${col};
-        border-bottom:6px solid ${col};
-        padding:14px 14px 36px 14px;
-        font-family:'Barlow Condensed',sans-serif;
-        box-sizing:border-box;
-        position:relative;
-        overflow:hidden;
-      ">
-      <!-- Inner border accent -->
-      <div style="position:absolute;inset:7px;border:1px solid ${col}22;pointer-events:none;"></div>
+  <div style="width:100%;display:flex;flex-direction:column;align-items:center;padding:0 0 16px 0;">
+    <!-- Trading card: fixed 360×504px — standard trading card ratio 2.5:3.5 -->
+    <div id="notShareCard" style="width:360px;height:504px;background:#020c06;border-left:5px solid ${col};border-right:5px solid ${col};border-top:9px solid ${col};border-bottom:9px solid ${col};padding:14px 14px 12px 14px;font-family:'Barlow Condensed',sans-serif;box-sizing:border-box;position:relative;overflow:hidden;flex-shrink:0;">
+    <!-- Inner border accent -->
+    <div style="position:absolute;inset:10px;border:1px solid ${col}44;pointer-events:none;"></div>
 
       <!-- Header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;border-bottom:1px solid ${col}44;padding-bottom:8px;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.16em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;border-bottom:1px solid ${col}55;padding-bottom:5px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.14em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;color:#4a7a5a;">notrojan.com</div>
       </div>
 
       <!-- Content ID -->
-      <div style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid ${col}22;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.14em;color:${col}88;text-transform:uppercase;margin-bottom:6px;">// Content Identified — NoTrojan® Scan Target</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;">
-          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Title</div><div style="font-size:0.82rem;font-weight:800;color:#fff;line-height:1.2;">${title}</div></div>
-          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Creator</div><div style="font-size:0.82rem;font-weight:800;color:#fff;line-height:1.2;">${creator}</div></div>
-          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Type</div><div style="font-size:0.82rem;font-weight:800;color:#fff;line-height:1.2;">${type}</div></div>
+      <div style="margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid ${col}22;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;letter-spacing:0.12em;color:${col}88;text-transform:uppercase;margin-bottom:5px;">// Content Identified — NoTrojan® Scan Target</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:5px;">
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Title</div><div style="font-size:0.95rem;font-weight:800;color:#fff;line-height:1.15;">${title}</div></div>
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Creator</div><div style="font-size:0.95rem;font-weight:800;color:#fff;line-height:1.15;">${creator}</div></div>
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Type</div><div style="font-size:0.95rem;font-weight:800;color:#fff;line-height:1.15;">${type}</div></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Year</div><div style="font-size:0.82rem;font-weight:800;color:#fff;">${year}</div></div>
-          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Label / Publisher</div><div style="font-size:0.82rem;font-weight:800;color:#fff;line-height:1.2;">${publisher}</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Year</div><div style="font-size:0.95rem;font-weight:800;color:#fff;">${year}</div></div>
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Label / Publisher</div><div style="font-size:0.95rem;font-weight:800;color:#fff;line-height:1.15;">${publisher}</div></div>
         </div>
-        ${description?`<div style="margin-top:6px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Description</div><div style="font-size:0.72rem;color:#aaa;line-height:1.4;">${description.substring(0,100)}${description.length>100?'...':''}</div></div>`:''}
+        ${description?`<div style="margin-top:4px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1px;">Description</div><div style="font-size:0.65rem;color:#aaa;line-height:1.35;">${description.substring(0,120)}${description.length>120?'...':''}</div></div>`:''}
       </div>
 
       <!-- Score + Image row -->
-      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:7px;">
         <div style="flex:1;">
-          <div style="display:flex;align-items:flex-end;gap:8px;">
-            <div style="font-size:3.8rem;font-weight:900;color:${col};line-height:1;">${score}</div>
-            <div style="padding-bottom:4px;">
-              <div style="font-size:0.45rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;">NoTrojan Score™ / 100</div>
-              <div style="font-size:0.9rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;">
+            <div style="font-size:5rem;font-weight:900;color:${col};line-height:1;font-family:'Barlow Condensed',sans-serif;">${score}</div>
+            <div style="padding-bottom:6px;">
+              <div style="font-size:0.42rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;">NoTrojan Score™ / 100</div>
+              <div style="font-size:0.95rem;font-weight:800;color:${col};letter-spacing:0.06em;text-transform:uppercase;line-height:1.1;">${rating}</div>
             </div>
           </div>
           <!-- Pillars -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:8px;">
-            ${['EOS','SI','GC'].map((p,i)=>`<div style="background:${col}11;border:1px solid ${col}44;padding:5px;text-align:center;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;">${p}</div><div style="font-size:1rem;font-weight:900;color:${col};">${[eosS,siS,gcS][i]}</div></div>`).join('')}
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:6px;">
+            ${['EOS','SI','GC'].map((p,i)=>`<div style="background:${col}11;border:1px solid ${col}55;padding:5px 4px;text-align:center;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.4rem;color:#4a7a5a;letter-spacing:0.1em;">${p}</div><div style="font-size:1.1rem;font-weight:900;color:${col};font-family:'Barlow Condensed',sans-serif;">${[eosS,siS,gcS][i]}</div></div>`).join('')}
           </div>
         </div>
-        <!-- Image box -->
-        <div id="wikiImgBox" style="width:130px;height:130px;flex-shrink:0;border:1px solid ${col}44;background:${col}08;overflow:hidden;position:relative;">
+        <!-- Image box — fixed square -->
+        <div id="wikiImgBox" style="width:150px;height:150px;flex-shrink:0;border:1px solid ${col}55;background:${col}08;overflow:hidden;position:relative;">
           <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Fetching...</div></div>
         </div>
       </div>
 
       <!-- Impact bullets -->
-      ${impactBullets.length?`<div style="margin-bottom:8px;border-left:2px solid ${col}44;padding-left:8px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.44rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:3px;">${impactLabel}</div>${impactBullets.slice(0,3).map(b=>`<div style="font-size:0.7rem;color:${impactColor};padding:1px 0;line-height:1.3;">• ${b}</div>`).join('')}</div>`:''}
+      ${impactBullets.length?`<div style="margin-bottom:6px;border-left:2px solid ${col}55;padding-left:7px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.42rem;letter-spacing:0.1em;color:${col};text-transform:uppercase;margin-bottom:2px;">${impactLabel}</div>${impactBullets.slice(0,3).map(b=>`<div style="font-size:0.68rem;color:${impactColor};padding:1px 0;line-height:1.3;">• ${b}</div>`).join('')}</div>`:''}
 
       <!-- Troy -->
-      ${troyRating?`<div style="margin-bottom:8px;font-family:'Share Tech Mono',monospace;font-size:0.48rem;color:${col}88;letter-spacing:0.08em;">🏛 Troy Health Index™: ${troyRating}</div>`:''}
+      ${troyRating?`<div style="margin-bottom:6px;font-family:'Share Tech Mono',monospace;font-size:0.46rem;color:${col}88;letter-spacing:0.06em;">🏛 Troy Health Index™: ${troyRating}</div>`:''}
 
       <!-- Footer -->
-      <div style="margin-top:12px;border-top:1px solid ${col}33;padding-top:8px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:0.55rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details, visit:</div>
-        <div style="font-size:0.85rem;font-weight:900;color:${col};letter-spacing:0.12em;font-family:'Barlow Condensed',sans-serif;">notrojan.com</div>
+      <div style="position:absolute;bottom:14px;left:14px;right:14px;border-top:1px solid ${col}44;padding-top:6px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:0.5rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details, visit:</div>
+        <div style="font-size:0.9rem;font-weight:900;color:${col};letter-spacing:0.1em;font-family:'Barlow Condensed',sans-serif;">notrojan.com</div>
       </div>
-      </div><!-- /card -->
-    </div><!-- /outer mat -->
+    </div><!-- /trading card -->
 
     <!-- Share buttons -->
     <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:460px;margin-left:auto;margin-right:auto;">
@@ -3490,7 +3469,7 @@ function downloadShareCard(){
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     // Small delay to ensure all images (wiki + horse overlay) are fully painted
     setTimeout(()=>{
-    html2canvas(card,{backgroundColor:'#000',scale:3,useCORS:true,allowTaint:true,logging:false,width:380,windowWidth:380}).then(async canvas=>{
+    html2canvas(card,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true,logging:false,width:360,height:504,windowWidth:360}).then(async canvas=>{
       // Try native Web Share API first (mobile)
       if(navigator.share && navigator.canShare){
         try{
