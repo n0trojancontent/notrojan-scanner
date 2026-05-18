@@ -2132,7 +2132,7 @@ Return ONLY valid JSON, no markdown, no backticks:
     }
     prog.classList.remove('on');
     results.style.display='block';
-    var rb=document.getElementById('resultsBar');if(rb)rb.classList.add('on');
+    var resultsBarEl=document.getElementById('resultsBar');if(resultsBarEl)resultsBarEl.classList.add('on');
     // Fetch image AFTER results div is visible
     if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
     results.scrollIntoView({behavior:'smooth',block:'start'});
