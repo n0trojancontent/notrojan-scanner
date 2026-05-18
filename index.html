@@ -72,8 +72,8 @@ header{background:#000;border-bottom:2px solid var(--red);position:relative;z-in
 .nav-btn{background:transparent;border:none;border-bottom:2px solid transparent;padding:11px 15px;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.14em;color:var(--muted);cursor:pointer;transition:all 0.2s;flex-shrink:0;}
 .nav-btn:hover{color:var(--white2);}
 .nav-btn.active{color:var(--green);border-bottom-color:var(--green);}
-.nav-btn.store-btn{color:rgba(245,166,35,0.6);}
-.nav-btn.store-btn:hover{color:var(--gold);}
+.nav-btn.store-btn{color:var(--green);text-shadow:0 0 8px var(--green);}
+.nav-btn.store-btn:hover{color:var(--green);}
 
 /* MAIN */
 .main{max-width:1000px;margin:0 auto;padding:26px 24px 60px;position:relative;z-index:1;}
@@ -110,7 +110,7 @@ header{background:#000;border-bottom:2px solid var(--red);position:relative;z-in
 @keyframes placeholderPulse{0%,100%{opacity:1}50%{opacity:0.4}}
 .url-inp::placeholder{color:var(--green2);animation:placeholderPulse 2.5s ease-in-out infinite;} @keyframes cursorBlink{0%,100%{opacity:1}49%{opacity:1}50%,99%{opacity:0}} .cursor-wrap{position:relative;flex:1;display:flex;} .cursor-wrap input{flex:1;} .fake-cursor{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:2px;height:16px;background:var(--green);animation:cursorBlink 1s infinite;pointer-events:none;} .cursor-wrap.hide-cursor .fake-cursor{display:none;}
 
-.scan-btn{background:var(--green4);border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.86rem;font-weight:800;letter-spacing:0.2em;padding:11px 22px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;white-space:nowrap;min-width:160px;}.scan-btn:hover:not(:disabled){background:rgba(0,255,106,0.1);}
+.scan-btn{background:transparent;border:1px solid var(--green);color:var(--green);text-shadow:0 0 8px var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.86rem;font-weight:800;letter-spacing:0.2em;padding:11px 22px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;white-space:nowrap;min-width:160px;}.scan-btn:hover:not(:disabled){background:rgba(0,255,106,0.1);}
 .scan-btn:disabled{opacity:0.4;cursor:not-allowed;}
 .prog-row{display:none;align-items:center;gap:12px;margin-top:10px;}
 .prog-row.on{display:flex;}
@@ -519,13 +519,13 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 <div class="nav-swipe-banner" id="swipeBanner">← swipe for more tabs →</div>
 <div class="nav-bar">
   <div class="nav-inner">
-    <button class="nav-btn active" onclick="switchNav('scanner',this)">⚡ Scanner</button>
-    <button class="nav-btn" onclick="switchNav('whatNOT',this)">🛡️ What NoT™?</button>
-    <button class="nav-btn" onclick="switchNav('whyNOT',this)">🔬 Why NoT™?</button>
-    <button class="nav-btn" onclick="switchNav('howNOT',this)">📡 How NoT™?</button>
-    <button class="nav-btn" onclick="switchNav('certify',this)">🏆 Certify &amp; Train</button>
-    <button class="nav-btn store-btn" onclick="window.open('https://store.notrojan.com','_blank')">🧢 NoT™ Fashion</button>
-    <button class="nav-btn" onclick="openContact()">📬 Contact</button><div class="nav-scroll-hint" id="scrollHint">›</div>
+    <button class="nav-btn active" onclick="switchNav('scanner',this)"><span class="nav-icon">⚡</span> Scanner</button>
+    <button class="nav-btn" onclick="switchNav('whatNOT',this)"><span class="nav-icon">🛡️</span> What NoT™?</button>
+    <button class="nav-btn" onclick="switchNav('whyNOT',this)"><span class="nav-icon">🔬</span> Why NoT™?</button>
+    <button class="nav-btn" onclick="switchNav('howNOT',this)"><span class="nav-icon">📡</span> How NoT™?</button>
+    <button class="nav-btn" onclick="switchNav('certify',this)"><span class="nav-icon">🏆</span> Certify &amp; Train</button>
+    <button class="nav-btn store-btn" onclick="window.open('https://store.notrojan.com','_blank')"><span class="nav-icon">🧢</span> NoT™ Fashion</button>
+    <button class="nav-btn" onclick="openContact()"><span class="nav-icon">📬</span> Contact</button><div class="nav-scroll-hint" id="scrollHint">›</div>
   </div>
 </div>
 <div class="main">
@@ -3712,5 +3712,23 @@ if(ni&&hint){ni.addEventListener('scroll',function(){if(ni.scrollLeft>20){if(hin
     </div>
   </div>
 </div>
+
+<script>
+(function(){
+  var icons = Array.from(document.querySelectorAll('.nav-icon'));
+  icons.forEach(function(icon){
+    function twinkle(){
+      icon.style.textShadow = '0 0 6px rgba(0,255,106,0.5)';
+      icon.style.opacity = '1';
+      setTimeout(function(){
+        icon.style.textShadow = '';
+        icon.style.opacity = '';
+        setTimeout(twinkle, 10000 + Math.random() * 20000);
+      }, 600);
+    }
+    setTimeout(twinkle, Math.random() * 15000);
+  });
+})();
+</script>
 </body>
 </html>
