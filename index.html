@@ -3639,19 +3639,10 @@ function downloadFullColorPDF(){
         setBar(70,'Building PDF...');
         var imgData=canvas.toDataURL('image/jpeg',0.90);
         var jsPDF=window.jspdf.jsPDF;
-        // Letter size 8.5x11" at 72dpi = 612x792pt — standard document scale
-        var pdf=new jsPDF({orientation:'p',unit:'pt',format:'letter',compress:true});
-        var pageW=612, pageH=792, margin=36;
-        var usableW=pageW-(margin*2), usableH=pageH-(margin*2);
-        var imgW=canvas.width/1.5, imgH=canvas.height/1.5;
-        var scale=Math.min(usableW/imgW, usableH/imgH);
-        var drawW=imgW*scale, drawH=imgH*scale;
-        // If content taller than one page, add pages
-        var pagesNeeded=Math.ceil(drawH/usableH);
-        for(var p=0;p<pagesNeeded;p++){
-          if(p>0) pdf.addPage('letter','p');
-          pdf.addImage(imgData,'JPEG',margin,margin-(p*usableH),drawW,drawH,undefined,'FAST');
-        }
+        // Pixel-perfect — PDF sized to match captured content exactly
+        var pw=canvas.width/1.5, ph=canvas.height/1.5;
+        var pdf=new jsPDF({orientation:pw>ph?'l':'p',unit:'px',format:[pw,ph],compress:true});
+        pdf.addImage(imgData,'JPEG',0,0,pw,ph,undefined,'FAST');
         setBar(95,'Saving...');
         setTimeout(function(){
           var pdfBlob=pdf.output('blob');
@@ -3693,16 +3684,15 @@ function handlePrint(){
   if(scTeaser) scTeaser.style.display='none';
   if(contentHdr) contentHdr.style.marginBottom='0';
   if(scoreCard) scoreCard.style.marginTop='0';
-  // Save and override every element's background and color inline
+  // Save and override ONLY backgrounds to white — preserve all text and tier colors
   var allEls=Array.from(results.querySelectorAll('*'));
   allEls.unshift(results);
   var saved=allEls.map(function(el){
-    return{bg:el.style.background,bgc:el.style.backgroundColor,color:el.style.color,border:el.style.borderColor,shadow:el.style.boxShadow};
+    return{bg:el.style.background,bgc:el.style.backgroundColor,shadow:el.style.boxShadow};
   });
   allEls.forEach(function(el){
     el.style.setProperty('background','#fff','important');
     el.style.setProperty('background-color','#fff','important');
-    el.style.setProperty('color','#111','important');
     el.style.setProperty('border-color','#ccc','important');
     el.style.setProperty('box-shadow','none','important');
   });
@@ -3718,12 +3708,10 @@ function handlePrint(){
           scrollY:-window.scrollY,
           windowWidth:document.documentElement.scrollWidth
         }).then(function(canvas){
-          // Restore all elements
+          // Restore backgrounds only
           allEls.forEach(function(el,i){
             el.style.background=saved[i].bg;
             el.style.backgroundColor=saved[i].bgc;
-            el.style.color=saved[i].color;
-            el.style.borderColor=saved[i].border;
             el.style.boxShadow=saved[i].shadow;
           });
           if(scRow) scRow.style.display='';
@@ -3751,8 +3739,6 @@ function handlePrint(){
           allEls.forEach(function(el,i){
             el.style.background=saved[i].bg;
             el.style.backgroundColor=saved[i].bgc;
-            el.style.color=saved[i].color;
-            el.style.borderColor=saved[i].border;
             el.style.boxShadow=saved[i].shadow;
           });
           if(scRow) scRow.style.display='';
