@@ -3279,55 +3279,53 @@ function handleShare(){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;';
 
   modal.innerHTML=`
-  <div style="max-width:500px;width:100%;">
-    <div id="notShareCard" style="background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:22px;font-family:'Barlow Condensed',sans-serif;">
+  <div style="width:540px;">
+    <div id="notShareCard" style="background:#020c06;border-left:22px solid ${col};border-right:22px solid ${col};border-top:8px solid ${col};border-bottom:8px solid ${col};padding:18px;font-family:'Barlow Condensed',sans-serif;width:540px;height:756px;overflow:hidden;box-sizing:border-box;display:flex;flex-direction:column;">
       <!-- Header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid ${col}33;padding-bottom:10px;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;">notrojan.com</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;border-bottom:1px solid ${col}33;padding-bottom:8px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:0.14em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#4a7a5a;">notrojan.com</div>
       </div>
       <!-- Content Identified block -->
-      <div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid ${col}22;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.16em;color:${col}99;text-transform:uppercase;margin-bottom:8px;">// Content Identified — NoTrojan® Scan Target</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
-          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Title</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${title}</div></div>
-          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Creator</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${creator}</div></div>
-          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Type</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${type}</div></div>
+      <div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid ${col}22;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;letter-spacing:0.14em;color:${col}99;text-transform:uppercase;margin-bottom:6px;">// Content Identified — NoTrojan® Scan Target</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;">
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px;">Title</div><div style="font-size:1rem;font-weight:800;color:#fff;">${title}</div></div>
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px;">Creator</div><div style="font-size:1rem;font-weight:800;color:#fff;">${creator}</div></div>
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px;">Type</div><div style="font-size:1rem;font-weight:800;color:#fff;">${type}</div></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Year</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${year}</div></div>
-          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Label / Publisher</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${publisher}</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px;">Year</div><div style="font-size:1rem;font-weight:800;color:#fff;">${year}</div></div>
+          <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px;">Label / Publisher</div><div style="font-size:1rem;font-weight:800;color:#fff;">${publisher}</div></div>
         </div>
-        ${description?`<div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Description</div><div style="font-size:0.76rem;color:#aaa;line-height:1.4;">${description.substring(0,120)}${description.length>120?'...':''}</div></div>`:''}
+        ${description?`<div><div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px;">Description</div><div style="font-size:0.88rem;color:#aaa;line-height:1.4;">${description.substring(0,120)}${description.length>120?'...':''}</div></div>`:''}
       </div>
-      <!-- Score row + Wikipedia image -->
-      <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;">
-        <div style="flex:1;">
-          <div style="display:flex;align-items:flex-end;gap:10px;">
-            <div style="font-size:4rem;font-weight:900;color:${col};line-height:1;">${score}</div>
-            <div style="padding-bottom:6px;">
-              <div style="font-size:0.5rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;">NoTrojan Score™ / 100</div>
-              <div style="font-size:1rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
-            </div>
-          </div>
-          <!-- Pillars -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;">
-            ${['EOS','SI','GC'].map((p,i)=>`<div style="background:${col}11;border:1px solid ${col}33;padding:6px;text-align:center;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.46rem;color:#4a7a5a;letter-spacing:0.1em;">${p}</div><div style="font-size:1.1rem;font-weight:900;color:${col};">${[eosS,siS,gcS][i]}</div></div>`).join('')}
+      <!-- Wikipedia image — full width, centered -->
+      <div id="wikiImgBox" style="width:100%;height:240px;border:1px solid ${col}33;background:${col}08;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;margin-bottom:12px;">
+        <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Fetching...</div></div>
+      </div>
+      <!-- Score block -->
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:10px;">
+          <div style="font-size:5.5rem;font-weight:900;color:${col};line-height:1;">${score}</div>
+          <div style="padding-bottom:6px;">
+            <div style="font-size:0.58rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;">NoTrojan Score™ / 100</div>
+            <div style="font-size:1.3rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
           </div>
         </div>
-        <!-- Wikipedia image placeholder -->
-        <div id="wikiImgBox" style="width:140px;height:140px;flex-shrink:0;border:1px solid ${col}33;background:${col}08;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
-          <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Fetching...</div></div>
+        <!-- Pillars -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+          ${['EOS','SI','GC'].map((p,i)=>`<div style="background:${col}11;border:1px solid ${col}33;padding:6px;text-align:center;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.56rem;color:#4a7a5a;letter-spacing:0.1em;">${p}</div><div style="font-size:1.5rem;font-weight:900;color:${col};">${[eosS,siS,gcS][i]}</div></div>`).join('')}
         </div>
       </div>
       <!-- Cultural Impact Bullets -->
-      ${impactBullets.length?`<div style="margin-bottom:8px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:4px;">${impactLabel}</div>${impactBullets.map(b=>`<div style="font-size:0.76rem;color:${impactColor};padding:1px 0;">• ${b}</div>`).join('')}</div>`:''}
+      ${impactBullets.length?`<div style="margin-bottom:8px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:4px;">${impactLabel}</div>${impactBullets.map(b=>`<div style="font-size:0.86rem;color:${impactColor};padding:2px 0;">• ${b}</div>`).join('')}</div>`:''}
       <!-- Troy -->
-      ${troyRating?`<div style="margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index™: ${troyRating}</div>`:''}
+      ${troyRating?`<div style="margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:0.64rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index™: ${troyRating}</div>`:''}
       <!-- Footer -->
       <div style="border-top:1px solid ${col}33;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:0.65rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details, visit:</div>
-        <div style="font-size:0.9rem;font-weight:900;color:${col};letter-spacing:0.12em;">notrojan.com</div>
+        <div style="font-size:0.7rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details, visit:</div>
+        <div style="font-size:1.1rem;font-weight:900;color:${col};letter-spacing:0.12em;">notrojan.com</div>
       </div>
     </div>
     <!-- Share buttons -->
