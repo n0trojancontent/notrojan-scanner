@@ -3229,11 +3229,11 @@ function handleShare(){
   if(existing) existing.remove();
   const modal=document.createElement('div');
   modal.id='shareCardModal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:flex-start;justify-content:center;padding:20px 16px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px;';
 
   modal.innerHTML=`
-  <div style="max-width:500px;width:100%;">
-    <div id="notShareCard" style="width:500px;height:625px;background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:22px;font-family:'Barlow Condensed',sans-serif;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;margin:0 auto;">
+  <div style="width:100%;max-width:420px;">
+    <div id="notShareCard" style="background:#020c06;padding:20px;font-family:'Barlow Condensed',sans-serif;border:3px solid ${col};border-top:5px solid ${col};aspect-ratio:4/5;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;">
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid ${col}33;padding-bottom:10px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
@@ -3276,17 +3276,12 @@ function handleShare(){
       <!-- Cultural Impact Bullets -->
       ${(()=>{
         if(!impactBullets.length) return '';
-        const DEFS={'Rogue Authority':'Unqualified voices presented as credible experts','Substance Use/Vice':'Alcohol, drugs, or addictive behaviors normalized as aspirational','High-Risk Lifestyle Behavior':'Dangerous behaviors presented as desirable or status-defining','Glorification of Anti-Social Behavior':'Harmful social conduct normalized or celebrated','Conspicuous Consumption':'Materialism and status-spending programmed as identity','Sexual Exploitation Culture':'Objectification and exploitation normalized through content','Ego/Status Programming':'Self-worth tied to external validation and hierarchy','Learned Helplessness/Identity Limitation':'Agency and self-determination systematically eroded','Profanity/Degrading Language':'Dehumanizing language normalized across communities'};
-        const catLines=(r.bside?.threatCategories||[]).slice(0,2).map(t=>{
-          const def=DEFS[t]||DEFS[Object.keys(DEFS).find(k=>t.toLowerCase().includes(k.toLowerCase()))]||'';
-          return `<div style="font-family:'Share Tech Mono',monospace;font-size:0.38rem;color:${col}99;margin-bottom:2px;"><span style="color:${col};font-weight:bold;">${t}</span>${def?' — '+def:''}</div>`;
-        }).join('');
-        return `<div style="margin-bottom:8px;border-top:1px solid ${col}22;padding-top:6px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:4px;">${impactLabel}</div>${catLines}${impactBullets.map(b=>`<div style="font-size:0.76rem;color:${impactColor};padding:1px 0;">• ${b}</div>`).join('')}</div>`;
+        return `<div style="margin-bottom:8px;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;color:${col};text-transform:uppercase;margin-bottom:4px;">${impactLabel}</div>${impactBullets.map(b=>`<div style="font-size:0.76rem;color:${impactColor};padding:1px 0;">• ${b}</div>`).join('')}</div>`;
       })()}
       <!-- Troy -->
       ${troyRating?`<div style="margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:${col};letter-spacing:0.08em;">🏛 Troy Health Index™: ${troyRating}</div>`:''}
       <!-- Footer -->
-      <div style="margin-top:auto;border-top:1px solid ${col}33;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="border-top:1px solid ${col}33;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:0.65rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;">For full report details, visit:</div>
         <div style="font-size:0.9rem;font-weight:900;color:${col};letter-spacing:0.12em;">notrojan.com</div>
       </div>
@@ -3455,30 +3450,41 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const fname=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/[^a-z0-9]/gi,'-').toLowerCase();
-    setTimeout(()=>{
-      html2canvas(card,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true,logging:false,width:card.offsetWidth,height:card.offsetHeight,windowWidth:card.offsetWidth}).then(canvas=>{
-        const src=canvas.toDataURL('image/png');
-        const existing=document.getElementById('saveCardPopup');if(existing)existing.remove();
-        const popup=document.createElement('div');
-        popup.id='saveCardPopup';
-        popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
-        const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
-        const canNativeShare=isIOS&&navigator.share&&navigator.canShare;
-        popup.innerHTML=`
-          <div style="max-width:520px;width:100%;text-align:center;">
-            <img src="${src}" style="width:100%;max-width:500px;height:auto;display:block;margin:0 auto 16px;border:2px solid #333;">
-            <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#4a7a5a;letter-spacing:0.1em;margin-bottom:12px;">SCORE CARD READY TO SHARE</div>
-            ${canNativeShare?`
-            <button onclick="(async()=>{try{const blob=await (await fetch('${src}')).blob();const file=new File([blob],'notrojan-${fname}-score-card.png',{type:'image/png'});await navigator.share({files:[file],title:'NoT™ Score Card',text:'Decoded on notrojan.com'});document.getElementById('saveCardPopup').remove();finish();}catch(e){document.getElementById('saveCardPopup').remove();finish();}})()" style="width:100%;padding:13px;background:rgba(0,255,106,0.06);border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:block;">📤 Share / Save to Photos</button>
-            `:`
-            <a href="${src}" download="notrojan-${fname}-score-card.png" onclick="document.getElementById('saveCardPopup').remove();finish();" style="display:block;width:100%;padding:13px;background:rgba(0,255,106,0.06);border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:10px;box-sizing:border-box;">💾 Save Image</a>
-            `}
-            <button onclick="document.getElementById('saveCardPopup').remove();" style="background:transparent;border:none;color:#666;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;margin-top:4px;">✕ Cancel</button>
-          </div>`;
-        document.body.appendChild(popup);
-        if(btn){btn.textContent='Instagram / TikTok';btn.disabled=false;btn.style.opacity='1';}
-      }).catch(()=>finish());
-    },800);
+    // Clone card into off-screen wrapper — forces exact 1080x1350px IG output
+    const clone=card.cloneNode(true);
+    const cardStyle=window.getComputedStyle(card);
+    const borderColor=cardStyle.borderTopColor;
+    const igW=1080, igH=1350; // IG optimal portrait 4:5
+    const wrapper=document.createElement('div');
+    wrapper.style.cssText='position:fixed;left:-9999px;top:0;background:#020c06;display:inline-block;width:'+igW+'px;height:'+igH+'px;border:3px solid '+borderColor+';border-top:5px solid '+borderColor+';box-sizing:border-box;overflow:hidden;';
+    clone.style.cssText='background:#020c06;padding:20px;font-family:\'Barlow Condensed\',sans-serif;width:100%;height:100%;box-sizing:border-box;border:none;display:flex;flex-direction:column;justify-content:space-between;';
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+    html2canvas(wrapper,{backgroundColor:'#020c06',scale:1,useCORS:true,allowTaint:true,logging:false,width:igW,height:igH}).then(canvas=>{
+      document.body.removeChild(wrapper);
+      const src=canvas.toDataURL('image/png');
+      const existing=document.getElementById('saveCardPopup');if(existing)existing.remove();
+      const popup=document.createElement('div');
+      popup.id='saveCardPopup';
+      popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
+      const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+      const canNativeShare=isIOS&&navigator.share&&navigator.canShare;
+      popup.innerHTML=`
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:900;color:var(--green);letter-spacing:0.1em;margin-bottom:12px;text-align:center;">📲 YOUR SCORE CARD IS READY</div>
+        <img src="${src}" style="width:100%;max-width:320px;display:block;margin:0 auto 16px;box-shadow:0 0 20px rgba(0,255,106,0.3);" />
+        ${canNativeShare?`
+        <button onclick="(async()=>{try{const blob=await (await fetch('${src}')).blob();const file=new File([blob],'notrojan-${fname}-score-card.png',{type:'image/png'});await navigator.share({files:[file],title:'NoT™ Score Card',text:'Decoded on notrojan.com'});document.getElementById('saveCardPopup').remove();finish();}catch(e){document.getElementById('saveCardPopup').remove();finish();}})()" style="display:block;width:100%;max-width:320px;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;box-sizing:border-box;">📤 Share / Save to Photos</button>
+        `:`
+        <a href="${src}" download="notrojan-${fname}-score-card.png" onclick="document.getElementById('saveCardPopup').remove();finish();" style="display:block;width:100%;max-width:320px;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:10px;box-sizing:border-box;text-align:center;">💾 Save to Photos</a>
+        `}
+        <button onclick="document.getElementById('saveCardPopup').remove();" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;margin-top:4px;">✕ Cancel</button>
+      `;
+      document.body.appendChild(popup);
+      if(btn){btn.textContent='Instagram / TikTok';btn.disabled=false;btn.style.opacity='1';}
+    }).catch(()=>{
+      if(wrapper.parentNode)document.body.removeChild(wrapper);
+      finish();
+    });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
