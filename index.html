@@ -3657,7 +3657,7 @@ function downloadFullColorPDF(){
           var pdfBlob=pdf.output('blob');
           var blobUrl=URL.createObjectURL(pdfBlob);
             removeLoader();
-            window.open(blobUrl,'_blank');
+            var a=document.createElement('a');a.href=blobUrl;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();document.body.removeChild(a);
             setTimeout(function(){URL.revokeObjectURL(blobUrl);},30000);
         },300);
       }).catch(function(e){
@@ -3693,8 +3693,11 @@ function handlePrint(){
   if(scTeaser) scTeaser.style.display='none';
   if(contentHdr) contentHdr.style.marginBottom='0';
   if(scoreCard) scoreCard.style.marginTop='0';
-  var allEls=results.querySelectorAll('*');
-  results.style.filter='invert(1) hue-rotate(180deg)';
+  // Inject temporary white-override style tag
+  var styleTag=document.createElement('style');
+  styleTag.id='printWhiteOverride';
+  styleTag.textContent='#results,#results *{background:#fff!important;color:#111!important;border-color:#ccc!important;box-shadow:none!important;text-shadow:none!important;}#results img{filter:none!important;}';
+  document.head.appendChild(styleTag);
   setTimeout(function(){
     loadH2C(function(){
       loadJsPDF(function(){
@@ -3707,7 +3710,8 @@ function handlePrint(){
           scrollY:-window.scrollY,
           windowWidth:document.documentElement.scrollWidth
         }).then(function(canvas){
-          results.style.filter='';
+          // Remove white override
+          var tag=document.getElementById('printWhiteOverride');if(tag)tag.remove();
           if(scRow) scRow.style.display='';
           if(scTeaser) scTeaser.style.display='';
           if(contentHdr) contentHdr.style.marginBottom='';
@@ -3727,10 +3731,10 @@ function handlePrint(){
           }
           var pdfBlob=pdf.output('blob');
           var blobUrl=URL.createObjectURL(pdfBlob);
-          window.open(blobUrl,'_blank');
+          var a=document.createElement('a');a.href=blobUrl;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();document.body.removeChild(a);
           setTimeout(function(){URL.revokeObjectURL(blobUrl);},30000);
         }).catch(function(){
-          results.style.filter='';
+          var tag=document.getElementById('printWhiteOverride');if(tag)tag.remove();
           if(scRow) scRow.style.display='';
           if(scTeaser) scTeaser.style.display='';
         });
