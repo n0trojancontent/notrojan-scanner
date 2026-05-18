@@ -1674,6 +1674,10 @@ function showGate(score, ratingClass){
     + '<input type="checkbox" id="gatePledge" style="margin-top:3px;flex-shrink:0;" />'
     + '<label for="gatePledge" style="font-size:0.74rem;color:var(--white2);line-height:1.5;cursor:pointer;">I accept the NoT™ Green Pledge and agree to receive community emails. A confirmation will be sent to verify your email.</label>'
     + '</div>'
+    + '<div id="gateCaptcha" style="margin-bottom:12px;">'
+    + '<div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px;letter-spacing:0.05em;">Quick check — what is <span id="captchaQ" style="color:var(--green);font-weight:700;"></span>?</div>'
+    + '<input type="number" id="captchaAns" placeholder="Your answer" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-left:3px solid var(--green3);color:var(--white);font-family:Share Tech Mono,monospace;font-size:0.85rem;padding:10px 12px;outline:none;box-sizing:border-box;" />'
+    + '</div>'
     + '<button class="gate-btn" id="gateJoinBtn" onclick="submitGate()" style="width:100%;font-size:0.82rem;padding:12px;">JOIN FREE & UNLOCK REPORT</button>'
     + '</div>';
 
@@ -1705,7 +1709,18 @@ function showGate(score, ratingClass){
 
   gate.appendChild(box);
   document.body.appendChild(gate);
-  setTimeout(function(){ var e=document.getElementById('gateEmail'); if(e) e.focus(); }, 100);
+  setTimeout(function(){
+    var a=Math.floor(Math.random()*9)+1;
+    var b=Math.floor(Math.random()*9)+1;
+    var ops=['+','+','+',' × '];
+    var op=ops[Math.floor(Math.random()*ops.length)];
+    var ans=op===' × '?a*b:a+b;
+    var q=a+op+b;
+    window._captchaAns=ans;
+    var el=document.getElementById('captchaQ');
+    if(el) el.textContent=q;
+    var e=document.getElementById('gateEmail'); if(e) e.focus();
+  }, 100);
 }
 
 function goToPaidSignup(){
@@ -1714,6 +1729,18 @@ function goToPaidSignup(){
 
 
 async function submitGate(){
+  // Validate captcha first
+  const captchaInput=document.getElementById('captchaAns');
+  if(captchaInput&&window._captchaAns!==undefined){
+    const userAns=parseInt(captchaInput.value,10);
+    if(isNaN(userAns)||userAns!==window._captchaAns){
+      captchaInput.style.borderColor='#ff4444';
+      captchaInput.placeholder='Incorrect — try again';
+      captchaInput.value='';
+      setTimeout(function(){captchaInput.style.borderColor='';captchaInput.placeholder='Your answer';},2000);
+      return;
+    }
+  }
   const email = document.getElementById('gateEmail').value.trim();
   const pledged = document.getElementById('gatePledge').checked;
   const emailInp = document.getElementById('gateEmail');
