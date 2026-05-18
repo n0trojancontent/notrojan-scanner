@@ -112,6 +112,13 @@ header{background:#000;border-bottom:2px solid var(--red);position:relative;z-in
 
 .scan-btn{background:var(--green4);border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.86rem;font-weight:800;letter-spacing:0.2em;padding:11px 22px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;white-space:nowrap;min-width:160px;}.scan-btn:hover:not(:disabled){background:rgba(0,255,106,0.1);}
 .scan-btn:disabled{opacity:0.4;cursor:not-allowed;}
+/* RESULTS ACTION BAR */
+#resultsBar{display:none;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-bottom:2px solid var(--green3);margin-bottom:10px;}
+#resultsBar.on{display:flex;}
+.rbar-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;padding:7px 14px;cursor:pointer;transition:all 0.2s;}
+.rbar-btn:hover{border-color:var(--green3);color:var(--white2);}
+.rbar-btn.primary{border-color:var(--green);color:var(--green);background:var(--green4);}
+.rbar-btn.primary:hover{background:rgba(0,255,106,0.12);}
 .prog-row{display:none;align-items:center;gap:12px;margin-top:10px;}
 .prog-row.on{display:flex;}
 .prog-lbl{font-family:'Share Tech Mono',monospace;font-size:0.66rem;color:var(--green2);animation:blink 0.8s infinite;white-space:nowrap;}
@@ -557,7 +564,13 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     <!-- SCROLL TEASER -->
     <div class="scroll-teaser">↓ Scroll down for cultural impact score and full analysis ↓</div>
 
-    <div id="scanCompleteRow" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:0;">
+    <!-- RESULTS ACTION BAR -->
+    <div id="resultsBar">
+      <button class="rbar-btn" onclick="clearScan()">✕ New Scan</button>
+      <button class="rbar-btn primary" onclick="handlePrint()">🖨 Save as PDF</button>
+    </div>
+
+    <div id="scanCompleteRow" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
       <button id="floatShareBtn" onclick="handleShareMenu()" style="display:none;align-items:center;gap:8px;background:#020c06;border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;padding:12px 22px;cursor:pointer;text-transform:uppercase;box-shadow:0 0 20px rgba(0,255,106,0.3);transition:all 0.2s;position:fixed;bottom:24px;right:20px;z-index:9000;">📤 Share Report</button>
     </div>
@@ -1828,7 +1841,7 @@ function switchResult(id,btn){
 }
 function goToTab(id){var panel=document.getElementById('tab-'+id);document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none';p.classList.remove('active');});if(panel){panel.style.display='block';panel.classList.add('active');}window.scrollTo({top:0,behavior:'smooth'});} function openStore(){window.open('https://store.notrojan.com','_blank');}
 
-function clearScan(){   document.getElementById('urlInput').value='';   document.getElementById('results').style.display='none';   document.getElementById('errBar').classList.remove('on');   document.getElementById('contentHeader').style.display='none';   document.getElementById('clearBtn').style.display='none';   document.getElementById('cursorWrap').classList.remove('hide-cursor');   const fsb=document.getElementById('floatShareBtn');if(fsb)fsb.style.display='none';   window._lastResult=null;   const rib=document.getElementById('reportImgBox');if(rib)rib.innerHTML='<div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Scanning...</div></div>';   document.getElementById('urlInput').focus(); } 
+function clearScan(){   document.getElementById('urlInput').value='';   document.getElementById('results').style.display='none';   document.getElementById('errBar').classList.remove('on');   document.getElementById('contentHeader').style.display='none';   document.getElementById('clearBtn').style.display='none';   document.getElementById('cursorWrap').classList.remove('hide-cursor');   const fsb=document.getElementById('floatShareBtn');if(fsb)fsb.style.display='none';   const rb=document.getElementById('resultsBar');if(rb)rb.classList.remove('on');   window._lastResult=null;   const rib=document.getElementById('reportImgBox');if(rib)rib.innerHTML='<div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Scanning...</div></div>';   document.getElementById('urlInput').focus(); } 
 function restoreLastScan(){
   try{
     const saved = localStorage.getItem('not_last_scan');
@@ -2119,6 +2132,7 @@ Return ONLY valid JSON, no markdown, no backticks:
     }
     prog.classList.remove('on');
     results.style.display='block';
+    var resultsBarEl=document.getElementById('resultsBar');if(resultsBarEl)resultsBarEl.classList.add('on');
     // Fetch image AFTER results div is visible
     if(r.content_id) setTimeout(()=>fetchReportImage(r, window._lastCol||'#00ff6a'), 50);
     results.scrollIntoView({behavior:'smooth',block:'start'});
@@ -3675,24 +3689,17 @@ function handlePrint(){
   var results=document.getElementById('results');
   if(!results)return;
 
-  // Show loader overlay with ✕ to cancel
-  var printLoader=document.createElement('div');
-  printLoader.id='printLoader';
-  printLoader.style.cssText='position:fixed;inset:0;background:rgba(2,12,6,0.95);z-index:99990;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-  printLoader.innerHTML='<button onclick="document.getElementById(\'printLoader\').remove();window._printCancelled=true;" style="position:absolute;top:18px;right:20px;background:transparent;border:none;color:#4a7a5a;font-family:Share Tech Mono,monospace;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button>'
-    +'<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#00ff6a;letter-spacing:0.14em;">// GENERATING PRINT-FRIENDLY REPORT...</div>'
-    +'<div style="width:200px;height:2px;background:#0b1a10;"><div id="printLoaderBar" style="height:100%;width:0%;background:#00ff6a;transition:width 0.4s;"></div></div>';
-  document.body.appendChild(printLoader);
-  window._printCancelled=false;
-  setTimeout(function(){var b=document.getElementById('printLoaderBar');if(b)b.style.width='60%';},100);
+  // Hide scan bar elements and results action bar — not part of the report
   var scRow=document.getElementById('scanCompleteRow');
   var scTeaser=document.querySelector('.scroll-teaser');
   var scanHdr=document.querySelector('.scan-hdr');
   var inputBox=document.querySelector('.input-box');
+  var rBar=document.getElementById('resultsBar');
   if(scRow) scRow.style.display='none';
   if(scTeaser) scTeaser.style.display='none';
   if(scanHdr) scanHdr.style.display='none';
   if(inputBox) inputBox.style.display='none';
+  if(rBar) rBar.style.display='none';
 
   // Inject a print-theme style block that overrides CSS variables at :root level.
   // This is the only reliable way to beat the cascade — element-level setProperty
@@ -3724,21 +3731,17 @@ function handlePrint(){
   function restore(){
     var ps=document.getElementById('notPrintTheme');
     if(ps) ps.remove();
-    var pl=document.getElementById('printLoader');
-    if(pl) pl.remove();
     if(scRow) scRow.style.display='';
     if(scTeaser) scTeaser.style.display='';
     if(scanHdr) scanHdr.style.display='';
     if(inputBox) inputBox.style.display='';
+    if(rBar) rBar.style.display='';
   }
 
   // Allow the browser one paint cycle to apply the new variables before capture
   setTimeout(function(){
-    if(window._printCancelled){restore();return;}
-    var b=document.getElementById('printLoaderBar');if(b)b.style.width='85%';
     loadH2C(function(){
       loadJsPDF(function(){
-        if(window._printCancelled){restore();return;}
         html2canvas(results,{
           backgroundColor:'#ffffff',
           scale:1.5,
@@ -3748,7 +3751,6 @@ function handlePrint(){
           scrollY:-window.scrollY,
           windowWidth:document.documentElement.scrollWidth
         }).then(function(canvas){
-          restore();
           var imgData=canvas.toDataURL('image/jpeg',0.92);
           var jsPDF=window.jspdf.jsPDF;
           var pdf=new jsPDF({orientation:'p',unit:'pt',format:'letter',compress:true});
@@ -3764,9 +3766,17 @@ function handlePrint(){
           }
           var blob=pdf.output('blob');
           var url=URL.createObjectURL(blob);
-          var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';
+          var a=document.createElement('a');a.href=url;a.download='NoTrojan-Report.pdf';
           document.body.appendChild(a);a.click();document.body.removeChild(a);
           setTimeout(function(){URL.revokeObjectURL(url);},30000);
+          // Restore page then show "back to report" toast
+          restore();
+          var toast=document.createElement('div');
+          toast.id='printDoneToast';
+          toast.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#020c06;border:2px solid #00ff6a;color:#00ff6a;font-family:Barlow Condensed,sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;padding:14px 28px;z-index:99999;display:flex;align-items:center;gap:16px;box-shadow:0 0 24px rgba(0,255,106,0.3);';
+          toast.innerHTML='✅ PDF Downloaded &nbsp;'
+            +'<button onclick="document.getElementById(\'printDoneToast\').remove();document.getElementById(\'results\').scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="background:transparent;border:1px solid #00ff6a;color:#00ff6a;font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;cursor:pointer;">✕ Back to Report</button>';
+          document.body.appendChild(toast);
         }).catch(function(){restore();});
       });
     });
