@@ -3154,9 +3154,6 @@ function renderResults(r){
 function renderPCards(id,pillars,color){
   document.getElementById(id).innerHTML=pillars.map(p=>`<div class="pcard"><div class="pcard-top"><div><div class="pcard-name">${p.full}</div><div class="pcard-name">(${p.n})</div></div><div><div class="pcard-score" style="color:${color}">${p.d.score}</div><div class="pcard-max">/ 100</div></div></div><div class="pcard-bar"><div class="pcard-fill" style="width:${p.d.score}%;background:${color}"></div></div>${(p.d.indicators||[]).map(i=>`<div class="pind ${i.status}"><span class="pico">${IMAP[i.status]||''}</span>${i.text}</div>`).join('')}</div>`).join('');
 }
-function openContact(){document.getElementById('contactOverlay').classList.add('open');document.body.style.overflow='hidden';}
-function closeContact(){document.getElementById('contactOverlay').classList.remove('open');document.body.style.overflow='';}
-document.addEventListener('DOMContentLoaded',function(){document.getElementById('contactOverlay').addEventListener('click',function(e){if(e.target===this)closeContact();});});
 async function submitContact(e){
   e.preventDefault();
   const btn=document.getElementById('cformBtn');
