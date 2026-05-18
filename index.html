@@ -431,7 +431,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
   .tab-panel:not(.active),.print-btn,footer,body::before,body::after,
   #shareCardModal,#shareMenuModal,#pdfLoader,.gate-overlay,
   .scroll-teaser,#floatShareBtn,#clearBtn,.nav-swipe-banner,.nav-scroll-hint,
-  #results>div:nth-child(3){display:none!important;}
+  #scanCompleteRow,#results>div:nth-child(3){display:none!important;}
   body{background:#fff!important;color:#000!important;}
   html{background:#fff!important;}
   #contentHeader{display:block!important;}
@@ -554,7 +554,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     <!-- SCROLL TEASER -->
     <div class="scroll-teaser">↓ Scroll down for cultural impact score and full analysis ↓</div>
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
+    <div id="scanCompleteRow" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
       <button id="floatShareBtn" onclick="handleShareMenu()" style="display:none;align-items:center;gap:8px;background:#020c06;border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;padding:12px 22px;cursor:pointer;text-transform:uppercase;box-shadow:0 0 20px rgba(0,255,106,0.3);transition:all 0.2s;position:fixed;bottom:24px;right:20px;z-index:9000;">📤 Share Report</button>
     </div>
@@ -3229,11 +3229,11 @@ function handleShare(){
   if(existing) existing.remove();
   const modal=document.createElement('div');
   modal.id='shareCardModal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:flex-start;justify-content:center;padding:20px 16px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
 
   modal.innerHTML=`
   <div style="max-width:500px;width:100%;">
-    <div id="notShareCard" style="width:400px;height:500px;background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:22px;font-family:'Barlow Condensed',sans-serif;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;margin:0 auto;">
+    <div id="notShareCard" style="width:500px;height:625px;background:#020c06;border:2px solid ${col};border-top:4px solid ${col};padding:22px;font-family:'Barlow Condensed',sans-serif;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;margin:0 auto;">
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid ${col}33;padding-bottom:10px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
@@ -3456,15 +3456,27 @@ function downloadShareCard(){
     const r=window._lastResult;
     const fname=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/[^a-z0-9]/gi,'-').toLowerCase();
     setTimeout(()=>{
-      card.scrollIntoView({block:'start'});
-      html2canvas(card,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true,logging:false,width:400,height:500,windowWidth:400}).then(canvas=>{
-        const blobUrl=canvas.toDataURL('image/png');
-        const win=window.open('','_blank');
-        if(win){
-          win.document.write('<html><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+blobUrl+'" style="max-width:100%;height:auto;"><p style="color:#fff;font-family:monospace;text-align:center;font-size:12px;padding:10px;">Press and hold (iOS) or right-click (desktop) to save image</p></body></html>');
-          win.document.close();
-        }
-        finish();
+      html2canvas(card,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true,logging:false,width:card.offsetWidth,height:card.offsetHeight,windowWidth:card.offsetWidth}).then(canvas=>{
+        const src=canvas.toDataURL('image/png');
+        const existing=document.getElementById('saveCardPopup');if(existing)existing.remove();
+        const popup=document.createElement('div');
+        popup.id='saveCardPopup';
+        popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+        const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+        const canNativeShare=isIOS&&navigator.share&&navigator.canShare;
+        popup.innerHTML=`
+          <div style="max-width:520px;width:100%;text-align:center;">
+            <img src="${src}" style="width:100%;max-width:500px;height:auto;display:block;margin:0 auto 16px;border:2px solid #333;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#4a7a5a;letter-spacing:0.1em;margin-bottom:12px;">SCORE CARD READY TO SHARE</div>
+            ${canNativeShare?`
+            <button onclick="(async()=>{try{const blob=await (await fetch('${src}')).blob();const file=new File([blob],'notrojan-${fname}-score-card.png',{type:'image/png'});await navigator.share({files:[file],title:'NoT™ Score Card',text:'Decoded on notrojan.com'});document.getElementById('saveCardPopup').remove();finish();}catch(e){document.getElementById('saveCardPopup').remove();finish();}})()" style="width:100%;padding:13px;background:rgba(0,255,106,0.06);border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:block;">📤 Share / Save to Photos</button>
+            `:`
+            <a href="${src}" download="notrojan-${fname}-score-card.png" onclick="document.getElementById('saveCardPopup').remove();finish();" style="display:block;width:100%;padding:13px;background:rgba(0,255,106,0.06);border:1px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:10px;box-sizing:border-box;">💾 Save Image</a>
+            `}
+            <button onclick="document.getElementById('saveCardPopup').remove();" style="background:transparent;border:none;color:#666;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;margin-top:4px;">✕ Cancel</button>
+          </div>`;
+        document.body.appendChild(popup);
+        if(btn){btn.textContent='Instagram / TikTok';btn.disabled=false;btn.style.opacity='1';}
       }).catch(()=>finish());
     },800);
   };
@@ -3503,7 +3515,11 @@ function downloadFullColorPDF(){
 
   function doCapture(){
     setBar(20,'Capturing report...');
-    // Delay to ensure horse overlays are fully painted
+    // Hide gap elements before capture
+    var scRow=document.getElementById('scanCompleteRow');
+    var scTeaser=document.querySelector('.scroll-teaser');
+    if(scRow) scRow.style.display='none';
+    if(scTeaser) scTeaser.style.display='none';
     setTimeout(function(){
       html2canvas(results,{
         backgroundColor:'#020c06',
@@ -3514,6 +3530,9 @@ function downloadFullColorPDF(){
         scrollY:-window.scrollY,
         windowWidth:document.documentElement.scrollWidth
       }).then(function(canvas){
+        // Restore hidden elements
+        if(scRow) scRow.style.display='';
+        if(scTeaser) scTeaser.style.display='';
         setBar(70,'Building PDF...');
         var imgData=canvas.toDataURL('image/jpeg',0.90);
         var jsPDF=window.jspdf.jsPDF;
@@ -3528,7 +3547,11 @@ function downloadFullColorPDF(){
             window.open(blobUrl,'_blank');
             setTimeout(function(){URL.revokeObjectURL(blobUrl);},30000);
         },300);
-      }).catch(function(e){removeLoader();alert('PDF generation failed. Try the Print-Friendly option instead.');});
+      }).catch(function(e){
+        if(scRow) scRow.style.display='';
+        if(scTeaser) scTeaser.style.display='';
+        removeLoader();alert('PDF generation failed. Try the Print-Friendly option instead.');
+      });
     },500);
   }
 
