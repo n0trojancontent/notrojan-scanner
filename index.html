@@ -432,6 +432,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
   #shareCardModal,#shareMenuModal,#pdfLoader,.gate-overlay,
   .scroll-teaser,#floatShareBtn,#clearBtn,.nav-swipe-banner,.nav-scroll-hint,
   #scanCompleteRow,#results>div:nth-child(3){display:none!important;}
+  #contentHeader{margin-bottom:0!important;}
+  .score-card{margin-top:0!important;}
   body{background:#fff!important;color:#000!important;}
   html{background:#fff!important;}
   #contentHeader{display:block!important;}
@@ -3466,18 +3468,20 @@ function downloadShareCard(){
       const existing=document.getElementById('saveCardPopup');if(existing)existing.remove();
       const popup=document.createElement('div');
       popup.id='saveCardPopup';
-      popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
+      popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;overflow-y:auto;';
       const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
       const canNativeShare=isIOS&&navigator.share&&navigator.canShare;
       popup.innerHTML=`
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:900;color:var(--green);letter-spacing:0.1em;margin-bottom:12px;text-align:center;">📲 YOUR SCORE CARD IS READY</div>
-        <img src="${src}" style="width:100%;max-width:320px;display:block;margin:0 auto 16px;box-shadow:0 0 20px rgba(0,255,106,0.3);" />
-        ${canNativeShare?`
-        <button onclick="(async()=>{try{const blob=await (await fetch('${src}')).blob();const file=new File([blob],'notrojan-${fname}-score-card.png',{type:'image/png'});await navigator.share({files:[file],title:'NoT™ Score Card',text:'Decoded on notrojan.com'});document.getElementById('saveCardPopup').remove();finish();}catch(e){document.getElementById('saveCardPopup').remove();finish();}})()" style="display:block;width:100%;max-width:320px;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;box-sizing:border-box;">📤 Share / Save to Photos</button>
-        `:`
-        <a href="${src}" download="notrojan-${fname}-score-card.png" onclick="document.getElementById('saveCardPopup').remove();finish();" style="display:block;width:100%;max-width:320px;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:10px;box-sizing:border-box;text-align:center;">💾 Save to Photos</a>
-        `}
-        <button onclick="document.getElementById('saveCardPopup').remove();" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;margin-top:4px;">✕ Cancel</button>
+        <div style="width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;color:var(--green);letter-spacing:0.1em;margin-bottom:10px;text-align:center;">📲 YOUR SCORE CARD IS READY</div>
+          <img src="${src}" style="width:100%;max-width:420px;height:auto;display:block;margin:0 auto 14px;box-shadow:0 0 24px rgba(0,255,106,0.3);border:1px solid #333;" />
+          ${canNativeShare?`
+          <button onclick="(async()=>{try{const blob=await (await fetch('${src}')).blob();const file=new File([blob],'notrojan-${fname}-score-card.png',{type:'image/png'});await navigator.share({files:[file],title:'NoT™ Score Card',text:'Decoded on notrojan.com'});document.getElementById('saveCardPopup').remove();finish();}catch(e){document.getElementById('saveCardPopup').remove();finish();}})()" style="display:block;width:100%;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;box-sizing:border-box;text-align:center;">📤 Share / Save to Photos</button>
+          `:`
+          <a href="${src}" download="notrojan-${fname}-score-card.png" onclick="document.getElementById('saveCardPopup').remove();finish();" style="display:block;width:100%;padding:15px;background:rgba(0,255,106,0.08);border:1.5px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;margin-bottom:10px;box-sizing:border-box;text-align:center;">💾 Save to Photos</a>
+          `}
+          <button onclick="document.getElementById('saveCardPopup').remove();" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;margin-top:4px;">✕ Cancel</button>
+        </div>
       `;
       document.body.appendChild(popup);
       if(btn){btn.textContent='Instagram / TikTok';btn.disabled=false;btn.style.opacity='1';}
@@ -3521,11 +3525,15 @@ function downloadFullColorPDF(){
 
   function doCapture(){
     setBar(20,'Capturing report...');
-    // Hide gap elements before capture
+    // Hide gap elements and collapse margins before capture
     var scRow=document.getElementById('scanCompleteRow');
     var scTeaser=document.querySelector('.scroll-teaser');
+    var contentHdr=document.getElementById('contentHeader');
+    var scoreCard=document.getElementById('scoreCard');
     if(scRow) scRow.style.display='none';
     if(scTeaser) scTeaser.style.display='none';
+    if(contentHdr) contentHdr.style.marginBottom='0';
+    if(scoreCard) scoreCard.style.marginTop='0';
     setTimeout(function(){
       html2canvas(results,{
         backgroundColor:'#020c06',
@@ -3539,6 +3547,8 @@ function downloadFullColorPDF(){
         // Restore hidden elements
         if(scRow) scRow.style.display='';
         if(scTeaser) scTeaser.style.display='';
+        if(contentHdr) contentHdr.style.marginBottom='';
+        if(scoreCard) scoreCard.style.marginTop='';
         setBar(70,'Building PDF...');
         var imgData=canvas.toDataURL('image/jpeg',0.90);
         var jsPDF=window.jspdf.jsPDF;
