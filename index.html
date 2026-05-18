@@ -3417,7 +3417,7 @@ function handleShare(){
 function getShareText(){
   const r=window._lastResult;
   if(!r) return '';
-  return `I just decoded ${r.title||r.query} on the NoT™ Cultural Influence Score Card™\n\nNoTrojan Score™: ${r.score}/100 — ${r.rating}\n\nDecoded at notrojan.com — The Cultural Ethics Intelligence System™\n\n#NoTrojan #NoTrojanIsTheNewGreen #CulturalIntelligence`;
+  return `I just decoded ${r.content_id?.title||r.title||r.query||'Content'} on the NoT™ Cultural Influence Score Card™\n\nNoTrojan Score™: ${r.score}/100 — ${r.rating}\n\nDecoded at notrojan.com — The Cultural Ethics Intelligence System™\n\n#NoTrojan #NoTrojanIsTheNewGreen #CulturalIntelligence`;
 }
 
 function shareToX(){
