@@ -427,15 +427,47 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 .print-btn:hover{background:rgba(0,255,106,0.1);color:var(--green);}
 
 @media print{
+  /* Hide chrome — same as before */
   header,nav,.nav-bar,.input-box,.prog-row,.err-bar,
-  .tab-panel:not(.active),.print-btn,footer,body::before,body::after{display:none!important;}
-  body{background:#fff!important;color:#000!important;}
-  .main{padding:0!important;max-width:100%!important;}
+  .tab-panel:not(.active),.print-btn,footer,
+  body::before,body::after,
+  #scanCompleteRow,.scroll-teaser,
+  #floatShareBtn,.float-share-btn,
+  .notif-bar,#printLoader,#colorPdfLoader{display:none!important;}
+
+  /* White backgrounds — preserve full color report layout/format */
+  :root{
+    --bg:#ffffff!important;
+    --bg2:#f5f5f5!important;
+    --surface:#ffffff!important;
+    --surface2:#f0f0f0!important;
+    --border:#cccccc!important;
+    --border2:#dddddd!important;
+    --white:#111111!important;
+    --white2:#333333!important;
+    --muted:#555555!important;
+    --gdim:#333333!important;
+    --gmuted:#444444!important;
+    --scan:transparent!important;
+  }
+
+  html,body{background:#ffffff!important;color:#111111!important;}
+  .main{padding:0!important;max-width:100%!important;background:#fff!important;}
   .tab-panel.active{display:block!important;}
-  .score-card,.sec{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;}
-  .sc-num{color:#000!important;}
-  *{color:#111!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
+
+  /* Kill shadows and scanline overlays only */
+  *{box-shadow:none!important;text-shadow:none!important;}
   a[href]:after{content:none!important;}
+
+  /* Troy visual stays dark so SVG shows */
+  .troy-visual{background:#040f08!important;}
+
+  /* Keep ALL tier/score colors at full vibrance — same as color report */
+  /* Do NOT mute — print in full color */
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+
+  /* Page breaks */
+  .sec{break-inside:avoid;}
 }
 
 /* ── EMAIL GATE ── */
