@@ -3500,42 +3500,20 @@ function downloadShareCard(){
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
-      // Try native Web Share API first (mobile)
-      if(navigator.share && navigator.canShare){
-        try{
-          canvas.toBlob(async blob=>{
-            const file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-            if(navigator.canShare({files:[file]})){
-              await navigator.share({
-                files:[file],
-                title:`NoT™ Score Card — ${r?.content_id?.title||r?.title||r?.query||''}`,
-                text:`NoTrojan Score™: ${r?.score}/100 — ${r?.rating}\n\nnotrojan.com`
-              });
-              finish();
-              return;
-            }
-            // Fall back to download
-            const link=document.createElement('a');
-            link.download=`notrojan-${title}-score-card.png`;
-            link.href=canvas.toDataURL('image/png');
-            link.click();
-            finish();
-          },'image/png');
-        }catch(e){
-          // User cancelled or error — fall back to download
+      const dataUrl=canvas.toDataURL('image/png');
+      // Show save button instead of auto-downloading
+      if(btn){
+        btn.textContent='⬇️ Save Score Card';
+        btn.disabled=false;
+        btn.style.opacity='1';
+        btn.onclick=function(){
           const link=document.createElement('a');
           link.download=`notrojan-${title}-score-card.png`;
-          link.href=canvas.toDataURL('image/png');
+          link.href=dataUrl;
           link.click();
           finish();
-        }
-      } else {
-        // Desktop — just download
-        const link=document.createElement('a');
-        link.download=`notrojan-${title}-score-card.png`;
-        link.href=canvas.toDataURL('image/png');
-        link.click();
-        finish();
+          btn.onclick=downloadShareCard;
+        };
       }
     }).catch(()=>finish());
   };
