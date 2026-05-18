@@ -3693,11 +3693,19 @@ function handlePrint(){
   if(scTeaser) scTeaser.style.display='none';
   if(contentHdr) contentHdr.style.marginBottom='0';
   if(scoreCard) scoreCard.style.marginTop='0';
-  // Inject temporary white-override style tag
-  var styleTag=document.createElement('style');
-  styleTag.id='printWhiteOverride';
-  styleTag.textContent='#results,#results *{background:#fff!important;color:#111!important;border-color:#ccc!important;box-shadow:none!important;text-shadow:none!important;}#results img{filter:none!important;}';
-  document.head.appendChild(styleTag);
+  // Save and override every element's background and color inline
+  var allEls=Array.from(results.querySelectorAll('*'));
+  allEls.unshift(results);
+  var saved=allEls.map(function(el){
+    return{bg:el.style.background,bgc:el.style.backgroundColor,color:el.style.color,border:el.style.borderColor,shadow:el.style.boxShadow};
+  });
+  allEls.forEach(function(el){
+    el.style.setProperty('background','#fff','important');
+    el.style.setProperty('background-color','#fff','important');
+    el.style.setProperty('color','#111','important');
+    el.style.setProperty('border-color','#ccc','important');
+    el.style.setProperty('box-shadow','none','important');
+  });
   setTimeout(function(){
     loadH2C(function(){
       loadJsPDF(function(){
@@ -3710,8 +3718,14 @@ function handlePrint(){
           scrollY:-window.scrollY,
           windowWidth:document.documentElement.scrollWidth
         }).then(function(canvas){
-          // Remove white override
-          var tag=document.getElementById('printWhiteOverride');if(tag)tag.remove();
+          // Restore all elements
+          allEls.forEach(function(el,i){
+            el.style.background=saved[i].bg;
+            el.style.backgroundColor=saved[i].bgc;
+            el.style.color=saved[i].color;
+            el.style.borderColor=saved[i].border;
+            el.style.boxShadow=saved[i].shadow;
+          });
           if(scRow) scRow.style.display='';
           if(scTeaser) scTeaser.style.display='';
           if(contentHdr) contentHdr.style.marginBottom='';
@@ -3734,7 +3748,13 @@ function handlePrint(){
           var a=document.createElement('a');a.href=blobUrl;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();document.body.removeChild(a);
           setTimeout(function(){URL.revokeObjectURL(blobUrl);},30000);
         }).catch(function(){
-          var tag=document.getElementById('printWhiteOverride');if(tag)tag.remove();
+          allEls.forEach(function(el,i){
+            el.style.background=saved[i].bg;
+            el.style.backgroundColor=saved[i].bgc;
+            el.style.color=saved[i].color;
+            el.style.borderColor=saved[i].border;
+            el.style.boxShadow=saved[i].shadow;
+          });
           if(scRow) scRow.style.display='';
           if(scTeaser) scTeaser.style.display='';
         });
