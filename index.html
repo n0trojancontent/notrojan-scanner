@@ -131,7 +131,7 @@ header{background:#000;border-bottom:2px solid var(--red);position:relative;z-in
 .sc-title{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}
 .sc-meaning{font-size:0.85rem;color:var(--white2);line-height:1.5;max-width:480px;}
 @keyframes teaserPulse{0%,100%{opacity:1;text-shadow:0 0 8px rgba(0,255,106,0.6);}50%{opacity:0.4;text-shadow:none;}}
-.scroll-teaser{font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;text-align:center;padding:6px 0 0;animation:teaserPulse 2s ease-in-out infinite;cursor:default;}
+.scroll-teaser{font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;text-align:center;padding:10px 0 6px;animation:teaserPulse 2s ease-in-out infinite;cursor:default;}
 @keyframes imgPulse{0%,100%{opacity:0.3;}50%{opacity:0.8;}}
 .img-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:100%;height:100%;}
 .img-loading-bar{width:40%;height:2px;background:var(--green3);animation:imgPulse 1.2s ease-in-out infinite;}
@@ -427,35 +427,14 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 .print-btn:hover{background:rgba(0,255,106,0.1);color:var(--green);}
 
 @media print{
-  header,nav,.nav-bar,.input-box,.prog-row,.err-bar,.scan-hdr,
-  .tab-panel:not(.active),.print-btn,footer,body::before,body::after,
-  #scanCompleteRow,.scroll-teaser,.float-share-btn,#floatShareBtn,
-  .share-btn,.notif-bar{display:none!important;}
-  /* Override all CSS variables to light theme */
-  :root{
-    --bg:#ffffff!important;
-    --bg2:#f5f5f5!important;
-    --surface:#ffffff!important;
-    --surface2:#f0f0f0!important;
-    --border:#cccccc!important;
-    --border2:#dddddd!important;
-    --white:#111111!important;
-    --white2:#333333!important;
-    --muted:#555555!important;
-    --gdim:#333333!important;
-    --gmuted:#444444!important;
-  }
-  html,body{background:#ffffff!important;color:#111111!important;}
-  .main{padding:0!important;max-width:100%!important;background:#fff!important;}
+  header,nav,.nav-bar,.input-box,.prog-row,.err-bar,
+  .tab-panel:not(.active),.print-btn,footer,body::before,body::after{display:none!important;}
+  body{background:#fff!important;color:#000!important;}
+  .main{padding:0!important;max-width:100%!important;}
   .tab-panel.active{display:block!important;}
-  /* Preserve tier colors */
-  .tier-green,.score-green,[style*="color:#00ff6a"],[style*="color:#00c44f"]{color:#007a30!important;}
-  .tier-red,[style*="color:#C41E1E"],[style*="color:#ff4444"]{color:#C41E1E!important;}
-  .tier-orange,[style*="color:#ff7a00"]{color:#cc6200!important;}
-  .tier-yellow,[style*="color:#f5d800"]{color:#8a7a00!important;}
-  /* Troy visual stays dark */
-  .troy-visual{background:#040f08!important;}
-  *{box-shadow:none!important;text-shadow:none!important;}
+  .score-card,.sec{border:1px solid #ccc!important;background:#fff!important;break-inside:avoid;}
+  .sc-num{color:#000!important;}
+  *{color:#111!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;}
   a[href]:after{content:none!important;}
 }
 
@@ -556,7 +535,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
     <!-- SCROLL TEASER -->
     <div class="scroll-teaser">↓ Scroll down for cultural impact score and full analysis ↓</div>
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;margin-top:12px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;">// SCAN COMPLETE</div>
       <button id="floatShareBtn" onclick="handleShareMenu()" style="display:none;align-items:center;gap:8px;background:#020c06;border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:0.14em;padding:12px 22px;cursor:pointer;text-transform:uppercase;box-shadow:0 0 20px rgba(0,255,106,0.3);transition:all 0.2s;position:fixed;bottom:24px;right:20px;z-index:9000;">📤 Share Report</button>
     </div>
@@ -3201,7 +3180,8 @@ function handleShareMenu(){
   <div style="max-width:340px;width:100%;background:#020c06;border:2px solid var(--green);padding:28px;">
     <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;margin-bottom:20px;text-align:center;">// Share This Report</div>
     <button onclick="document.getElementById('shareMenuModal').remove();handleShare();" style="width:100%;padding:14px;background:rgba(0,255,106,0.08);border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:block;">📤 Share to Social Media</button>
-    <button onclick="document.getElementById('shareMenuModal').remove();handlePrint();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:16px;display:block;">🖨️ Save Full Report as PDF</button>
+    <button onclick="document.getElementById('shareMenuModal').remove();handleColorPDF();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:block;">🎨 Save Full Color Report as PDF</button>
+    <button onclick="document.getElementById('shareMenuModal').remove();handlePrint();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:16px;display:block;">🖨️ Save Report as PDF (Print-Friendly)</button>
     <div style="text-align:center;"><button onclick="document.getElementById('shareMenuModal').remove()" style="background:transparent;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button></div>
   </div>`;
   document.body.appendChild(modal);
@@ -3510,6 +3490,88 @@ function downloadShareCard(){
     s.onload=go;s.onerror=finish;
     document.head.appendChild(s);
   }
+}
+
+function handleColorPDF(){
+  if(!isRegistered()){
+    const pd=document.createElement('div');
+    pd.id='printGateDiv';
+    pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    pd.innerHTML='<div style="background:var(--surface);border:1px solid var(--green3);border-top:3px solid var(--green);max-width:400px;width:100%;padding:28px;text-align:center;"><div style="font-family:Barlow Condensed,sans-serif;font-size:1.3rem;font-weight:900;color:var(--green);margin-bottom:10px;">🌿 Join the NoT™ Green Community</div><div style="font-size:0.85rem;color:var(--white2);line-height:1.6;margin-bottom:20px;">Save reports is a community perk. Join free to unlock it.</div><div style="display:flex;gap:10px;justify-content:center;"><button onclick="document.getElementById(\'printGateDiv\').remove();" style="padding:10px 20px;background:transparent;border:1px solid var(--muted);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Maybe Later</button><button onclick="document.getElementById(\'printGateDiv\').remove();showGate(0,\'medium\');" style="padding:10px 20px;background:transparent;border:1px solid var(--green);color:var(--green);font-family:Barlow Condensed,sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">Let\'s Do It!</button></div></div>';
+    document.body.appendChild(pd);
+    return;
+  }
+  var results=document.getElementById('results');
+  if(!results) return;
+  // Show loader
+  var loader=document.createElement('div');
+  loader.id='colorPdfLoader';
+  loader.style.cssText='position:fixed;inset:0;background:rgba(2,12,6,0.95);z-index:99990;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+  loader.innerHTML='<button onclick="document.getElementById(\'colorPdfLoader\').remove();window._colorPdfCancelled=true;" style="position:absolute;top:18px;right:20px;background:transparent;border:none;color:#4a7a5a;font-family:Share Tech Mono,monospace;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;">✕ Cancel</button>'
+    +'<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#00ff6a;letter-spacing:0.14em;">// GENERATING FULL COLOR REPORT...</div>'
+    +'<div style="width:200px;height:2px;background:#0b1a10;"><div id="colorPdfBar" style="height:100%;width:0%;background:#00ff6a;transition:width 0.4s;"></div></div>';
+  document.body.appendChild(loader);
+  window._colorPdfCancelled=false;
+  setTimeout(function(){var b=document.getElementById('colorPdfBar');if(b)b.style.width='60%';},100);
+  // Hide UI chrome not part of report
+  var scanHdr=document.querySelector('.scan-hdr');
+  var inputBox=document.querySelector('.input-box');
+  var scRow=document.getElementById('scanCompleteRow');
+  var scTeaser=document.querySelector('.scroll-teaser');
+  var fsb=document.getElementById('floatShareBtn');
+  if(scanHdr) scanHdr.style.display='none';
+  if(inputBox) inputBox.style.display='none';
+  if(scRow) scRow.style.display='none';
+  if(scTeaser) scTeaser.style.display='none';
+  if(fsb) fsb.style.display='none';
+  function restore(){
+    var l=document.getElementById('colorPdfLoader');if(l)l.remove();
+    if(scanHdr) scanHdr.style.display='';
+    if(inputBox) inputBox.style.display='';
+    if(scRow) scRow.style.display='';
+    if(scTeaser) scTeaser.style.display='';
+    if(fsb) fsb.style.display='';
+  }
+  setTimeout(function(){
+    if(window._colorPdfCancelled){restore();return;}
+    var b=document.getElementById('colorPdfBar');if(b)b.style.width='85%';
+    loadH2C(function(){
+      loadJsPDF(function(){
+        if(window._colorPdfCancelled){restore();return;}
+        html2canvas(results,{
+          backgroundColor:'#020c06',
+          scale:1.5,
+          useCORS:true,
+          allowTaint:true,
+          logging:false,
+          scrollY:-window.scrollY,
+          windowWidth:document.documentElement.scrollWidth
+        }).then(function(canvas){
+          restore();
+          var imgData=canvas.toDataURL('image/jpeg',0.92);
+          var jsPDF=window.jspdf.jsPDF;
+          var pdf=new jsPDF({orientation:'p',unit:'pt',format:'letter',compress:true});
+          var pageW=612,pageH=792,margin=36;
+          var usableW=pageW-(margin*2),usableH=pageH-(margin*2);
+          var imgW=canvas.width/1.5,imgH=canvas.height/1.5;
+          var sc=Math.min(usableW/imgW,1);
+          var drawW=imgW*sc,drawH=imgH*sc;
+          var pages=Math.ceil(drawH/usableH);
+          for(var p=0;p<pages;p++){
+            if(p>0) pdf.addPage('letter','p');
+            pdf.addImage(imgData,'JPEG',margin,margin-(p*usableH),drawW,drawH,undefined,'FAST');
+          }
+          var r=window._lastResult;
+          var title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
+          var blob=pdf.output('blob');
+          var url=URL.createObjectURL(blob);
+          var a=document.createElement('a');a.href=url;a.download='NoTrojan-FullColor-'+title+'.pdf';
+          document.body.appendChild(a);a.click();document.body.removeChild(a);
+          setTimeout(function(){URL.revokeObjectURL(url);},30000);
+        }).catch(function(){restore();});
+      });
+    });
+  },400);
 }
 
 function handlePrint(){
