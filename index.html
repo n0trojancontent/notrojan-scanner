@@ -3677,50 +3677,107 @@ function handlePrint(){
   }
   var results=document.getElementById('results');
   if(!results)return;
+
+  // Hide elements not part of the report
   var scRow=document.getElementById('scanCompleteRow');
   var scTeaser=document.querySelector('.scroll-teaser');
-  var contentHdr=document.getElementById('contentHeader');
-  var scoreCard=document.getElementById('scoreCard');
+  var scanHdr=document.querySelector('.scan-hdr');
+  var inputBox=document.querySelector('.input-box');
   if(scRow) scRow.style.display='none';
   if(scTeaser) scTeaser.style.display='none';
-  if(contentHdr) contentHdr.style.marginBottom='0';
-  if(scoreCard) scoreCard.style.marginTop='0';
+  if(scanHdr) scanHdr.style.display='none';
+  if(inputBox) inputBox.style.display='none';
 
-  function restoreAll(){
-    var ps=document.getElementById('printVarOverride');
-    if(ps) ps.remove();
-    if(troyVisual) troyVisual.style.background=troyVisualBg;
+  // Collect all elements inside #results
+  var allEls=Array.from(results.querySelectorAll('*'));
+  allEls.unshift(results);
+
+  // Save existing inline styles
+  var saved=allEls.map(function(el){
+    return{bg:el.style.background,bgc:el.style.backgroundColor,col:el.style.color,shad:el.style.boxShadow,bc:el.style.borderColor};
+  });
+
+  function restore(){
+    allEls.forEach(function(el,i){
+      el.style.background=saved[i].bg;
+      el.style.backgroundColor=saved[i].bgc;
+      el.style.color=saved[i].col;
+      el.style.boxShadow=saved[i].shad;
+      el.style.borderColor=saved[i].bc;
+    });
     if(scRow) scRow.style.display='';
     if(scTeaser) scTeaser.style.display='';
-    if(contentHdr) contentHdr.style.marginBottom='';
-    if(scoreCard) scoreCard.style.marginTop='';
+    if(scanHdr) scanHdr.style.display='';
+    if(inputBox) inputBox.style.display='';
   }
 
-  // Override CSS vars at :root level — html2canvas reads computed styles
-  var printStyle=document.createElement('style');
-  printStyle.id='printVarOverride';
-  printStyle.textContent=[
-    ':root{',
-    '--bg:#ffffff !important;',
-    '--bg2:#f5f5f5 !important;',
-    '--surface:#ffffff !important;',
-    '--surface2:#f0f0f0 !important;',
-    '--border:#cccccc !important;',
-    '--border2:#dddddd !important;',
-    '--white:#111111 !important;',
-    '--white2:#333333 !important;',
-    '--muted:#555555 !important;',
-    '}'
-  ].join('');
-  document.head.appendChild(printStyle);
-
-  // Troy visual keeps its dark bg so SVG illustration remains visible
-  var troyVisual=results.querySelector('.troy-visual');
-  var troyVisualBg='';
-  if(troyVisual){
-    troyVisualBg=troyVisual.style.background;
-    troyVisual.style.setProperty('background','#040f08','important');
+  // Tier colors to preserve — these are the score/rating colors
+  // bright green, red, orange, yellow — do NOT neutralize these
+  function isTierColor(r,g,b){
+    // bright green: #00ff6a, #00c44f — high G, low R
+    if(g>150&&r<100&&b<100) return true;
+    // red: #C41E1E, #ff4444
+    if(r>150&&g<80&&b<80) return true;
+    // orange: #ff7a00
+    if(r>200&&g>100&&g<160&&b<30) return true;
+    // yellow: #f5d800
+    if(r>200&&g>200&&b<50) return true;
+    // lime: #7fff00
+    if(g>240&&r>100&&b<30) return true;
+    return false;
   }
+
+  var getCS=window.getComputedStyle;
+  allEls.forEach(function(el){
+    // Troy visual: keep dark bg so SVG illustration shows
+    if(el.classList&&el.classList.contains('troy-visual')){
+      el.style.setProperty('background','#040f08','important');
+      return;
+    }
+    var cs=getCS(el);
+
+    // Background: any dark bg → white
+    var bg=cs.backgroundColor;
+    var bm=bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if(bm){
+      var bl=0.299*(+bm[1])+0.587*(+bm[2])+0.114*(+bm[3]);
+      if(bl<40){ // dark background
+        el.style.setProperty('background','#ffffff','important');
+        el.style.setProperty('background-color','#ffffff','important');
+      }
+    }
+
+    // Box shadow: remove all
+    el.style.setProperty('box-shadow','none','important');
+
+    // Border: dark borders → light gray
+    var bdc=cs.borderTopColor;
+    var bdm=bdc.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if(bdm){
+      var bdl=0.299*(+bdm[1])+0.587*(+bdm[2])+0.114*(+bdm[3]);
+      if(bdl<40){
+        el.style.setProperty('border-color','#dddddd','important');
+      }
+    }
+
+    // Text color: map dark-theme text → print-friendly
+    var col=cs.color;
+    var cm=col.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if(cm){
+      var r=+cm[1],g=+cm[2],b=+cm[3];
+      // Keep tier colors as-is
+      if(isTierColor(r,g,b)) return;
+      var lum=0.299*r+0.587*g+0.114*b;
+      // Very pale (near white) text — e8ffe0, a0c8a8 etc → dark body text
+      if(lum>160){
+        el.style.setProperty('color','#111111','important');
+      }
+      // Dark muted greens — #3d6b4f, #007a30 etc → dark gray labels
+      else if(lum<120&&g>r&&b<r){
+        el.style.setProperty('color','#555555','important');
+      }
+    }
+  });
 
   setTimeout(function(){
     loadH2C(function(){
@@ -3734,27 +3791,26 @@ function handlePrint(){
           scrollY:-window.scrollY,
           windowWidth:document.documentElement.scrollWidth
         }).then(function(canvas){
-          restoreAll();
+          restore();
           var imgData=canvas.toDataURL('image/jpeg',0.92);
           var jsPDF=window.jspdf.jsPDF;
           var pdf=new jsPDF({orientation:'p',unit:'pt',format:'letter',compress:true});
-          var pageW=612, pageH=792, margin=36;
-          var usableW=pageW-(margin*2), usableH=pageH-(margin*2);
-          var imgW=canvas.width/1.5, imgH=canvas.height/1.5;
+          var pageW=612,pageH=792,margin=36;
+          var usableW=pageW-(margin*2),usableH=pageH-(margin*2);
+          var imgW=canvas.width/1.5,imgH=canvas.height/1.5;
           var sc=Math.min(usableW/imgW,1);
-          var drawW=imgW*sc, drawH=imgH*sc;
-          var pagesNeeded=Math.ceil(drawH/usableH);
-          for(var p=0;p<pagesNeeded;p++){
+          var drawW=imgW*sc,drawH=imgH*sc;
+          var pages=Math.ceil(drawH/usableH);
+          for(var p=0;p<pages;p++){
             if(p>0) pdf.addPage('letter','p');
             pdf.addImage(imgData,'JPEG',margin,margin-(p*usableH),drawW,drawH,undefined,'FAST');
           }
-          var pdfBlob=pdf.output('blob');
-          var blobUrl=URL.createObjectURL(pdfBlob);
-          var a=document.createElement('a');a.href=blobUrl;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();document.body.removeChild(a);
-          setTimeout(function(){URL.revokeObjectURL(blobUrl);},30000);
-        }).catch(function(){
-          restoreAll();
-        });
+          var blob=pdf.output('blob');
+          var url=URL.createObjectURL(blob);
+          var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';
+          document.body.appendChild(a);a.click();document.body.removeChild(a);
+          setTimeout(function(){URL.revokeObjectURL(url);},30000);
+        }).catch(function(){restore();});
       });
     });
   },400);
