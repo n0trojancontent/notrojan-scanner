@@ -3504,8 +3504,10 @@ function downloadShareCard(){
     var captureTarget = card;
     var tempWrap = null;
     if(isMobile){
+      // Get the tier color from the card's border
+      var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
       tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:#020c06;padding:6px 0;display:inline-block;';
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:40px 30px;display:inline-block;';
       card.parentNode.insertBefore(tempWrap, card);
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
