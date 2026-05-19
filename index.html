@@ -3499,7 +3499,21 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
-    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+    // On mobile wrap card in a padded container so top/bottom borders show
+    var captureTarget = card;
+    var tempWrap = null;
+    if(isMobile){
+      tempWrap = document.createElement('div');
+      tempWrap.style.cssText = 'background:#020c06;padding:6px 0;display:inline-block;';
+      card.parentNode.insertBefore(tempWrap, card);
+      tempWrap.appendChild(card);
+      captureTarget = tempWrap;
+    }
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+      if(tempWrap){
+        tempWrap.parentNode.insertBefore(card, tempWrap);
+        tempWrap.parentNode.removeChild(tempWrap);
+      }
       const dataUrl=canvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
       if(btn){
@@ -3515,7 +3529,7 @@ function downloadShareCard(){
           btn.onclick=downloadShareCard;
         };
       }
-    }).catch(()=>finish());
+    }).catch(()=>{ if(tempWrap){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
