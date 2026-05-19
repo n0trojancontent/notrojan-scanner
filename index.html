@@ -3507,7 +3507,7 @@ function downloadShareCard(){
       // Get the tier color from the card's border
       var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
       tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:35px 0;display:inline-block;box-sizing:border-box;';
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
       card.parentNode.insertBefore(tempWrap, card);
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
