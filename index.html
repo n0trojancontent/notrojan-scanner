@@ -3500,6 +3500,7 @@ function downloadShareCard(){
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     // On mobile wrap card in a padded container so top/bottom borders show
+    var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
     if(isMobile){
