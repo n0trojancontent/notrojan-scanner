@@ -3524,11 +3524,31 @@ function downloadShareCard(){
         btn.disabled=false;
         btn.style.opacity='1';
         btn.onclick=function(){
-          const link=document.createElement('a');
-          link.download=`notrojan-${title}-score-card.png`;
-          link.href=dataUrl;
-          link.click();
-          finish();
+          var byteString=atob(dataUrl.split(',')[1]);
+          var ab=new ArrayBuffer(byteString.length);
+          var ia=new Uint8Array(ab);
+          for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
+          var blob=new Blob([ab],{type:'image/png'});
+          var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
+          // Use Web Share API on mobile to save to Photos
+          if(navigator.canShare && navigator.canShare({files:[file]})){
+            navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
+              btn.textContent='✅ SAVED!';
+              btn.style.color='var(--green)';
+              setTimeout(function(){ finish(); },1500);
+            }).catch(function(){finish();});
+          } else {
+            // Fallback for desktop
+            var blobUrl=URL.createObjectURL(blob);
+            const link=document.createElement('a');
+            link.download=`notrojan-${title}-score-card.png`;
+            link.href=blobUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(function(){URL.revokeObjectURL(blobUrl);},1000);
+            finish();
+          }
           btn.onclick=downloadShareCard;
         };
       }
