@@ -3657,10 +3657,83 @@ function handleColorPDF(){
 
 function handlePrint(){
   if(isRegistered()){
-    // Add print title before printing
-    const title=window._lastResult?.title||window._lastResult?.query||'NoTrojan Report';
-    document.title=`NoTrojan Report — ${title}`;
-    window.print();
+    var results=document.getElementById('results');
+    if(!results) return;
+    // Inject white theme
+    var style=document.createElement('style');
+    style.id='notPrintTheme';
+    style.textContent=':root{--bg:#ffffff!important;--bg2:#f5f5f5!important;--surface:#ffffff!important;--surface2:#f0f0f0!important;--border:#cccccc!important;--border2:#dddddd!important;--white:#111111!important;--white2:#333333!important;--muted:#555555!important;}html,body{background:#ffffff!important;} .troy-visual{background:#040f08!important;}';
+    document.head.appendChild(style);
+    // Show loader
+    var loader=document.createElement('div');
+    loader.id='printLoader';
+    loader.style.cssText='position:fixed;inset:0;background:rgba(255,255,255,0.95);z-index:99990;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+    loader.innerHTML='<div style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:#111;letter-spacing:0.14em;">// GENERATING PRINT-FRIENDLY REPORT...</div>';
+    document.body.appendChild(loader);
+    // Hide chrome
+    var scanHdr=document.querySelector('.scan-hdr');
+    var inputBox=document.querySelector('.input-box');
+    var scRow=document.getElementById('scanCompleteRow');
+    var fsb=document.getElementById('floatShareBtn');
+    if(scanHdr) scanHdr.style.display='none';
+    if(inputBox) inputBox.style.display='none';
+    if(scRow) scRow.style.display='none';
+    if(fsb) fsb.style.display='none';
+    function restore(){
+      var s=document.getElementById('notPrintTheme');
+      if(s) s.remove();
+      var l=document.getElementById('printLoader');
+      if(l) l.remove();
+      if(scanHdr) scanHdr.style.display='';
+      if(inputBox) inputBox.style.display='';
+      if(scRow) scRow.style.display='';
+      if(fsb) fsb.style.display='inline-flex';
+    }
+    setTimeout(function(){
+      function doCapture(){
+        html2canvas(results,{
+          backgroundColor:'#ffffff',
+          scale:1.5,
+          useCORS:true,
+          allowTaint:true,
+          logging:false,
+          scrollY:-window.scrollY,
+          windowWidth:Math.max(document.documentElement.scrollWidth,900)
+        }).then(function(canvas){
+          restore();
+          var imgData=canvas.toDataURL('image/jpeg',0.92);
+          var jsPDF=window.jspdf.jsPDF;
+          var pdf=new jsPDF({orientation:'p',unit:'pt',format:'letter',compress:true});
+          var pageW=612,pageH=792,margin=36;
+          var usableW=pageW-(margin*2),usableH=pageH-(margin*2);
+          var imgW=canvas.width/1.5,imgH=canvas.height/1.5;
+          var sc=Math.min(usableW/imgW,1);
+          var drawW=imgW*sc,drawH=imgH*sc;
+          var pages=Math.ceil(drawH/usableH);
+          for(var p=0;p<pages;p++){
+            if(p>0) pdf.addPage('letter','p');
+            pdf.addImage(imgData,'JPEG',margin,margin-(p*usableH),drawW,drawH,undefined,'FAST');
+          }
+          var r=window._lastResult;
+          var title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
+          var blob=pdf.output('blob');
+          var url=URL.createObjectURL(blob);
+          var a=document.createElement('a');a.href=url;a.download='NoTrojan-PrintFriendly-'+title+'.pdf';
+          document.body.appendChild(a);a.click();document.body.removeChild(a);
+          setTimeout(function(){URL.revokeObjectURL(url);},30000);
+        }).catch(function(){restore();});
+      }
+      if(typeof html2canvas!=='undefined' && typeof window.jspdf!=='undefined'){doCapture();return;}
+      var s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload=function(){
+        var s2=document.createElement('script');
+        s2.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        s2.onload=doCapture;s2.onerror=restore;
+        document.head.appendChild(s2);
+      };s.onerror=restore;
+      document.head.appendChild(s);
+    },400);
   } else {
     const pd=document.createElement('div');
     pd.id='printGateDiv';
