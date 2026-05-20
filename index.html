@@ -3233,7 +3233,7 @@ function handleShareMenu(){
   modal.id='shareMenuModal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
   modal.innerHTML=`
-  <div style="max-width:340px;width:100%;background:#020c06;border:2px solid var(--green);padding:28px;">
+  <div style="max-width:800px;width:100%;background:#020c06;border:2px solid var(--green);padding:28px;">
     <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;margin-bottom:20px;text-align:center;">// Share This Report</div>
     <button onclick="document.getElementById('shareMenuModal').remove();handleShare();" style="width:100%;padding:14px;background:rgba(0,255,106,0.08);border:2px solid var(--green);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:block;">📤 Share to Social Media</button>
     <button onclick="document.getElementById('shareMenuModal').remove();handleColorPDF();" style="width:100%;padding:14px;background:rgba(0,255,106,0.04);border:1px solid var(--green3);color:var(--green2);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;margin-bottom:10px;display:block;">🎨 Save Full Color Report as PDF</button>
@@ -3615,7 +3615,7 @@ function handleColorPDF(){
         allowTaint:true,
         logging:false,
         scrollY:-window.scrollY,
-        windowWidth:document.documentElement.scrollWidth
+        windowWidth:Math.max(document.documentElement.scrollWidth,900)
       }).then(function(canvas){
         restore();
         var imgData=canvas.toDataURL('image/jpeg',0.92);
