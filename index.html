@@ -3346,20 +3346,7 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
-    // Capture card at full size regardless of viewport
-    var captureTarget = card;
-    var tempWrap = null;
-    var borderCol = card.style.borderColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-    tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'position:fixed;left:-9999px;top:0;background:'+borderCol+';padding:0;display:inline-block;z-index:-1;';
-    document.body.appendChild(tempWrap);
-    tempWrap.appendChild(card);
-    captureTarget = card;
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,scrollX:0,scrollY:0,x:0,y:0,width:card.scrollWidth,height:card.scrollHeight}).then(async canvas=>{
-      if(tempWrap){
-        document.body.removeChild(tempWrap);
-        // card was moved — put it back in original location handled by modal
-      }
+    html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,scrollX:0,scrollY:0,x:0,y:0,width:card.scrollWidth,height:card.scrollHeight}).then(async canvas=>{
       const dataUrl=canvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
       if(btn){
@@ -3395,7 +3382,7 @@ function downloadShareCard(){
           btn.onclick=downloadShareCard;
         };
       }
-    }).catch(()=>{ if(tempWrap && tempWrap.parentNode){ document.body.removeChild(tempWrap); } finish(); });
+    }).catch(()=>{ finish(); });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
