@@ -3405,7 +3405,7 @@ function downloadShareCard(){
           var blob=new Blob([ab],{type:'image/png'});
           var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
           // Use Web Share API on mobile to save to Photos
-          if(navigator.canShare && navigator.canShare({files:[file]})){
+          if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
             navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
               btn.textContent='✅ SAVED!';
               btn.style.color='var(--green)';
