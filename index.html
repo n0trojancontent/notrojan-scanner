@@ -3375,7 +3375,7 @@ function downloadShareCard(){
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
     } else {
-      // Desktop: same treatment as mobile so saved card matches
+      // Desktop: same border background as mobile
       var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
       tempWrap = document.createElement('div');
       tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
@@ -3401,15 +3401,15 @@ function downloadShareCard(){
           for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
           var blob=new Blob([ab],{type:'image/png'});
           var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-          // Use Web Share API on mobile to save to Photos
-          if(navigator.canShare && navigator.canShare({files:[file]})){
+          // Mobile: use Web Share API to save to Photos; Desktop: use Save As dialog
+          if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
             navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
               btn.textContent='✅ SAVED!';
               btn.style.color='var(--green)';
               setTimeout(function(){ finish(); },1500);
             }).catch(function(){finish();});
           } else {
-            // Fallback for desktop
+            // Desktop: browser Save As dialog
             var blobUrl=URL.createObjectURL(blob);
             const link=document.createElement('a');
             link.download=`notrojan-${title}-score-card.png`;
