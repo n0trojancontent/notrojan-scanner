@@ -457,6 +457,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 
   /* Kill shadows and scanline overlays only */
   *{box-shadow:none!important;text-shadow:none!important;}
+
+  /* Force white backgrounds on all result/report elements with inline dark styles */
+  #results *{background-color:#ffffff!important;color:#111111!important;}
+  #results .sec,#results .secbody,#results [style*='background']{background:#ffffff!important;}
+  #results [style*='--bg']{background:#ffffff!important;}
+  .troy-visual,#troyVisual{background:#040f08!important;color:#ffffff!important;}
   a[href]:after{content:none!important;}
 
   /* Troy visual stays dark so SVG shows */
