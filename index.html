@@ -3382,7 +3382,7 @@ function downloadShareCard(){
       card.style.borderTop = '22px solid '+col;
       card.style.borderBottom = '22px solid '+col;
     }
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true}).then(async canvas=>{
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:4,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
