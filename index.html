@@ -3366,26 +3366,30 @@ function downloadShareCard(){
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
-    var borderCol = window._lastCol || '#00ff6a';
+    var origBorderTop = card.style.borderTop;
+    var origBorderBottom = card.style.borderBottom;
     if(isMobile){
+      // Get the tier color from the card's border
+      var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
       tempWrap = document.createElement('div');
       tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
       card.parentNode.insertBefore(tempWrap, card);
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
     } else {
-      // Desktop: same border background as mobile
-      tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-      card.parentNode.insertBefore(tempWrap, card);
-      tempWrap.appendChild(card);
-      captureTarget = tempWrap;
+      // Desktop: fatten top/bottom borders to match left/right (22px) before capture
+      var col = window._lastCol || '#00ff6a';
+      card.style.borderTop = '22px solid '+col;
+      card.style.borderBottom = '22px solid '+col;
     }
-    var captureScale = isMobile ? 2 : 3;
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:captureScale,useCORS:true,allowTaint:true}).then(async canvas=>{
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
+      } else {
+        // Restore original border on desktop
+        card.style.borderTop = origBorderTop;
+        card.style.borderBottom = origBorderBottom;
       }
       const dataUrl=canvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
@@ -3400,15 +3404,15 @@ function downloadShareCard(){
           for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
           var blob=new Blob([ab],{type:'image/png'});
           var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-          // Mobile: Web Share API to save to Photos; Desktop: browser Save As dialog
-          if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
+          // Use Web Share API on mobile to save to Photos
+          if(navigator.canShare && navigator.canShare({files:[file]})){
             navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
               btn.textContent='✅ SAVED!';
               btn.style.color='var(--green)';
               setTimeout(function(){ finish(); },1500);
             }).catch(function(){finish();});
           } else {
-            // Desktop: browser Save As dialog
+            // Fallback for desktop
             var blobUrl=URL.createObjectURL(blob);
             const link=document.createElement('a');
             link.download=`notrojan-${title}-score-card.png`;
