@@ -3374,6 +3374,14 @@ function downloadShareCard(){
       card.parentNode.insertBefore(tempWrap, card);
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
+    } else {
+      // Desktop: same treatment as mobile so saved card matches
+      var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
+      tempWrap = document.createElement('div');
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+      card.parentNode.insertBefore(tempWrap, card);
+      tempWrap.appendChild(card);
+      captureTarget = tempWrap;
     }
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
