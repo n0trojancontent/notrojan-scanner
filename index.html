@@ -3366,9 +3366,8 @@ function downloadShareCard(){
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
+    var borderCol = window._lastCol || '#00ff6a';
     if(isMobile){
-      // Get the tier color from the card's border
-      var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
       tempWrap = document.createElement('div');
       tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
       card.parentNode.insertBefore(tempWrap, card);
@@ -3376,14 +3375,14 @@ function downloadShareCard(){
       captureTarget = tempWrap;
     } else {
       // Desktop: same border background as mobile
-      var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
       tempWrap = document.createElement('div');
       tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
       card.parentNode.insertBefore(tempWrap, card);
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
     }
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+    var captureScale = isMobile ? 2 : 3;
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:captureScale,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
@@ -3401,7 +3400,7 @@ function downloadShareCard(){
           for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
           var blob=new Blob([ab],{type:'image/png'});
           var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-          // Mobile: use Web Share API to save to Photos; Desktop: use Save As dialog
+          // Mobile: Web Share API to save to Photos; Desktop: browser Save As dialog
           if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
             navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
               btn.textContent='✅ SAVED!';
