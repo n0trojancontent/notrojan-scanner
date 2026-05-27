@@ -3366,8 +3366,6 @@ function downloadShareCard(){
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
-    var origBorderTop = card.style.borderTop;
-    var origBorderBottom = card.style.borderBottom;
     if(isMobile){
       // Get the tier color from the card's border
       var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
@@ -3376,21 +3374,11 @@ function downloadShareCard(){
       card.parentNode.insertBefore(tempWrap, card);
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
-    } else {
-      // Desktop: fatten top/bottom borders to match left/right (22px) before capture
-      var col = window._lastCol || '#00ff6a';
-      card.style.borderTop = '22px solid '+col;
-      card.style.borderBottom = '22px solid '+col;
     }
-    // Wait for all images (incl. horse overlay) to fully load before capture
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true}).then(async canvas=>{
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
-      } else {
-        // Restore original border on desktop
-        card.style.borderTop = origBorderTop;
-        card.style.borderBottom = origBorderBottom;
       }
       const dataUrl=canvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
@@ -3406,7 +3394,7 @@ function downloadShareCard(){
           var blob=new Blob([ab],{type:'image/png'});
           var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
           // Use Web Share API on mobile to save to Photos
-          if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
+          if(navigator.canShare && navigator.canShare({files:[file]})){
             navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
               btn.textContent='✅ SAVED!';
               btn.style.color='var(--green)';
