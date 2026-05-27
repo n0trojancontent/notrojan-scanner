@@ -3366,6 +3366,8 @@ function downloadShareCard(){
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
+    var origBorderTop = card.style.borderTop;
+    var origBorderBottom = card.style.borderBottom;
     if(isMobile){
       // Get the tier color from the card's border
       var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
@@ -3374,12 +3376,21 @@ function downloadShareCard(){
       card.parentNode.insertBefore(tempWrap, card);
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
+    } else {
+      // Desktop: fatten top/bottom borders to match left/right (22px) before capture
+      var col = window._lastCol || '#00ff6a';
+      card.style.borderTop = '22px solid '+col;
+      card.style.borderBottom = '22px solid '+col;
     }
-    var _imgs=Array.from(captureTarget.querySelectorAll('img'));Promise.all(_imgs.map(function(i){return i.complete&&i.naturalWidth>0?Promise.resolve():new Promise(function(r){i.onload=r;i.onerror=r;});})).then(function(){
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+    // Wait for all images (incl. horse overlay) to fully load before capture
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
+      } else {
+        // Restore original border on desktop
+        card.style.borderTop = origBorderTop;
+        card.style.borderBottom = origBorderBottom;
       }
       const dataUrl=canvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
@@ -3395,7 +3406,7 @@ function downloadShareCard(){
           var blob=new Blob([ab],{type:'image/png'});
           var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
           // Use Web Share API on mobile to save to Photos
-          if(navigator.canShare && navigator.canShare({files:[file]})){
+          if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
             navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
               btn.textContent='✅ SAVED!';
               btn.style.color='var(--green)';
@@ -3417,7 +3428,6 @@ function downloadShareCard(){
         };
       }
     }).catch(()=>{ if(tempWrap){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
-    });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
