@@ -3511,7 +3511,7 @@ function handleColorPDF(){
         var pageW=612,pageH=792,margin=36;
         var usableW=pageW-(margin*2),usableH=pageH-(margin*2);
         var imgW=canvas.width/1.5,imgH=canvas.height/1.5;
-        var sc=Math.min(usableW/imgW,1);
+        var sc=usableW/imgW;
         var drawW=imgW*sc,drawH=imgH*sc;
         var pages=Math.ceil(drawH/usableH);
         for(var p=0;p<pages;p++){
