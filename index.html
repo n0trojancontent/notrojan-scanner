@@ -3124,8 +3124,8 @@ function handleShare(){
   const gcS=r.gc_score||0;
   // Cultural impact bullets — all 5 tiers
   const impactBullets=score<75
-    ?(r.bside?.ieos_impact||[]).slice(0,3)        // red/orange/yellow: why it's a concern
-    :(r.bside?.community_impact||[]).slice(0,3);   // green: positive community qualities
+    ?(r.bside?.ieos_impact||[]).slice(0,2)        // red/orange/yellow: why it's a concern
+    :(r.bside?.community_impact||[]).slice(0,2);   // green: positive community qualities
   const impactLabel=score<25?'⚠️ Trojan-Level Cultural Impact'
     :score<50?'⚠️ At-Risk Cultural Influence'
     :score<75?'→ Mixed Cultural Signals'
@@ -3161,16 +3161,16 @@ function handleShare(){
           <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Year</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${year}</div></div>
           <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Label / Publisher</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${publisher}</div></div>
         </div>
-        ${description?`<div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Description</div><div style="font-size:0.76rem;color:#aaa;line-height:1.4;">${description.substring(0,120)}${description.length>120?'...':''}</div></div>`:''}
+        ${description?`<div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Description</div><div style="font-size:0.76rem;color:#aaa;line-height:1.4;">${description.substring(0,80)}${description.length>80?'...':''}</div></div>`:''}
       </div>
       <!-- Score row + Wikipedia image — side by side -->
       <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;">
         <div style="flex:1;">
           <div style="display:flex;align-items:flex-end;gap:10px;">
-            <div style="font-size:3.2rem;font-weight:900;color:${col};line-height:1;">${score}</div>
+            <div style="font-size:2.6rem;font-weight:900;color:${col};line-height:1;">${score}</div>
             <div style="padding-bottom:6px;">
               <div style="font-size:0.5rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;">NoTrojan Score™ / 100</div>
-              <div style="font-size:1rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
+              <div style="font-size:0.8rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
             </div>
           </div>
           <!-- Pillars -->
