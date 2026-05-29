@@ -3388,7 +3388,7 @@ function downloadShareCard(){
       sqCtx.fillStyle = '#020c06';
       sqCtx.fillRect(0, 0, squareSize, squareSize);
       // Scale card to fill 95% of square height, centered
-      const scale = (squareSize * 0.95) / canvas.height;
+      const scale = (squareSize * 1.15) / canvas.height;
       const scaledW = Math.round(canvas.width * scale);
       const scaledH = Math.round(canvas.height * scale);
       const offsetX = Math.round((squareSize - scaledW) / 2);
