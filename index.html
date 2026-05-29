@@ -3379,7 +3379,22 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
-      const dataUrl=canvas.toDataURL('image/png');
+      // Resize to 1080x1080 square with border color background so IG desktop shows full card
+      const squareSize = 1080;
+      const sqCanvas = document.createElement('canvas');
+      sqCanvas.width = squareSize;
+      sqCanvas.height = squareSize;
+      const sqCtx = sqCanvas.getContext('2d');
+      sqCtx.fillStyle = borderCol;
+      sqCtx.fillRect(0, 0, squareSize, squareSize);
+      // Scale card to fit within square, centered
+      const scale = Math.min(squareSize / canvas.width, squareSize / canvas.height);
+      const scaledW = Math.round(canvas.width * scale);
+      const scaledH = Math.round(canvas.height * scale);
+      const offsetX = Math.round((squareSize - scaledW) / 2);
+      const offsetY = Math.round((squareSize - scaledH) / 2);
+      sqCtx.drawImage(canvas, offsetX, offsetY, scaledW, scaledH);
+      const dataUrl = sqCanvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
       if(btn){
         btn.textContent='⬇️ Save Score Card';
