@@ -3143,7 +3143,7 @@ function handleShare(){
 
   modal.innerHTML=`
   <div id="shareCardWrapper" style="max-width:500px;width:100%;">
-    <div id="notShareCard" style="background:#020c06;border-left:16px solid ${col};border-right:16px solid ${col};border-top:16px solid ${col};border-bottom:16px solid ${col};padding:20px 12px;font-family:'Barlow Condensed',sans-serif;width:360px;box-sizing:border-box;">
+    <div id="notShareCard" style="background:#020c06;border-left:16px solid ${col};border-right:16px solid ${col};border-top:16px solid ${col};border-bottom:16px solid ${col};padding:12px 10px;font-family:'Barlow Condensed',sans-serif;width:300px;box-sizing:border-box;">
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;border-bottom:1px solid ${col}33;padding-bottom:5px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
@@ -3167,7 +3167,7 @@ function handleShare(){
       <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;">
         <div style="flex:1;">
           <div style="display:flex;align-items:flex-end;gap:10px;">
-            <div style="font-size:2.6rem;font-weight:900;color:${col};line-height:1;">${score}</div>
+            <div style="font-size:2rem;font-weight:900;color:${col};line-height:1;">${score}</div>
             <div style="padding-bottom:6px;">
               <div style="font-size:0.5rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;">NoTrojan Score™ / 100</div>
               <div style="font-size:0.8rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
@@ -3179,7 +3179,7 @@ function handleShare(){
           </div>
         </div>
         <!-- Wikipedia image -->
-        <div id="wikiImgBox" style="width:120px;height:120px;flex-shrink:0;border:1px solid ${col}33;background:${col}08;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+        <div id="wikiImgBox" style="width:90px;height:90px;flex-shrink:0;border:1px solid ${col}33;background:${col}08;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
           <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Fetching...</div></div>
         </div>
       </div>
@@ -3369,7 +3369,7 @@ function downloadShareCard(){
     // Wrap card so top/bottom color borders match left/right (same on mobile and desktop)
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
     tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:block;width:300px;';
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
