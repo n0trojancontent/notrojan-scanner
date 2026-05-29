@@ -3249,6 +3249,7 @@ function handleShare(){
         hd.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
         const hi=document.createElement('img');
         hi.src=horse2;
+        hi.crossOrigin='anonymous';
         hi.style.cssText='width:60%;height:60%;object-fit:contain;opacity:0.95;';
         hd.appendChild(hi);
         imgBox.appendChild(hd);
@@ -3362,35 +3363,21 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
-    // On mobile wrap card in a padded container so top/bottom borders show
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
-    var origBorderTop = card.style.borderTop;
-    var origBorderBottom = card.style.borderBottom;
-    if(isMobile){
-      // Get the tier color from the card's border
-      var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-      tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-      card.parentNode.insertBefore(tempWrap, card);
-      tempWrap.appendChild(card);
-      captureTarget = tempWrap;
-    } else {
-      // Desktop: fatten top/bottom borders to match left/right (22px) before capture
-      var col = window._lastCol || '#00ff6a';
-      card.style.borderTop = '22px solid '+col;
-      card.style.borderBottom = '22px solid '+col;
-    }
+    // Wrap card so top/bottom color borders match left/right (same on mobile and desktop)
+    var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
+    tempWrap = document.createElement('div');
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    card.parentNode.insertBefore(tempWrap, card);
+    tempWrap.appendChild(card);
+    captureTarget = tempWrap;
     // Wait for all images (incl. horse overlay) to fully load before capture
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
-      } else {
-        // Restore original border on desktop
-        card.style.borderTop = origBorderTop;
-        card.style.borderBottom = origBorderBottom;
       }
       const dataUrl=canvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
