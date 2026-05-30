@@ -1991,6 +1991,9 @@ Return ONLY valid JSON, no markdown, no backticks:
       })
     });
     const data=await resp.json();
+    if(!data.content || !Array.isArray(data.content)){
+      throw new Error('API ERROR: '+(data.error?.message||data.type||JSON.stringify(data).substring(0,200)));
+    }
     const raw=data.content.map(i=>i.text||'').join('').replace(/```json|```/g,'').trim();
     let r;
     try{ r=JSON.parse(raw); }
@@ -2011,9 +2014,11 @@ Return ONLY valid JSON, no markdown, no backticks:
     r.rating=computed>=90?'Certified No Trojan':computed>=75?'Positive Influence':computed>=50?'Neutral / Mixed':computed>=25?'At Risk':'Trojan-Level Threat';
 
     // Inject scores into bside/aside pillar objects
-    r.bside.eos={score:eos,indicators:r.bside.eos.indicators||[]};
-    r.bside.si ={score:si, indicators:r.bside.si.indicators||[]};
-    r.bside.gc ={score:gc, indicators:r.bside.gc.indicators||[]};
+    r.bside = r.bside || {};
+    r.aside = r.aside || {};
+    r.bside.eos={score:eos,indicators:r.bside.eos?.indicators||[]};
+    r.bside.si ={score:si, indicators:r.bside.si?.indicators||[]};
+    r.bside.gc ={score:gc, indicators:r.bside.gc?.indicators||[]};
     r.aside.eos={score:eos,indicators:r.bside.eos.indicators};
     r.aside.si ={score:si, indicators:r.bside.si.indicators};
     r.aside.gc ={score:gc, indicators:r.bside.gc.indicators};
