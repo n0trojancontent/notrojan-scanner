@@ -3152,12 +3152,12 @@ function handleShare(){
   <div id="shareCardWrapper" style="max-width:500px;width:100%;">
     <div id="notShareCard" style="background:#020c06;border-left:22px solid ${col};border-right:22px solid ${col};border-top:6px solid ${col};border-bottom:4px solid ${col};padding:10px 14px;font-family:'Barlow Condensed',sans-serif;">
       <!-- Header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;border-bottom:1px solid ${col}33;padding-bottom:5px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;border-bottom:1px solid ${col}33;padding-bottom:8px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#4a7a5a;">notrojan.com</div>
       </div>
       <!-- Content Identified block -->
-      <div style="margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid ${col}22;">
+      <div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid ${col}22;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.48rem;letter-spacing:0.16em;color:${col}99;text-transform:uppercase;margin-bottom:4px;">// Content Identified — NoTrojan® Scan Target</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:4px;">
           <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Title</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${title}</div></div>
@@ -3168,25 +3168,25 @@ function handleShare(){
           <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Year</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${year}</div></div>
           <div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Label / Publisher</div><div style="font-size:0.88rem;font-weight:800;color:#fff;">${publisher}</div></div>
         </div>
-        ${description?`<div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Description</div><div style="font-size:0.76rem;color:#aaa;line-height:1.4;">${description.substring(0,80)}${description.length>80?'...':''}</div></div>`:''}
+        ${description?`<div><div style="font-family:'Share Tech Mono',monospace;font-size:0.45rem;color:#4a7a5a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;">Description</div><div style="font-size:0.76rem;color:#aaa;line-height:1.4;">${description.substring(0,120)}${description.length>120?'...':''}</div></div>`:''}
       </div>
       <!-- Score row + Wikipedia image — side by side -->
-      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">
         <div style="flex:1;">
           <div style="display:flex;align-items:flex-end;gap:10px;">
-            <div style="font-size:2rem;font-weight:900;color:${col};line-height:1;">${score}</div>
+            <div style="font-size:4rem;font-weight:900;color:${col};line-height:1;">${score}</div>
             <div style="padding-bottom:6px;">
               <div style="font-size:0.5rem;color:#4a7a5a;font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;">NoTrojan Score™ / 100</div>
-              <div style="font-size:0.8rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
+              <div style="font-size:1rem;font-weight:800;color:${col};letter-spacing:0.08em;text-transform:uppercase;">${rating}</div>
             </div>
           </div>
           <!-- Pillars -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:4px;">
-            ${['EOS','SI','GC'].map((p,i)=>`<div style="background:${col}11;border:1px solid ${col}33;padding:4px;text-align:center;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.46rem;color:#4a7a5a;letter-spacing:0.1em;">${p}</div><div style="font-size:1.1rem;font-weight:900;color:${col};">${[eosS,siS,gcS][i]}</div></div>`).join('')}
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:6px;">
+            ${['EOS','SI','GC'].map((p,i)=>`<div style="background:${col}11;border:1px solid ${col}33;padding:6px;text-align:center;"><div style="font-family:'Share Tech Mono',monospace;font-size:0.46rem;color:#4a7a5a;letter-spacing:0.1em;">${p}</div><div style="font-size:1.1rem;font-weight:900;color:${col};">${[eosS,siS,gcS][i]}</div></div>`).join('')}
           </div>
         </div>
         <!-- Wikipedia image -->
-        <div id="wikiImgBox" style="width:90px;height:90px;flex-shrink:0;border:1px solid ${col}33;background:${col}08;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+        <div id="wikiImgBox" style="width:140px;height:140px;flex-shrink:0;border:1px solid ${col}33;background:${col}08;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
           <div class="img-loading"><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-bar"></div><div class="img-loading-txt">Fetching...</div></div>
         </div>
       </div>
