@@ -3150,7 +3150,7 @@ function handleShare(){
 
   modal.innerHTML=`
   <div id="shareCardWrapper" style="max-width:500px;width:100%;">
-    <div id="notShareCard" style="background:#020c06;border-left:16px solid ${col};border-right:16px solid ${col};border-top:16px solid ${col};border-bottom:16px solid ${col};padding:4px 10px;font-family:'Barlow Condensed',sans-serif;width:380px;box-sizing:border-box;">
+    <div id="notShareCard" style="background:#020c06;border-left:16px solid ${col};border-right:16px solid ${col};border-top:16px solid ${col};border-bottom:16px solid ${col};padding:4px 10px;font-family:'Barlow Condensed',sans-serif;width:500px;box-sizing:border-box;">
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;border-bottom:1px solid ${col}33;padding-bottom:5px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
@@ -3376,7 +3376,7 @@ function downloadShareCard(){
     // Wrap card so top/bottom color borders match left/right (same on mobile and desktop)
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
     tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:24px 0;display:block;width:380px;';
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:24px 0;display:block;width:500px;';
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
