@@ -3386,22 +3386,7 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
-      // Resize to 1080x1080 (1:1 square) with border color background, matching mobile cards
-      const outW = 1080, outH = 1080;
-      const sqCanvas = document.createElement('canvas');
-      sqCanvas.width = outW;
-      sqCanvas.height = outH;
-      const sqCtx = sqCanvas.getContext('2d');
-      sqCtx.fillStyle = borderCol;
-      sqCtx.fillRect(0, 0, outW, outH);
-      // Scale card to fill 100% of height so black fills square matching mobile cards
-      const scale = (outH * 1.0) / canvas.height;
-      const scaledW = Math.round(canvas.width * scale);
-      const scaledH = Math.round(canvas.height * scale);
-      const offsetX = Math.round((outW - scaledW) / 2);
-      const offsetY = Math.round((outH - scaledH) / 2);
-      sqCtx.drawImage(canvas, offsetX, offsetY, scaledW, scaledH);
-      const dataUrl = sqCanvas.toDataURL('image/png');
+      const dataUrl = canvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
       if(btn){
         btn.textContent='⬇️ Save Score Card';
