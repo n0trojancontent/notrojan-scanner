@@ -3394,8 +3394,8 @@ function downloadShareCard(){
       const sqCtx = sqCanvas.getContext('2d');
       sqCtx.fillStyle = borderCol;
       sqCtx.fillRect(0, 0, outW, outH);
-      // Scale card to fill 92% of height so color borders visible on all 4 sides
-      const scale = (outH * 0.92) / canvas.height;
+      // Scale card to fill 100% of height so black fills square matching mobile cards
+      const scale = (outH * 1.0) / canvas.height;
       const scaledW = Math.round(canvas.width * scale);
       const scaledH = Math.round(canvas.height * scale);
       const offsetX = Math.round((outW - scaledW) / 2);
