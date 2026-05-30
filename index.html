@@ -3386,16 +3386,29 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
-      // Force square output for IG grid — fill bottom with border color
-      const sqSize = canvas.width;
-      const sqCanvas = document.createElement('canvas');
-      sqCanvas.width = sqSize;
-      sqCanvas.height = sqSize;
-      const sqCtx = sqCanvas.getContext('2d');
-      sqCtx.fillStyle = borderCol;
-      sqCtx.fillRect(0, 0, sqSize, sqSize);
-      sqCtx.drawImage(canvas, 0, 0);
-      const dataUrl = sqCanvas.toDataURL('image/png');
+      // DESKTOP ONLY: force fixed 1080x1350 (4:5) output so IG wall matches mobile
+      // Mobile path uses canvas directly (Web Share API handles it)
+      var dataUrl;
+      if(!isMobile){
+        const outW = 1080, outH = 1350;
+        const sqCanvas = document.createElement('canvas');
+        sqCanvas.width = outW;
+        sqCanvas.height = outH;
+        const sqCtx = sqCanvas.getContext('2d');
+        sqCtx.fillStyle = borderCol;
+        sqCtx.fillRect(0, 0, outW, outH);
+        // Scale card to fit 960x1200 center safe zone, centered on canvas
+        const targetW = 960, targetH = 1200;
+        const finalScale = Math.min(targetW / canvas.width, targetH / canvas.height);
+        const scaledW = Math.round(canvas.width * finalScale);
+        const scaledH = Math.round(canvas.height * finalScale);
+        const offsetX = Math.round((outW - scaledW) / 2);
+        const offsetY = Math.round((outH - scaledH) / 2);
+        sqCtx.drawImage(canvas, offsetX, offsetY, scaledW, scaledH);
+        dataUrl = sqCanvas.toDataURL('image/png');
+      } else {
+        dataUrl = canvas.toDataURL('image/png');
+      }
       // Show save button instead of auto-downloading
       if(btn){
         btn.textContent='⬇️ Save Score Card';
