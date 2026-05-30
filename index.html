@@ -3373,10 +3373,19 @@ function downloadShareCard(){
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
-    // Wrap card so top/bottom color borders match left/right (same on mobile and desktop)
+    // On desktop, pin card to 380px wide so capture matches mobile proportions exactly
+    var savedCardWidth = '';
+    var savedWrapperWidth = '';
+    var cardWrapper = card.parentNode;
+    if(!isMobile){
+      savedCardWidth = card.style.width;
+      card.style.width = '380px';
+      if(cardWrapper){ savedWrapperWidth = cardWrapper.style.width; cardWrapper.style.width = '380px'; }
+    }
+    // Wrap card so top/bottom color borders match left/right
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
     tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;width:380px;';
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
@@ -3386,8 +3395,12 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
-      // DESKTOP ONLY: force fixed 1080x1350 (4:5) output so IG wall matches mobile
-      // Mobile path uses canvas directly (Web Share API handles it)
+      // Restore card/wrapper width on desktop
+      if(!isMobile){
+        card.style.width = savedCardWidth;
+        if(cardWrapper){ cardWrapper.style.width = savedWrapperWidth; }
+      }
+      // Desktop: use raw canvas (card was captured at 380px = same as mobile)
       var dataUrl;
       if(!isMobile){
         const outW = 1080, outH = 1350;
@@ -3443,7 +3456,7 @@ function downloadShareCard(){
           btn.onclick=downloadShareCard;
         };
       }
-    }).catch(()=>{ if(tempWrap){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
+    }).catch(()=>{ if(tempWrap){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } if(!isMobile){ card.style.width=savedCardWidth; if(cardWrapper){cardWrapper.style.width=savedWrapperWidth;} } finish(); });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
