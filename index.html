@@ -1992,7 +1992,9 @@ Return ONLY valid JSON, no markdown, no backticks:
     });
     const data=await resp.json();
     const raw=data.content.map(i=>i.text||'').join('').replace(/```json|```/g,'').trim();
-    const r=JSON.parse(raw);
+    let r;
+    try{ r=JSON.parse(raw); }
+    catch(e){ throw new Error('PARSE ERROR: '+raw.substring(0,200)); }
 
     // DOUGSCORE — deterministic client-side computation
     const rb=r.rubric;
