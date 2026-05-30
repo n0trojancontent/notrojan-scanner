@@ -1791,7 +1791,7 @@ async function runScan(){
   // ── CANONICAL ANCHOR INTERCEPT ──
     const inputLower = input.toLowerCase().replace(/[,\-\.!?]/g,' ').replace(/\s+/g,' ').trim();
   let canonicalResult = null;
-  if(inputLower.includes('happy') || inputLower.includes('pharrell')){
+  if(inputLower === 'happy' || (inputLower.includes('happy') && inputLower.includes('pharrell'))){
     canonicalResult = HAPPY_DATA;
   } else if(inputLower.includes('mask off') || (inputLower.includes('future') && inputLower.includes('mask'))){
     canonicalResult = MASKOFF_DATA;
