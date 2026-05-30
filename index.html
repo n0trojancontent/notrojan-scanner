@@ -3373,7 +3373,7 @@ function downloadShareCard(){
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
-    // On desktop: pin card to 358px wide (= mobile card width) before capture, restore after
+    // Pin card to 358px wide on desktop (matches mobile rendered width) before capture
     var savedCardWidth = card.style.width;
     var savedCardMaxWidth = card.style.maxWidth;
     if(!isMobile){
@@ -3386,36 +3386,14 @@ function downloadShareCard(){
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
-    // Wait for all images (incl. horse overlay) to fully load before capture
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
       if(!isMobile){ card.style.width=savedCardWidth; card.style.maxWidth=savedCardMaxWidth; }
-      // DESKTOP ONLY: force fixed 1080x1350 (4:5) output so IG wall matches mobile
-      // Mobile path uses canvas directly (Web Share API handles it)
-      var dataUrl;
-      if(!isMobile){
-        const outW = 1080, outH = 1350;
-        const sqCanvas = document.createElement('canvas');
-        sqCanvas.width = outW;
-        sqCanvas.height = outH;
-        const sqCtx = sqCanvas.getContext('2d');
-        sqCtx.fillStyle = borderCol;
-        sqCtx.fillRect(0, 0, outW, outH);
-        // Scale card to fit 960x1200 center safe zone, centered on canvas
-        const targetW = 960, targetH = 1200;
-        const finalScale = Math.min(targetW / canvas.width, targetH / canvas.height);
-        const scaledW = Math.round(canvas.width * finalScale);
-        const scaledH = Math.round(canvas.height * finalScale);
-        const offsetX = Math.round((outW - scaledW) / 2);
-        const offsetY = Math.round((outH - scaledH) / 2);
-        sqCtx.drawImage(canvas, offsetX, offsetY, scaledW, scaledH);
-        dataUrl = sqCanvas.toDataURL('image/png');
-      } else {
-        dataUrl = canvas.toDataURL('image/png');
-      }
+      // Same as mobile: save canvas directly, no extra processing
+      const dataUrl = canvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
       if(btn){
         btn.textContent='⬇️ Save Score Card';
