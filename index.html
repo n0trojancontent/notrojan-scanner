@@ -3386,7 +3386,16 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
-      const dataUrl = canvas.toDataURL('image/png');
+      // Force square output for IG grid consistency
+      const size = canvas.width;
+      const sqCanvas = document.createElement('canvas');
+      sqCanvas.width = size;
+      sqCanvas.height = size;
+      const sqCtx = sqCanvas.getContext('2d');
+      sqCtx.fillStyle = borderCol;
+      sqCtx.fillRect(0, 0, size, size);
+      sqCtx.drawImage(canvas, 0, 0);
+      const dataUrl = sqCanvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
       if(btn){
         btn.textContent='⬇️ Save Score Card';
