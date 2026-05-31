@@ -3377,9 +3377,11 @@ function downloadShareCard(){
     // Same capture for mobile and desktop — tempWrap shrinks to card's natural width
     tempWrap = document.createElement('div');
     tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    if(!isMobile){ tempWrap.style.width='358px'; tempWrap.style.overflow='hidden'; }
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
+    void captureTarget.offsetWidth;
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
