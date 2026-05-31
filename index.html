@@ -3374,14 +3374,18 @@ function downloadShareCard(){
     var captureTarget = card;
     var tempWrap = null;
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-    // Same capture for mobile and desktop — tempWrap shrinks to card's natural width
-    tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-    card.parentNode.insertBefore(tempWrap, card);
-    tempWrap.appendChild(card);
-    captureTarget = tempWrap;
-    void captureTarget.offsetWidth;
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+    if(isMobile){
+      // Mobile: wrap card with border color top/bottom padding
+      tempWrap = document.createElement('div');
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+      card.parentNode.insertBefore(tempWrap, card);
+      tempWrap.appendChild(card);
+      captureTarget = tempWrap;
+    } else {
+      // Desktop: capture card directly, same element mobile captures
+      captureTarget = card;
+    }
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,scrollX:0,scrollY:0}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
