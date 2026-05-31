@@ -3379,11 +3379,12 @@ function downloadShareCard(){
     if(isMobile){
       tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
     } else {
-      // Desktop: force 390px so card reflows to mobile width
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:block;width:390px;box-sizing:border-box;';
-      card.style.setProperty('width','390px','important');
-      card.style.setProperty('max-width','390px','important');
-      card.style.setProperty('box-sizing','border-box','important');
+      // Desktop: force wrapper AND modal to exactly 390px so card renders at mobile width
+      var scModal = document.getElementById('shareCardModal');
+      var scWrapper = document.getElementById('shareCardWrapper');
+      if(scModal){ scModal._prevFlex = scModal.style.justifyContent; scModal.style.justifyContent='flex-start'; }
+      if(scWrapper){ scWrapper._prevW = scWrapper.style.width; scWrapper._prevMW = scWrapper.style.maxWidth; scWrapper.style.width='390px'; scWrapper.style.maxWidth='390px'; }
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
     }
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
@@ -3394,11 +3395,12 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
-      // Restore card width on desktop
+      // Restore wrapper/modal on desktop
       if(!isMobile){
-        card.style.width = '';
-        card.style.maxWidth = '';
-        card.style.boxSizing = '';
+        var scModal2 = document.getElementById('shareCardModal');
+        var scWrapper2 = document.getElementById('shareCardWrapper');
+        if(scWrapper2){ scWrapper2.style.width=scWrapper2._prevW||''; scWrapper2.style.maxWidth=scWrapper2._prevMW||'390px'; }
+        if(scModal2 && scModal2._prevFlex !== undefined){ scModal2.style.justifyContent=scModal2._prevFlex; }
       }
       const dataUrl=canvas.toDataURL('image/png');
       if(btn){
