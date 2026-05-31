@@ -3374,6 +3374,11 @@ function downloadShareCard(){
     var captureTarget = card;
     var tempWrap = null;
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
+    // Constrain wrapper to mobile width before capture so card matches mobile dimensions
+    var wrapper = document.getElementById('shareCardWrapper');
+    var prevW = wrapper ? wrapper.style.width : null;
+    var prevMW = wrapper ? wrapper.style.maxWidth : null;
+    if(wrapper && !isMobile){ wrapper.style.width='390px'; wrapper.style.maxWidth='390px'; }
     tempWrap = document.createElement('div');
     tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
     card.parentNode.insertBefore(tempWrap, card);
@@ -3384,6 +3389,7 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
+      if(wrapper && !isMobile){ wrapper.style.width=prevW; wrapper.style.maxWidth=prevMW; }
       const dataUrl=canvas.toDataURL('image/png');
       var byteString=atob(dataUrl.split(',')[1]);
       var ab=new ArrayBuffer(byteString.length);
