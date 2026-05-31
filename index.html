@@ -3400,7 +3400,7 @@ function downloadShareCard(){
         // Desktop: show preview popup — right-click image to save
         var blobUrl=URL.createObjectURL(blob);
         var pd=document.createElement('div');
-        pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+        pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px;overflow-y:auto;';
         pd.innerHTML='<div style="background:#020c06;border:1px solid var(--green,#00ff6a);border-top:3px solid var(--green,#00ff6a);max-width:440px;width:100%;padding:20px;text-align:center;">'
           +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.75rem;letter-spacing:0.18em;color:var(--green,#00ff6a);text-transform:uppercase;margin-bottom:6px;">Score Card Preview</div>'
           +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.68rem;letter-spacing:0.1em;color:#888;margin-bottom:12px;">RIGHT-CLICK IMAGE → SAVE AS</div>'
