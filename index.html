@@ -122,7 +122,7 @@ header{background:#000;border-bottom:2px solid var(--red);position:relative;z-in
 .err-bar.on{display:block;}
 
 /* SCORE CARD */
-.score-card{margin-bottom:14px;border:1px solid var(--border2);background:var(--surface);width:360px;max-width:100%;box-sizing:border-box;}
+.score-card{margin-bottom:14px;border:1px solid var(--border2);background:var(--surface);}
 .sc-top{display:flex;align-items:stretch;}
 .sc-num-block{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 22px;border-right:1px solid var(--border2);min-width:110px;}
 .sc-num{font-family:'Barlow Condensed',sans-serif;font-size:3.4rem;font-weight:900;line-height:1;}
@@ -3378,8 +3378,8 @@ function downloadShareCard(){
     var prevWidth = card.style.width;
     var prevMaxWidth = card.style.maxWidth;
     var prevBoxSizing = card.style.boxSizing;
-    card.style.width = '360px';
-    card.style.maxWidth = '360px';
+    card.style.width = '342px';
+    card.style.maxWidth = '342px';
     card.style.boxSizing = 'border-box';
     tempWrap = document.createElement('div');
     tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 16px;display:inline-block;width:392px;box-sizing:border-box;';
