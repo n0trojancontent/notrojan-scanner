@@ -3375,20 +3375,35 @@ function downloadShareCard(){
     var tempWrap = null;
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
     if(isMobile){
-      // Mobile: wrap card with border color top/bottom padding
+      // Mobile: wrap card — UNTOUCHED
       tempWrap = document.createElement('div');
       tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
       card.parentNode.insertBefore(tempWrap, card);
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
     } else {
-      // Desktop: capture card directly, same element mobile captures
-      captureTarget = card;
+      // Desktop: clone card into off-screen 390px container to force mobile layout
+      var offscreen = document.createElement('div');
+      offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;width:390px;overflow:visible;background:transparent;';
+      var clone = card.cloneNode(true);
+      clone.style.width = '346px';
+      clone.style.maxWidth = '346px';
+      clone.style.boxSizing = 'border-box';
+      tempWrap = document.createElement('div');
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:block;width:390px;box-sizing:border-box;';
+      tempWrap.appendChild(clone);
+      offscreen.appendChild(tempWrap);
+      document.body.appendChild(offscreen);
+      captureTarget = tempWrap;
     }
+    void captureTarget.offsetWidth;
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,scrollX:0,scrollY:0}).then(async canvas=>{
-      if(tempWrap){
+      if(isMobile && tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
+      } else if(!isMobile){
+        var os=document.querySelector('div[style*="-9999px"]');
+        if(os) document.body.removeChild(os);
       }
       const dataUrl=canvas.toDataURL('image/png');
       if(btn){
