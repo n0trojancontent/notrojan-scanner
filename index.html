@@ -3391,10 +3391,19 @@ function downloadShareCard(){
       offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;width:390px;overflow:visible;background:transparent;';
       document.body.appendChild(offscreen);
       tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;width:390px;box-sizing:border-box;overflow:hidden;';
       tempWrap.appendChild(card);
       offscreen.appendChild(tempWrap);
       captureTarget = tempWrap;
+    }
+    // Lock card width on desktop so it doesn't expand beyond 390px
+    var _origCardWidth = '';
+    var _origCardMaxWidth = '';
+    if(!isMobile){
+      _origCardWidth = card.style.width;
+      _origCardMaxWidth = card.style.maxWidth;
+      card.style.width = '390px';
+      card.style.maxWidth = '390px';
     }
     void captureTarget.offsetWidth;
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,scrollX:0,scrollY:0}).then(async canvas=>{
@@ -3402,6 +3411,8 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       } else if(!isMobile){
+        card.style.width = _origCardWidth;
+        card.style.maxWidth = _origCardMaxWidth;
         var mk=document.getElementById('__card_marker__');
         if(mk){ mk.parentNode.insertBefore(card,mk); mk.parentNode.removeChild(mk); }
         var os=document.querySelector('div[style*="-9999px"]');
