@@ -3370,91 +3370,54 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
-    // Same capture path for mobile and desktop
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
+    // Wrap on both mobile AND desktop so dimensions are identical
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-    // Pin wrapper + tempWrap to 390px for both mobile and desktop — same dimensions as mobile save
-    var wrapper = document.getElementById('shareCardWrapper');
-    var prevW = wrapper ? wrapper.style.width : null;
-    var prevMW = wrapper ? wrapper.style.maxWidth : null;
-    if(wrapper){ wrapper.style.width='390px'; wrapper.style.maxWidth='390px'; }
     tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:16px 0 18px 0;display:block;width:390px;box-sizing:border-box;';
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
-    // Hide DOM horse before capture so html2canvas doesn't pick it up
-    var imgBox = document.getElementById('wikiImgBox');
-    var horseDiv = imgBox ? imgBox.querySelector('div:last-child') : null;
-    if(horseDiv && horseDiv.querySelector('img')){ horseDiv.style.display='none'; }
-    // Measure imgBox position relative to tempWrap for canvas drawing
-    var imgBoxOffsetLeft = 0, imgBoxOffsetTop = 0;
-    if(imgBox){
-      var el = imgBox;
-      while(el && el !== captureTarget){ imgBoxOffsetLeft += el.offsetLeft; imgBoxOffsetTop += el.offsetTop; el = el.offsetParent; }
-    }
-    void captureTarget.offsetWidth;
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
-      // Restore DOM horse after capture
-      if(horseDiv){ horseDiv.style.display=''; }
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
-      if(wrapper){ wrapper.style.width=prevW; wrapper.style.maxWidth=prevMW; }
-      // Draw horse overlay onto canvas once (DOM horse was hidden during capture)
-      await (function(){
-        return new Promise(function(resolve){
-          var score2 = window._lastResult ? (window._lastResult.score||0) : 0;
-          var horseSrc = score2<25 ? notRedLogo : score2<50 ? notOrangeLogo : null;
-          if(!horseSrc || !imgBox){ resolve(); return; }
-          var s = 2; // matches html2canvas scale
-          var relLeft = imgBoxOffsetLeft * s;
-          var relTop  = imgBoxOffsetTop  * s;
-          var boxW = imgBox.offsetWidth  * s;
-          var boxH = imgBox.offsetHeight * s;
-          var hi = new Image();
-          hi.onload = function(){
-            var ctx = canvas.getContext('2d');
-            // Tint layer
-            var tintCol = score2<25 ? 'rgba(196,30,30,0.45)' : 'rgba(255,140,0,0.45)';
-            ctx.save(); ctx.fillStyle=tintCol; ctx.fillRect(relLeft,relTop,boxW,boxH); ctx.restore();
-            // Horse centered at 60% of box
-            var hSize = Math.min(boxW,boxH)*0.6;
-            var hx = relLeft + (boxW-hSize)/2;
-            var hy = relTop  + (boxH-hSize)/2;
-            ctx.save(); ctx.globalAlpha=0.95; ctx.drawImage(hi,hx,hy,hSize,hSize); ctx.restore();
-            resolve();
-          };
-          hi.onerror = function(){ resolve(); };
-          hi.src = horseSrc;
-        });
-      })();
       const dataUrl=canvas.toDataURL('image/png');
-      var byteString=atob(dataUrl.split(',')[1]);
-      var ab=new ArrayBuffer(byteString.length);
-      var ia=new Uint8Array(ab);
-      for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
-      var blob=new Blob([ab],{type:'image/png'});
-      var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-      if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
-        // Mobile: native share sheet
-        navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
-          finish();
-        }).catch(function(){finish();});
-      } else {
-        // Desktop: direct download, same as PDF save pattern
-        var blobUrl=URL.createObjectURL(blob);
-        var a=document.createElement('a');
-        a.href=blobUrl;
-        a.download='notrojan-'+title+'-score-card.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(function(){URL.revokeObjectURL(blobUrl);},30000);
-        finish();
+      if(btn){
+        btn.textContent='\u2b07\ufe0f Save Score Card';
+        btn.disabled=false;
+        btn.style.opacity='1';
+        btn.onclick=function(){
+          var byteString=atob(dataUrl.split(',')[1]);
+          var ab=new ArrayBuffer(byteString.length);
+          var ia=new Uint8Array(ab);
+          for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
+          var blob=new Blob([ab],{type:'image/png'});
+          var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
+          if(navigator.canShare && navigator.canShare({files:[file]})){
+            navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
+              btn.textContent='\u2705 SAVED!';
+              btn.style.color='var(--green)';
+              setTimeout(function(){ finish(); },1500);
+            }).catch(function(){finish();});
+          } else {
+            var reader=new FileReader();
+            reader.onload=function(e){
+              var a=document.createElement('a');
+              a.href=e.target.result;
+              a.download='notrojan-'+title+'-score-card.png';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              finish();
+            };
+            reader.readAsDataURL(blob);
+          }
+          btn.onclick=downloadShareCard;
+        };
       }
     }).catch(()=>{ if(tempWrap){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
   };
