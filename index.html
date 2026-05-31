@@ -3397,24 +3397,45 @@ function downloadShareCard(){
           for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
           var blob=new Blob([ab],{type:'image/png'});
           var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-          if(navigator.canShare && navigator.canShare({files:[file]})){
+          if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
+            // Mobile: native share sheet saves to Photos
             navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
               btn.textContent='\u2705 SAVED!';
               btn.style.color='var(--green)';
               setTimeout(function(){ finish(); },1500);
             }).catch(function(){finish();});
           } else {
-            var reader=new FileReader();
-            reader.onload=function(e){
-              var a=document.createElement('a');
-              a.href=e.target.result;
-              a.download='notrojan-'+title+'-score-card.png';
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
+            // Desktop: show preview popup — user clicks Save to download
+            var previewUrl=URL.createObjectURL(blob);
+            var pd=document.createElement('div');
+            pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            pd.innerHTML='<div style="background:#020c06;border:1px solid var(--green,#00ff6a);border-top:3px solid var(--green,#00ff6a);max-width:420px;width:100%;padding:20px;text-align:center;">'
+              +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.75rem;letter-spacing:0.18em;color:var(--green,#00ff6a);text-transform:uppercase;margin-bottom:12px;">Score Card Ready</div>'
+              +'<img src="'+previewUrl+'" style="width:100%;display:block;margin:0 auto 16px;" />'
+              +'<button id="notSaveBtn" style="display:block;width:100%;padding:12px;background:var(--green,#00ff6a);color:#020c06;font-family:\'Barlow Condensed\',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;border:none;cursor:pointer;margin-bottom:10px;">Save Score Card</button>'
+              +'<button id="notCloseBtn" style="display:block;width:100%;padding:10px;background:transparent;border:1px solid #444;color:#aaa;font-family:\'Barlow Condensed\',sans-serif;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">Close</button>'
+              +'</div>';
+            document.body.appendChild(pd);
+            document.getElementById('notSaveBtn').onclick=function(){
+              var reader=new FileReader();
+              reader.onload=function(e){
+                var a=document.createElement('a');
+                a.href=e.target.result;
+                a.download='notrojan-'+title+'-score-card.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(previewUrl);
+                document.body.removeChild(pd);
+                finish();
+              };
+              reader.readAsDataURL(blob);
+            };
+            document.getElementById('notCloseBtn').onclick=function(){
+              URL.revokeObjectURL(previewUrl);
+              document.body.removeChild(pd);
               finish();
             };
-            reader.readAsDataURL(blob);
           }
           btn.onclick=downloadShareCard;
         };
