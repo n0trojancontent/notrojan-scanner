@@ -3382,19 +3382,18 @@ function downloadShareCard(){
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
     } else {
-      // Desktop: clone card into off-screen 390px container — exact mobile dimensions
+      // Desktop: move actual card into offscreen 390px container — forces identical reflow as mobile
+      var marker = document.createElement('span');
+      marker.id = '__card_marker__';
+      marker.style.display = 'none';
+      card.parentNode.insertBefore(marker, card);
       var offscreen = document.createElement('div');
       offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;width:390px;overflow:visible;background:transparent;';
-      var clone = card.cloneNode(true);
-      // Copy loaded images so they render sharp
-      var origImgs = card.querySelectorAll('img');
-      var cloneImgs = clone.querySelectorAll('img');
-      origImgs.forEach(function(img,i){ if(cloneImgs[i]) cloneImgs[i].src=img.src; });
+      document.body.appendChild(offscreen);
       tempWrap = document.createElement('div');
       tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-      tempWrap.appendChild(clone);
+      tempWrap.appendChild(card);
       offscreen.appendChild(tempWrap);
-      document.body.appendChild(offscreen);
       captureTarget = tempWrap;
     }
     void captureTarget.offsetWidth;
@@ -3403,17 +3402,13 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       } else if(!isMobile){
+        var mk=document.getElementById('__card_marker__');
+        if(mk){ mk.parentNode.insertBefore(card,mk); mk.parentNode.removeChild(mk); }
         var os=document.querySelector('div[style*="-9999px"]');
         if(os) document.body.removeChild(os);
       }
-      // Desktop: scale canvas to exactly 780x1030 (mobile dimensions) so IG preview fills identically
+      // Use canvas as-is — desktop captures at same mobile proportions via offscreen 390px container
       var finalCanvas = canvas;
-      if(!isMobile){
-        var fc = document.createElement('canvas');
-        fc.width = 780; fc.height = 1030;
-        fc.getContext('2d').drawImage(canvas, 0, 0, 780, 1030);
-        finalCanvas = fc;
-      }
       const dataUrl=finalCanvas.toDataURL('image/png');
       if(btn){
         btn.textContent='\u2b07\ufe0f Save Score Card';
