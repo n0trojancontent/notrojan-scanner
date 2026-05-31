@@ -3373,13 +3373,16 @@ function downloadShareCard(){
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
+    // Wrap on both mobile AND desktop so dimensions are identical
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
     tempWrap = document.createElement('div');
-    // Force 390px on desktop to match mobile capture width exactly
     if(isMobile){
       tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
     } else {
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:block;width:390px;box-sizing:border-box;overflow:hidden;';
+      // Desktop: force 390px so card reflows to mobile width
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:block;width:390px;box-sizing:border-box;';
+      card.style.setProperty('width','346px','important');
+      card.style.setProperty('max-width','346px','important');
     }
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
@@ -3389,6 +3392,12 @@ function downloadShareCard(){
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
+      }
+      // Restore card width on desktop
+      if(!isMobile){
+        card.style.width = '';
+        card.style.maxWidth = '';
+        card.style.boxSizing = '';
       }
       const dataUrl=canvas.toDataURL('image/png');
       if(btn){
@@ -3410,7 +3419,7 @@ function downloadShareCard(){
               setTimeout(function(){ finish(); },1500);
             }).catch(function(){finish();});
           } else {
-            // Desktop: canvas already captured at 390px — place on 1080x1080 square canvas
+            // Desktop: place already-captured 390px canvas onto 1080x1080 square (IG grid safe)
             var igCanvas=document.createElement('canvas');
             igCanvas.width=1080;
             igCanvas.height=1080;
