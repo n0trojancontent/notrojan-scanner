@@ -3380,33 +3380,41 @@ function downloadShareCard(){
     var prevW = wrapper ? wrapper.style.width : null;
     var prevMW = wrapper ? wrapper.style.maxWidth : null;
     if(wrapper){ wrapper.style.width='390px'; wrapper.style.maxWidth='390px'; }
-    // Capture imgBox rect BEFORE DOM changes so coords are valid during canvas draw
-    var imgBox = document.getElementById('wikiImgBox');
-    var imgBoxRect = imgBox ? imgBox.getBoundingClientRect() : null;
     tempWrap = document.createElement('div');
     tempWrap.style.cssText = 'background:'+borderCol+';padding:16px 0 18px 0;display:block;width:390px;box-sizing:border-box;';
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
-    var capTargetRect = captureTarget.getBoundingClientRect();
+    // Hide DOM horse before capture so html2canvas doesn't pick it up
+    var imgBox = document.getElementById('wikiImgBox');
+    var horseDiv = imgBox ? imgBox.querySelector('div:last-child') : null;
+    if(horseDiv && horseDiv.querySelector('img')){ horseDiv.style.display='none'; }
+    // Measure imgBox position relative to tempWrap for canvas drawing
+    var imgBoxOffsetLeft = 0, imgBoxOffsetTop = 0;
+    if(imgBox){
+      var el = imgBox;
+      while(el && el !== captureTarget){ imgBoxOffsetLeft += el.offsetLeft; imgBoxOffsetTop += el.offsetTop; el = el.offsetParent; }
+    }
     void captureTarget.offsetWidth;
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+      // Restore DOM horse after capture
+      if(horseDiv){ horseDiv.style.display=''; }
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
       if(wrapper){ wrapper.style.width=prevW; wrapper.style.maxWidth=prevMW; }
-      // Draw horse overlay directly onto canvas (reliable for all tiers; bypasses html2canvas DOM limits)
+      // Draw horse overlay onto canvas once (DOM horse was hidden during capture)
       await (function(){
         return new Promise(function(resolve){
           var score2 = window._lastResult ? (window._lastResult.score||0) : 0;
           var horseSrc = score2<25 ? notRedLogo : score2<50 ? notOrangeLogo : null;
-          if(!horseSrc || !imgBoxRect){ resolve(); return; }
+          if(!horseSrc || !imgBox){ resolve(); return; }
           var s = 2; // matches html2canvas scale
-          var relLeft = (imgBoxRect.left - capTargetRect.left) * s;
-          var relTop  = (imgBoxRect.top  - capTargetRect.top)  * s;
-          var boxW = imgBoxRect.width  * s;
-          var boxH = imgBoxRect.height * s;
+          var relLeft = imgBoxOffsetLeft * s;
+          var relTop  = imgBoxOffsetTop  * s;
+          var boxW = imgBox.offsetWidth  * s;
+          var boxH = imgBox.offsetHeight * s;
           var hi = new Image();
           hi.onload = function(){
             var ctx = canvas.getContext('2d');
