@@ -3382,15 +3382,16 @@ function downloadShareCard(){
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
     } else {
-      // Desktop: clone card into off-screen 390px container to force mobile layout
+      // Desktop: clone card into off-screen 390px container — exact mobile dimensions
       var offscreen = document.createElement('div');
       offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;width:390px;overflow:visible;background:transparent;';
       var clone = card.cloneNode(true);
-      clone.style.width = '346px';
-      clone.style.maxWidth = '346px';
-      clone.style.boxSizing = 'border-box';
+      // Copy loaded images so they render sharp
+      var origImgs = card.querySelectorAll('img');
+      var cloneImgs = clone.querySelectorAll('img');
+      origImgs.forEach(function(img,i){ if(cloneImgs[i]) cloneImgs[i].src=img.src; });
       tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:block;width:390px;box-sizing:border-box;';
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
       tempWrap.appendChild(clone);
       offscreen.appendChild(tempWrap);
       document.body.appendChild(offscreen);
@@ -3405,7 +3406,15 @@ function downloadShareCard(){
         var os=document.querySelector('div[style*="-9999px"]');
         if(os) document.body.removeChild(os);
       }
-      const dataUrl=canvas.toDataURL('image/png');
+      // Desktop: scale canvas to exactly 780x1030 (mobile dimensions) so IG preview fills identically
+      var finalCanvas = canvas;
+      if(!isMobile){
+        var fc = document.createElement('canvas');
+        fc.width = 780; fc.height = 1030;
+        fc.getContext('2d').drawImage(canvas, 0, 0, 780, 1030);
+        finalCanvas = fc;
+      }
+      const dataUrl=finalCanvas.toDataURL('image/png');
       if(btn){
         btn.textContent='\u2b07\ufe0f Save Score Card';
         btn.disabled=false;
