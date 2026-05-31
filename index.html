@@ -3373,13 +3373,18 @@ function downloadShareCard(){
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
-    // Wrap on both mobile AND desktop so dimensions are identical
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
     tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    // Force 390px on desktop to match mobile capture width exactly
+    if(isMobile){
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    } else {
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:block;width:390px;box-sizing:border-box;overflow:hidden;';
+    }
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
+    void captureTarget.offsetWidth;
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
@@ -3405,26 +3410,7 @@ function downloadShareCard(){
               setTimeout(function(){ finish(); },1500);
             }).catch(function(){finish();});
           } else {
-            // Desktop: re-capture card at 390px width (matches mobile) then place on 1080x1080 canvas
-            var wrapper2=document.getElementById('shareCardWrapper');
-            var prevW2=wrapper2?wrapper2.style.width:null;
-            var prevMW2=wrapper2?wrapper2.style.maxWidth:null;
-            if(wrapper2){wrapper2.style.width='390px';wrapper2.style.maxWidth='390px';}
-            void card.offsetWidth;
-            html2canvas(card,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(function(cardCanvas){
-            if(wrapper2){wrapper2.style.width=prevW2;wrapper2.style.maxWidth=prevMW2;}
-            // Wrap card canvas with border color padding to match mobile tempWrap
-            var padPx=56; // 28px * scale:2
-            var borderedW=cardCanvas.width;
-            var borderedH=cardCanvas.height+padPx*2;
-            var borderedCanvas=document.createElement('canvas');
-            borderedCanvas.width=borderedW;
-            borderedCanvas.height=borderedH;
-            var bCtx=borderedCanvas.getContext('2d');
-            bCtx.fillStyle=borderCol;
-            bCtx.fillRect(0,0,borderedW,borderedH);
-            bCtx.drawImage(cardCanvas,0,padPx);
-            // Place bordered card on 1080x1080 square canvas
+            // Desktop: canvas already captured at 390px — place on 1080x1080 square canvas
             var igCanvas=document.createElement('canvas');
             igCanvas.width=1080;
             igCanvas.height=1080;
@@ -3432,11 +3418,11 @@ function downloadShareCard(){
             igCtx.fillStyle=borderCol;
             igCtx.fillRect(0,0,1080,1080);
             var targetW=900;
-            var targetH=Math.round(borderedH*(targetW/borderedW));
-            if(targetH>1000){targetH=1000;targetW=Math.round(borderedW*(targetH/borderedH));}
+            var targetH=Math.round(canvas.height*(targetW/canvas.width));
+            if(targetH>1000){targetH=1000;targetW=Math.round(canvas.width*(targetH/canvas.height));}
             var offsetX=Math.round((1080-targetW)/2);
             var offsetY=Math.round((1080-targetH)/2);
-            igCtx.drawImage(borderedCanvas,offsetX,offsetY,targetW,targetH);
+            igCtx.drawImage(canvas,offsetX,offsetY,targetW,targetH);
             igCanvas.toBlob(function(igBlob){
               var igUrl=URL.createObjectURL(igBlob);
               var pd=document.createElement('div');
@@ -3469,7 +3455,6 @@ function downloadShareCard(){
                 finish();
               };
             },'image/png');
-            }).catch(function(){finish();});
           }
           btn.onclick=downloadShareCard;
         };
