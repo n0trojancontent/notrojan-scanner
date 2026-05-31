@@ -3369,53 +3369,35 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
+    // Same capture path for mobile and desktop
     var isMobile = window.innerWidth <= 600;
+    var captureTarget = card;
+    var tempWrap = null;
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-    // Build 4:5 card (900×1125) inside off-screen 342px container, then composite onto 1080×1080 square canvas
-    var prevWidth = card.style.width;
-    var prevMaxWidth = card.style.maxWidth;
-    var prevBoxSizing = card.style.boxSizing;
-    card.style.width = '342px';
-    card.style.maxWidth = '342px';
-    card.style.boxSizing = 'border-box';
-    var offscreen = document.createElement('div');
-    offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;width:342px;overflow:visible;z-index:-1;';
-    var tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:#020c06;padding:0;display:inline-block;width:342px;';
-    offscreen.appendChild(tempWrap);
+    tempWrap = document.createElement('div');
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
-    document.body.appendChild(offscreen);
-    html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true}).then(async cardCanvas=>{
-      // Restore card
-      tempWrap.parentNode && tempWrap.parentNode.removeChild(tempWrap);
-      document.body.removeChild(offscreen);
-      card.style.width = prevWidth;
-      card.style.maxWidth = prevMaxWidth;
-      card.style.boxSizing = prevBoxSizing;
-      // Scale card to 900px wide (4:5), place centered in 1080x1080 square canvas
-      var cw = cardCanvas.width;
-      var ch = cardCanvas.height;
-      var drawW = 900;
-      var drawH = Math.round(ch * (900 / cw));
-      // Canvas: 1080 wide, height = max(1080, drawH + 90px padding)
-      var canvasW = 1080;
-      var canvasH = Math.max(1080, drawH + 90);
-      var finalCanvas = document.createElement('canvas');
-      finalCanvas.width = canvasW;
-      finalCanvas.height = canvasH;
-      var ctx = finalCanvas.getContext('2d');
-      ctx.fillStyle = '#020c06';
-      ctx.fillRect(0, 0, canvasW, canvasH);
-      var x = Math.round((canvasW - drawW) / 2);
-      var y = Math.round((canvasH - drawH) / 2);
-      ctx.drawImage(cardCanvas, x, y, drawW, drawH);
-      const dataUrl=finalCanvas.toDataURL('image/png');
-      // Fire immediately — no second click, no auto-download
-      var blob=new Blob([new Uint8Array(atob(dataUrl.split(',')[1]).split('').map(function(c){return c.charCodeAt(0);}))],{type:'image/png'});
+    captureTarget = tempWrap;
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+      if(tempWrap){
+        tempWrap.parentNode.insertBefore(card, tempWrap);
+        tempWrap.parentNode.removeChild(tempWrap);
+      }
+      const dataUrl=canvas.toDataURL('image/png');
+      var byteString=atob(dataUrl.split(',')[1]);
+      var ab=new ArrayBuffer(byteString.length);
+      var ia=new Uint8Array(ab);
+      for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
+      var blob=new Blob([ab],{type:'image/png'});
       var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
       if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
-        navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){ finish(); }).catch(function(){ finish(); });
+        // Mobile: native share sheet
+        navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
+          finish();
+        }).catch(function(){finish();});
       } else {
+        // Desktop: show preview popup — right-click image to save
         var blobUrl=URL.createObjectURL(blob);
         var pd=document.createElement('div');
         pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
@@ -3432,7 +3414,7 @@ function downloadShareCard(){
           finish();
         };
       }
-    }).catch(()=>{ if(offscreen && offscreen.parentNode){ offscreen.parentNode.removeChild(offscreen); } card.style.width=prevWidth; card.style.maxWidth=prevMaxWidth; card.style.boxSizing=prevBoxSizing; finish(); });
+    }).catch(()=>{ if(tempWrap){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
