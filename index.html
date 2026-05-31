@@ -3381,8 +3381,9 @@ function downloadShareCard(){
     } else {
       // Desktop: force 390px so card reflows to mobile width
       tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:block;width:390px;box-sizing:border-box;';
-      card.style.setProperty('width','346px','important');
-      card.style.setProperty('max-width','346px','important');
+      card.style.setProperty('width','390px','important');
+      card.style.setProperty('max-width','390px','important');
+      card.style.setProperty('box-sizing','border-box','important');
     }
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
