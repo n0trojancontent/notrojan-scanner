@@ -3373,34 +3373,17 @@ function downloadShareCard(){
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
-    // Wrap on both mobile AND desktop so dimensions are identical
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
+    // Same capture for mobile and desktop — tempWrap shrinks to card's natural width
     tempWrap = document.createElement('div');
-    if(isMobile){
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-    } else {
-      // Desktop: force wrapper AND modal to exactly 390px so card renders at mobile width
-      var scModal = document.getElementById('shareCardModal');
-      var scWrapper = document.getElementById('shareCardWrapper');
-      if(scModal){ scModal._prevFlex = scModal.style.justifyContent; scModal.style.justifyContent='flex-start'; }
-      if(scWrapper){ scWrapper._prevW = scWrapper.style.width; scWrapper._prevMW = scWrapper.style.maxWidth; scWrapper.style.width='390px'; scWrapper.style.maxWidth='390px'; }
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-    }
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
-    void captureTarget.offsetWidth;
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
-      }
-      // Restore wrapper/modal on desktop
-      if(!isMobile){
-        var scModal2 = document.getElementById('shareCardModal');
-        var scWrapper2 = document.getElementById('shareCardWrapper');
-        if(scWrapper2){ scWrapper2.style.width=scWrapper2._prevW||''; scWrapper2.style.maxWidth=scWrapper2._prevMW||'390px'; }
-        if(scModal2 && scModal2._prevFlex !== undefined){ scModal2.style.justifyContent=scModal2._prevFlex; }
       }
       const dataUrl=canvas.toDataURL('image/png');
       if(btn){
@@ -3422,19 +3405,19 @@ function downloadShareCard(){
               setTimeout(function(){ finish(); },1500);
             }).catch(function(){finish();});
           } else {
-            // Desktop: place already-captured 390px canvas onto 1080x1080 square (IG grid safe)
+            // Desktop: place canvas on 1080x1080 square — card centered, tier color background
             var igCanvas=document.createElement('canvas');
             igCanvas.width=1080;
             igCanvas.height=1080;
             var igCtx=igCanvas.getContext('2d');
             igCtx.fillStyle=borderCol;
             igCtx.fillRect(0,0,1080,1080);
-            var targetW=900;
-            var targetH=Math.round(canvas.height*(targetW/canvas.width));
-            if(targetH>1000){targetH=1000;targetW=Math.round(canvas.width*(targetH/canvas.height));}
-            var offsetX=Math.round((1080-targetW)/2);
-            var offsetY=Math.round((1080-targetH)/2);
-            igCtx.drawImage(canvas,offsetX,offsetY,targetW,targetH);
+            // Scale card to fit 960px wide centered, preserving aspect ratio
+            var scaleW=960;
+            var scaleH=Math.round(canvas.height*(scaleW/canvas.width));
+            var offX=Math.round((1080-scaleW)/2);
+            var offY=Math.round((1080-scaleH)/2);
+            igCtx.drawImage(canvas,offX,offY,scaleW,scaleH);
             igCanvas.toBlob(function(igBlob){
               var igUrl=URL.createObjectURL(igBlob);
               var pd=document.createElement('div');
