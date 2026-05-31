@@ -3369,43 +3369,49 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
-    // On mobile wrap card in a padded container so top/bottom borders show
-    var isMobile = window.innerWidth <= 600;
-    var captureTarget = card;
-    var tempWrap = null;
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-    if(isMobile){
-      // Mobile: original path — wrap hugs natural card width, padding top/bottom only
-      tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-      card.parentNode.insertBefore(tempWrap, card);
-      tempWrap.appendChild(card);
-      captureTarget = tempWrap;
-    } else {
-      // Desktop: constrain to iPhone 14 card width (342px) with same padding as mobile
-      var prevWidth = card.style.width;
-      var prevMaxWidth = card.style.maxWidth;
-      var prevBoxSizing = card.style.boxSizing;
-      card.style.width = '342px';
-      card.style.maxWidth = '342px';
-      card.style.boxSizing = 'border-box';
-      tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-      card.parentNode.insertBefore(tempWrap, card);
-      tempWrap.appendChild(card);
-      captureTarget = tempWrap;
-    }
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
-      if(tempWrap){
-        tempWrap.parentNode.insertBefore(card, tempWrap);
-        tempWrap.parentNode.removeChild(tempWrap);
-        if(!isMobile){
-          card.style.width = prevWidth;
-          card.style.maxWidth = prevMaxWidth;
-          card.style.boxSizing = prevBoxSizing;
-        }
-      }
-      const dataUrl=canvas.toDataURL('image/png');
+    // Build 4:5 card (900×1125) inside off-screen 342px container, then composite onto 1080×1080 square canvas
+    var prevWidth = card.style.width;
+    var prevMaxWidth = card.style.maxWidth;
+    var prevBoxSizing = card.style.boxSizing;
+    card.style.width = '342px';
+    card.style.maxWidth = '342px';
+    card.style.boxSizing = 'border-box';
+    var offscreen = document.createElement('div');
+    offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;width:342px;overflow:visible;z-index:-1;';
+    var tempWrap = document.createElement('div');
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;width:342px;';
+    offscreen.appendChild(tempWrap);
+    tempWrap.appendChild(card);
+    document.body.appendChild(offscreen);
+    html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true}).then(async cardCanvas=>{
+      // Restore card
+      tempWrap.parentNode && tempWrap.parentNode.removeChild(tempWrap);
+      document.body.removeChild(offscreen);
+      card.style.width = prevWidth;
+      card.style.maxWidth = prevMaxWidth;
+      card.style.boxSizing = prevBoxSizing;
+      // Composite: draw card canvas centered inside 1080×1080 square
+      var OUT = 1080;
+      var finalCanvas = document.createElement('canvas');
+      finalCanvas.width = OUT;
+      finalCanvas.height = OUT;
+      var ctx = finalCanvas.getContext('2d');
+      ctx.fillStyle = borderCol;
+      ctx.fillRect(0, 0, OUT, OUT);
+      var cw = cardCanvas.width;   // at scale:2, ~684px
+      var ch = cardCanvas.height;  // at scale:2, ~proportional
+      // Scale card to fit within 900px wide (4:5 ratio target: 900×1125 at 1080 canvas)
+      var targetW = 900;
+      var scale = targetW / cw;
+      var drawW = Math.round(cw * scale);
+      var drawH = Math.round(ch * scale);
+      // If too tall, scale by height instead (1080px available)
+      if(drawH > OUT){ scale = OUT / ch; drawW = Math.round(cw * scale); drawH = Math.round(ch * scale); }
+      var x = Math.round((OUT - drawW) / 2);
+      var y = Math.round((OUT - drawH) / 2);
+      ctx.drawImage(cardCanvas, x, y, drawW, drawH);
+      const dataUrl=finalCanvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
       if(btn){
         btn.textContent='⬇️ Save Score Card';
@@ -3458,7 +3464,7 @@ function downloadShareCard(){
           btn.onclick=downloadShareCard;
         };
       }
-    }).catch(()=>{ if(tempWrap){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
+    }).catch(()=>{ if(offscreen && offscreen.parentNode){ offscreen.parentNode.removeChild(offscreen); } card.style.width=prevWidth; card.style.maxWidth=prevMaxWidth; card.style.boxSizing=prevBoxSizing; finish(); });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
