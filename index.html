@@ -3369,6 +3369,7 @@ function downloadShareCard(){
   const go=()=>{
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
+    var isMobile = window.innerWidth <= 600;
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
     // Build 4:5 card (900×1125) inside off-screen 342px container, then composite onto 1080×1080 square canvas
     var prevWidth = card.style.width;
