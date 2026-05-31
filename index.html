@@ -3413,56 +3413,26 @@ function downloadShareCard(){
       var y = Math.round((OUT - drawH) / 2);
       ctx.drawImage(cardCanvas, x, y, drawW, drawH);
       const dataUrl=finalCanvas.toDataURL('image/png');
-      // Show save button instead of auto-downloading
-      if(btn){
-        btn.textContent='⬇️ Save Score Card';
-        btn.disabled=false;
-        btn.style.opacity='1';
-        btn.onclick=function(){
-          var byteString=atob(dataUrl.split(',')[1]);
-          var ab=new ArrayBuffer(byteString.length);
-          var ia=new Uint8Array(ab);
-          for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
-          var blob=new Blob([ab],{type:'image/png'});
-          var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-          // Use Web Share API on mobile only
-          if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
-            navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
-              btn.textContent='✅ SAVED!';
-              btn.style.color='var(--green)';
-              setTimeout(function(){ finish(); },1500);
-            }).catch(function(){finish();});
-          } else {
-            // Desktop: show preview popup with Save Image button
-            var blobUrl=URL.createObjectURL(blob);
-            var pd=document.createElement('div');
-            pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
-            pd.innerHTML='<div style="background:#020c06;border:1px solid var(--green,#00ff6a);border-top:3px solid var(--green,#00ff6a);max-width:400px;width:100%;padding:20px;text-align:center;">'
-              +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.75rem;letter-spacing:0.18em;color:var(--green,#00ff6a);text-transform:uppercase;margin-bottom:12px;">Score Card Preview</div>'
-              +'<img src="'+blobUrl+'" style="width:100%;max-width:360px;display:block;margin:0 auto 16px;" />'
-              +'<button id="pdSaveBtn" style="width:100%;padding:13px;background:rgba(0,255,106,0.1);border:2px solid var(--green,#00ff6a);color:var(--green,#00ff6a);font-family:\'Barlow Condensed\',sans-serif;font-size:0.9rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;">⬇️ Save Image</button>'
-              +'<button id="pdCancelBtn" style="width:100%;padding:10px;background:transparent;border:1px solid #444;color:#aaa;font-family:\'Barlow Condensed\',sans-serif;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">Cancel</button>'
-              +'</div>';
-            document.body.appendChild(pd);
-            document.getElementById('pdSaveBtn').onclick=function(){
-              var link=document.createElement('a');
-              link.download=`notrojan-${title}-score-card.png`;
-              link.href=blobUrl;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              setTimeout(function(){URL.revokeObjectURL(blobUrl);},1000);
-              document.body.removeChild(pd);
-              btn.textContent='✅ SAVED!';
-              btn.style.color='var(--green,#00ff6a)';
-              setTimeout(function(){ finish(); },1500);
-            };
-            document.getElementById('pdCancelBtn').onclick=function(){
-              URL.revokeObjectURL(blobUrl);
-              document.body.removeChild(pd);
-            };
-          }
-          btn.onclick=downloadShareCard;
+      // Fire immediately — no second click, no auto-download
+      var blob=new Blob([new Uint8Array(atob(dataUrl.split(',')[1]).split('').map(function(c){return c.charCodeAt(0);}))],{type:'image/png'});
+      var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
+      if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){ finish(); }).catch(function(){ finish(); });
+      } else {
+        var blobUrl=URL.createObjectURL(blob);
+        var pd=document.createElement('div');
+        pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+        pd.innerHTML='<div style="background:#020c06;border:1px solid var(--green,#00ff6a);border-top:3px solid var(--green,#00ff6a);max-width:440px;width:100%;padding:20px;text-align:center;">'
+          +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.75rem;letter-spacing:0.18em;color:var(--green,#00ff6a);text-transform:uppercase;margin-bottom:6px;">Score Card Preview</div>'
+          +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.68rem;letter-spacing:0.1em;color:#888;margin-bottom:12px;">RIGHT-CLICK IMAGE → SAVE AS</div>'
+          +'<img src="'+blobUrl+'" style="width:100%;max-width:400px;display:block;margin:0 auto 16px;cursor:context-menu;" />'
+          +'<button id="pdCloseBtn" style="width:100%;padding:10px;background:transparent;border:1px solid #444;color:#aaa;font-family:\'Barlow Condensed\',sans-serif;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">Close</button>'
+          +'</div>';
+        document.body.appendChild(pd);
+        document.getElementById('pdCloseBtn').onclick=function(){
+          URL.revokeObjectURL(blobUrl);
+          document.body.removeChild(pd);
+          finish();
         };
       }
     }).catch(()=>{ if(offscreen && offscreen.parentNode){ offscreen.parentNode.removeChild(offscreen); } card.style.width=prevWidth; card.style.maxWidth=prevMaxWidth; card.style.boxSizing=prevBoxSizing; finish(); });
