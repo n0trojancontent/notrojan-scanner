@@ -3392,25 +3392,22 @@ function downloadShareCard(){
       card.style.width = prevWidth;
       card.style.maxWidth = prevMaxWidth;
       card.style.boxSizing = prevBoxSizing;
-      // Composite: draw card canvas centered inside 1080×1080 square
-      var OUT = 1080;
+      // Scale card to 900px wide (4:5), place centered in 1080x1080 square canvas
+      var cw = cardCanvas.width;
+      var ch = cardCanvas.height;
+      var drawW = 900;
+      var drawH = Math.round(ch * (900 / cw));
+      // Canvas: 1080 wide, height = max(1080, drawH + 90px padding)
+      var canvasW = 1080;
+      var canvasH = Math.max(1080, drawH + 90);
       var finalCanvas = document.createElement('canvas');
-      finalCanvas.width = OUT;
-      finalCanvas.height = OUT;
+      finalCanvas.width = canvasW;
+      finalCanvas.height = canvasH;
       var ctx = finalCanvas.getContext('2d');
       ctx.fillStyle = borderCol;
-      ctx.fillRect(0, 0, OUT, OUT);
-      var cw = cardCanvas.width;   // at scale:2, ~684px
-      var ch = cardCanvas.height;  // at scale:2, ~proportional
-      // Scale card to fit within 900px wide (4:5 ratio target: 900×1125 at 1080 canvas)
-      var targetW = 900;
-      var scale = targetW / cw;
-      var drawW = Math.round(cw * scale);
-      var drawH = Math.round(ch * scale);
-      // If too tall, scale by height instead (1080px available)
-      if(drawH > OUT){ scale = OUT / ch; drawW = Math.round(cw * scale); drawH = Math.round(ch * scale); }
-      var x = Math.round((OUT - drawW) / 2);
-      var y = Math.round((OUT - drawH) / 2);
+      ctx.fillRect(0, 0, canvasW, canvasH);
+      var x = Math.round((canvasW - drawW) / 2);
+      var y = Math.round((canvasH - drawH) / 2);
       ctx.drawImage(cardCanvas, x, y, drawW, drawH);
       const dataUrl=finalCanvas.toDataURL('image/png');
       // Fire immediately — no second click, no auto-download
