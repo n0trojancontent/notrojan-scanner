@@ -3153,7 +3153,7 @@ function handleShare(){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;';
 
   modal.innerHTML=`
-  <div id="shareCardWrapper" style="max-width:390px;width:100%;">
+  <div id="shareCardWrapper" style="max-width:390px;width:390px;">
     <div id="notShareCard" style="background:#020c06;border-left:22px solid ${col};border-right:22px solid ${col};border-top:6px solid ${col};border-bottom:4px solid ${col};padding:10px 14px;font-family:'Barlow Condensed',sans-serif;">
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;border-bottom:1px solid ${col}33;padding-bottom:8px;">
@@ -3390,7 +3390,7 @@ function downloadShareCard(){
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
     void captureTarget.offsetWidth;
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,windowWidth:390,width:390}).then(async canvas=>{
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
