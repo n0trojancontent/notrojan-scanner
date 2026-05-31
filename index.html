@@ -3390,7 +3390,7 @@ function downloadShareCard(){
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
     void captureTarget.offsetWidth;
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,windowWidth:390,width:390}).then(async canvas=>{
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
