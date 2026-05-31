@@ -3373,10 +3373,16 @@ function downloadShareCard(){
     var isMobile = window.innerWidth <= 600;
     var captureTarget = card;
     var tempWrap = null;
-    // Apply tier-color border wrap on both mobile and desktop for consistent card dimensions
+    // Force card to 360px fixed width so desktop matches mobile output
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
+    var prevWidth = card.style.width;
+    var prevMaxWidth = card.style.maxWidth;
+    var prevBoxSizing = card.style.boxSizing;
+    card.style.width = '360px';
+    card.style.maxWidth = '360px';
+    card.style.boxSizing = 'border-box';
     tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 16px;display:inline-block;width:392px;box-sizing:border-box;';
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
@@ -3384,6 +3390,9 @@ function downloadShareCard(){
       if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
+        card.style.width = prevWidth;
+        card.style.maxWidth = prevMaxWidth;
+        card.style.boxSizing = prevBoxSizing;
       }
       const dataUrl=canvas.toDataURL('image/png');
       // Show save button instead of auto-downloading
