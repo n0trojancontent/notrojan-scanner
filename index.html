@@ -3381,7 +3381,7 @@ function downloadShareCard(){
     var offscreen = document.createElement('div');
     offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;width:342px;overflow:visible;z-index:-1;';
     var tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;width:342px;';
+    tempWrap.style.cssText = 'background:#020c06;padding:0;display:inline-block;width:342px;';
     offscreen.appendChild(tempWrap);
     tempWrap.appendChild(card);
     document.body.appendChild(offscreen);
@@ -3404,7 +3404,7 @@ function downloadShareCard(){
       finalCanvas.width = canvasW;
       finalCanvas.height = canvasH;
       var ctx = finalCanvas.getContext('2d');
-      ctx.fillStyle = borderCol;
+      ctx.fillStyle = '#020c06';
       ctx.fillRect(0, 0, canvasW, canvasH);
       var x = Math.round((canvasW - drawW) / 2);
       var y = Math.round((canvasH - drawH) / 2);
