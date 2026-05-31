@@ -3387,16 +3387,7 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
-      // Desktop: resize canvas to exactly 780x1030 to match mobile saved PNG dimensions
-      var finalCanvas = canvas;
-      if(!isMobile){
-        var targetW=780, targetH=1030;
-        var fc=document.createElement('canvas');
-        fc.width=targetW; fc.height=targetH;
-        fc.getContext('2d').drawImage(canvas,0,0,targetW,targetH);
-        finalCanvas=fc;
-      }
-      const dataUrl=finalCanvas.toDataURL('image/png');
+      const dataUrl=canvas.toDataURL('image/png');
       if(btn){
         btn.textContent='\u2b07\ufe0f Save Score Card';
         btn.disabled=false;
