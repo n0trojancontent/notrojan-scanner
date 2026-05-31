@@ -3377,7 +3377,6 @@ function downloadShareCard(){
     // Same capture for mobile and desktop — tempWrap shrinks to card's natural width
     tempWrap = document.createElement('div');
     tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-    if(!isMobile){ tempWrap.style.width='358px'; }
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     captureTarget = tempWrap;
