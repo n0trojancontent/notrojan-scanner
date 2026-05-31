@@ -3405,51 +3405,38 @@ function downloadShareCard(){
               setTimeout(function(){ finish(); },1500);
             }).catch(function(){finish();});
           } else {
-            // Desktop: place canvas on 1080x1080 square — card centered, tier color background
-            var igCanvas=document.createElement('canvas');
-            igCanvas.width=1080;
-            igCanvas.height=1080;
-            var igCtx=igCanvas.getContext('2d');
-            igCtx.fillStyle=borderCol;
-            igCtx.fillRect(0,0,1080,1080);
-            // Scale card to fit 960px wide centered, preserving aspect ratio
-            var scaleW=960;
-            var scaleH=Math.round(canvas.height*(scaleW/canvas.width));
-            var offX=Math.round((1080-scaleW)/2);
-            var offY=Math.round((1080-scaleH)/2);
-            igCtx.drawImage(canvas,offX,offY,scaleW,scaleH);
-            igCanvas.toBlob(function(igBlob){
-              var igUrl=URL.createObjectURL(igBlob);
-              var pd=document.createElement('div');
-              pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-              pd.innerHTML='<div style="background:#020c06;border:1px solid var(--green,#00ff6a);border-top:3px solid var(--green,#00ff6a);max-width:420px;width:100%;padding:20px;text-align:center;">'
-                +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.75rem;letter-spacing:0.18em;color:var(--green,#00ff6a);text-transform:uppercase;margin-bottom:12px;">Score Card Ready</div>'
-                +'<img src="'+igUrl+'" style="width:100%;display:block;margin:0 auto 16px;" />'
-                +'<button id="notSaveBtn" style="display:block;width:100%;padding:12px;background:var(--green,#00ff6a);color:#020c06;font-family:\'Barlow Condensed\',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;border:none;cursor:pointer;margin-bottom:10px;">Save Score Card</button>'
-                +'<button id="notCloseBtn" style="display:block;width:100%;padding:10px;background:transparent;border:1px solid #444;color:#aaa;font-family:\'Barlow Condensed\',sans-serif;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">Close</button>'
-                +'</div>';
-              document.body.appendChild(pd);
-              document.getElementById('notSaveBtn').onclick=function(){
-                var reader=new FileReader();
-                reader.onload=function(e){
-                  var a=document.createElement('a');
-                  a.href=e.target.result;
-                  a.download='notrojan-'+title+'-score-card.png';
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(igUrl);
-                  document.body.removeChild(pd);
-                  finish();
-                };
-                reader.readAsDataURL(igBlob);
-              };
-              document.getElementById('notCloseBtn').onclick=function(){
-                URL.revokeObjectURL(igUrl);
-                document.body.removeChild(pd);
-                finish();
-              };
-            },'image/png');
+            // Desktop: use the exact same captured Score Card image as mobile.
+            // Do NOT re-canvas into a square post, resize, crop, or auto-save.
+            var desktopUrl=URL.createObjectURL(blob);
+            var pd=document.createElement('div');
+            pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            pd.innerHTML='<div style="background:#020c06;border:1px solid var(--green,#00ff6a);border-top:3px solid var(--green,#00ff6a);max-width:420px;width:100%;padding:20px;text-align:center;">'
+              +'<div style="font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:0.18em;color:var(--green,#00ff6a);text-transform:uppercase;margin-bottom:12px;">Score Card Ready</div>'
+              +'<img src="'+desktopUrl+'" style="width:100%;display:block;margin:0 auto 16px;" />'
+              +'<button id="notSaveBtn" style="display:block;width:100%;padding:12px;background:var(--green,#00ff6a);color:#020c06;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;border:none;cursor:pointer;margin-bottom:10px;">Save Score Card</button>'
+              +'<button id="notCloseBtn" style="display:block;width:100%;padding:10px;background:transparent;border:1px solid #444;color:#aaa;font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">Close</button>'
+              +'</div>';
+            document.body.appendChild(pd);
+            document.getElementById('notSaveBtn').onclick=function(){
+              var a=document.createElement('a');
+              a.href=desktopUrl;
+              a.download='notrojan-'+title+'-score-card.png';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(desktopUrl);
+              document.body.removeChild(pd);
+              finish();
+            };
+            document.getElementById('notCloseBtn').onclick=function(){
+              URL.revokeObjectURL(desktopUrl);
+              document.body.removeChild(pd);
+              if(btn){
+                btn.textContent='📲 Share to Social Media';
+                btn.disabled=false;
+                btn.style.opacity='1';
+              }
+            };
           }
           btn.onclick=downloadShareCard;
         };
