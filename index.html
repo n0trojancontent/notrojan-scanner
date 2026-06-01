@@ -3382,29 +3382,35 @@ function downloadShareCard(){
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
     } else {
-      // Desktop: identical wrap-in-place as mobile
+      // Desktop: force card to 390px width with !important to trigger true reflow, then capture, then restore
+      var _savedW = card.style.width;
+      var _savedMinW = card.style.minWidth;
+      var _savedMaxW = card.style.maxWidth;
+      card.style.setProperty('width','390px','important');
+      card.style.setProperty('min-width','0','important');
+      card.style.setProperty('max-width','390px','important');
+      void card.offsetHeight; // force synchronous reflow
       tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-      card.parentNode.insertBefore(tempWrap, card);
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;position:fixed;left:-9999px;top:0;';
+      document.body.appendChild(tempWrap);
       tempWrap.appendChild(card);
+      void tempWrap.offsetHeight;
       captureTarget = tempWrap;
     }
     void captureTarget.offsetWidth;
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,scrollX:0,scrollY:0}).then(async canvas=>{
-      if(tempWrap){
+    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true,scrollX:0,scrollY:0,windowWidth:390,windowHeight:844}).then(async canvas=>{
+      if(isMobile && tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
+      } else if(!isMobile){
+        card.style.width = _savedW;
+        card.style.minWidth = _savedMinW;
+        card.style.maxWidth = _savedMaxW;
+        var wrapper = document.getElementById('shareCardWrapper');
+        if(wrapper) wrapper.appendChild(card);
+        if(tempWrap && tempWrap.parentNode) tempWrap.parentNode.removeChild(tempWrap);
       }
-      // Desktop: scale canvas proportionally to 780px wide (mobile output width), preserve aspect ratio
       var finalCanvas = canvas;
-      if(!isMobile && canvas.width > 780){
-        var fc = document.createElement('canvas');
-        var ratio = 780 / canvas.width;
-        fc.width = 780;
-        fc.height = Math.round(canvas.height * ratio);
-        fc.getContext('2d').drawImage(canvas, 0, 0, fc.width, fc.height);
-        finalCanvas = fc;
-      }
       const dataUrl=finalCanvas.toDataURL('image/png');
       if(btn){
         btn.textContent='\u2b07\ufe0f Save Score Card';
