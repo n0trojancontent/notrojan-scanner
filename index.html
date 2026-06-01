@@ -3374,51 +3374,18 @@ function downloadShareCard(){
     var captureTarget = card;
     var tempWrap = null;
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-    if(isMobile){
-      // Mobile: wrap card — UNTOUCHED
-      tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-      card.parentNode.insertBefore(tempWrap, card);
-      tempWrap.appendChild(card);
-      captureTarget = tempWrap;
-    } else {
-      // Desktop: clone card into off-screen container, force to mobile dimensions
-      var offscreen = document.createElement('div');
-      offscreen.style.cssText = 'position:fixed;left:-9999px;top:0;width:390px;overflow:hidden;background:transparent;';
-      var clone = card.cloneNode(true);
-      // Copy loaded images so they render sharp
-      var origImgs = card.querySelectorAll('img');
-      var cloneImgs = clone.querySelectorAll('img');
-      origImgs.forEach(function(img,i){ if(cloneImgs[i]) cloneImgs[i].src=img.src; });
-      // Force clone to exact mobile card width
-      clone.style.cssText = clone.getAttribute('style') + ';width:346px!important;max-width:346px!important;min-width:0!important;box-sizing:content-box!important;display:block!important;';
-      tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:block;width:390px;box-sizing:border-box;';
-      tempWrap.appendChild(clone);
-      offscreen.appendChild(tempWrap);
-      document.body.appendChild(offscreen);
-      captureTarget = tempWrap;
-    }
-    void captureTarget.offsetWidth;
+    // IDENTICAL capture for mobile and desktop
+    tempWrap = document.createElement('div');
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    card.parentNode.insertBefore(tempWrap, card);
+    tempWrap.appendChild(card);
+    captureTarget = tempWrap;
     html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
-      if(isMobile && tempWrap){
+      if(tempWrap){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
-      } else if(!isMobile){
-        var os=document.querySelector('div[style*="-9999px"]');
-        if(os) document.body.removeChild(os);
       }
-      // Desktop: scale down to 716px to compensate for desktop font rendering vs mobile
-      var finalCanvas = canvas;
-      if(!isMobile){
-        var targetW = 716;
-        var targetH = Math.round(canvas.height * (targetW / canvas.width));
-        var fc = document.createElement('canvas');
-        fc.width = targetW; fc.height = targetH;
-        fc.getContext('2d').drawImage(canvas, 0, 0, targetW, targetH);
-        finalCanvas = fc;
-      }
-      const dataUrl = finalCanvas.toDataURL('image/png');
+      const dataUrl = canvas.toDataURL('image/png');
       if(btn){
         btn.textContent='\u2b07\ufe0f Save Score Card';
         btn.disabled=false;
