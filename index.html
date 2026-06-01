@@ -3408,10 +3408,10 @@ function downloadShareCard(){
         var os=document.querySelector('div[style*="-9999px"]');
         if(os) document.body.removeChild(os);
       }
-      // Desktop: scale output to 780px wide (iPhone 14 width), proportional height
+      // Desktop: scale down to 716px to compensate for desktop font rendering vs mobile
       var finalCanvas = canvas;
       if(!isMobile){
-        var targetW = 780;
+        var targetW = 716;
         var targetH = Math.round(canvas.height * (targetW / canvas.width));
         var fc = document.createElement('canvas');
         fc.width = targetW; fc.height = targetH;
