@@ -3382,7 +3382,7 @@ function downloadShareCard(){
       tempWrap.appendChild(card);
       captureTarget = tempWrap;
     } else {
-      // Desktop: identical wrap-in-place as mobile — same DOM operation, same capture
+      // Desktop: identical wrap-in-place as mobile
       tempWrap = document.createElement('div');
       tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
       card.parentNode.insertBefore(tempWrap, card);
@@ -3395,8 +3395,16 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
-      // Use canvas as-is — desktop captures at same mobile proportions via offscreen 390px container
+      // Desktop: scale canvas proportionally to 780px wide (mobile output width), preserve aspect ratio
       var finalCanvas = canvas;
+      if(!isMobile && canvas.width > 780){
+        var fc = document.createElement('canvas');
+        var ratio = 780 / canvas.width;
+        fc.width = 780;
+        fc.height = Math.round(canvas.height * ratio);
+        fc.getContext('2d').drawImage(canvas, 0, 0, fc.width, fc.height);
+        finalCanvas = fc;
+      }
       const dataUrl=finalCanvas.toDataURL('image/png');
       if(btn){
         btn.textContent='\u2b07\ufe0f Save Score Card';
