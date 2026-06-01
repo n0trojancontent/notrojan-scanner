@@ -3371,31 +3371,29 @@ function downloadShareCard(){
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     var isMobile = window.innerWidth <= 600;
-    var captureTarget = card;
-    var tempWrap = null;
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-    // IDENTICAL capture for mobile and desktop
-    tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    // ── Force consistent font rendering for desktop/mobile parity ────────────
+    // Desktop viewport is wider → rem units may compute differently → card taller.
+    // Lock html font-size to 16px and card width to exact mobile value before capture.
+    var origHtmlFontSize = document.documentElement.style.fontSize;
+    var origCardWidth    = card.style.width;
+    var origCardMaxWidth = card.style.maxWidth;
+    document.documentElement.style.fontSize = '16px';
+    card.style.width    = '346px';   // 390 total − 22px left border − 22px right border
+    card.style.maxWidth = '346px';
+    // ── Wrap and capture ─────────────────────────────────────────────────────
+    var tempWrap = document.createElement('div');
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;width:390px;box-sizing:border-box;';
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
-    captureTarget = tempWrap;
-    html2canvas(captureTarget,{backgroundColor:'#020c06',scale:2,useCORS:true,allowTaint:true}).then(async canvas=>{
-      if(tempWrap){
-        tempWrap.parentNode.insertBefore(card, tempWrap);
-        tempWrap.parentNode.removeChild(tempWrap);
-      }
-      // Desktop: scale down to 650px to compensate for larger desktop font rendering
-      var finalCanvas = canvas;
-      if(!isMobile){
-        var tW = 650;
-        var tH = Math.round(canvas.height * (tW / canvas.width));
-        var fc = document.createElement('canvas');
-        fc.width = tW; fc.height = tH;
-        fc.getContext('2d').drawImage(canvas, 0, 0, tW, tH);
-        finalCanvas = fc;
-      }
-      const dataUrl = finalCanvas.toDataURL('image/png');
+    html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true,width:390,windowWidth:390}).then(async canvas=>{
+      // Restore original styles
+      document.documentElement.style.fontSize = origHtmlFontSize;
+      card.style.width    = origCardWidth;
+      card.style.maxWidth = origCardMaxWidth;
+      tempWrap.parentNode.insertBefore(card, tempWrap);
+      tempWrap.parentNode.removeChild(tempWrap);
+      const dataUrl = canvas.toDataURL('image/png');
       if(btn){
         btn.textContent='\u2b07\ufe0f Save Score Card';
         btn.disabled=false;
@@ -3451,7 +3449,7 @@ function downloadShareCard(){
           btn.onclick=downloadShareCard;
         };
       }
-    }).catch(()=>{ if(tempWrap){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
+    }).catch(()=>{ document.documentElement.style.fontSize=origHtmlFontSize; card.style.width=origCardWidth; card.style.maxWidth=origCardMaxWidth; if(tempWrap&&tempWrap.parentNode){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
