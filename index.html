@@ -3372,28 +3372,36 @@ function downloadShareCard(){
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     var isMobile = window.innerWidth <= 600;
     var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-    // ── Force consistent font rendering for desktop/mobile parity ────────────
-    // Desktop viewport is wider → rem units may compute differently → card taller.
-    // Lock html font-size to 16px and card width to exact mobile value before capture.
-    var origHtmlFontSize = document.documentElement.style.fontSize;
-    var origCardWidth    = card.style.width;
-    var origCardMaxWidth = card.style.maxWidth;
-    document.documentElement.style.fontSize = '16px';
-    card.style.width    = '346px';   // 390 total − 22px left border − 22px right border
-    card.style.maxWidth = '346px';
     // ── Wrap and capture ─────────────────────────────────────────────────────
     var tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;width:390px;box-sizing:border-box;';
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
-    html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true,width:390,windowWidth:390}).then(async canvas=>{
-      // Restore original styles
-      document.documentElement.style.fontSize = origHtmlFontSize;
-      card.style.width    = origCardWidth;
-      card.style.maxWidth = origCardMaxWidth;
+    html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true}).then(async rawCanvas=>{
       tempWrap.parentNode.insertBefore(card, tempWrap);
       tempWrap.parentNode.removeChild(tempWrap);
-      const dataUrl = canvas.toDataURL('image/png');
+      // ── Desktop: stamp onto 1080×1350 (4:5 IG portrait) ──────────────────
+      // Card is scaled uniformly to fit height — same trading card design,
+      // just sized to fit IG. Small border-color bands on sides. Mobile untouched.
+      var finalCanvas;
+      if(!isMobile){
+        var OUT_W = 1080, OUT_H = 1350;
+        finalCanvas = document.createElement('canvas');
+        finalCanvas.width  = OUT_W;
+        finalCanvas.height = OUT_H;
+        var ctx = finalCanvas.getContext('2d');
+        ctx.fillStyle = borderCol;
+        ctx.fillRect(0, 0, OUT_W, OUT_H);
+        // Scale to fit height, center horizontally
+        var scale  = OUT_H / rawCanvas.height;
+        var scaledW = Math.round(rawCanvas.width * scale);
+        var scaledH = OUT_H;
+        var offsetX = Math.round((OUT_W - scaledW) / 2);
+        ctx.drawImage(rawCanvas, offsetX, 0, scaledW, scaledH);
+      } else {
+        finalCanvas = rawCanvas;
+      }
+      const dataUrl = finalCanvas.toDataURL('image/png');
       if(btn){
         btn.textContent='\u2b07\ufe0f Save Score Card';
         btn.disabled=false;
@@ -3449,7 +3457,7 @@ function downloadShareCard(){
           btn.onclick=downloadShareCard;
         };
       }
-    }).catch(()=>{ document.documentElement.style.fontSize=origHtmlFontSize; card.style.width=origCardWidth; card.style.maxWidth=origCardMaxWidth; if(tempWrap&&tempWrap.parentNode){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
+    }).catch(()=>{ if(tempWrap&&tempWrap.parentNode){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
