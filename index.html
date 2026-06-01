@@ -3385,10 +3385,10 @@ function downloadShareCard(){
         tempWrap.parentNode.insertBefore(card, tempWrap);
         tempWrap.parentNode.removeChild(tempWrap);
       }
-      // Desktop: scale down to 780px to match iPhone 14 mobile output size
+      // Desktop: scale down to 650px to compensate for larger desktop font rendering
       var finalCanvas = canvas;
-      if(!isMobile && canvas.width > 780){
-        var tW = 780;
+      if(!isMobile){
+        var tW = 650;
         var tH = Math.round(canvas.height * (tW / canvas.width));
         var fc = document.createElement('canvas');
         fc.width = tW; fc.height = tH;
