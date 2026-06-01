@@ -3380,25 +3380,32 @@ function downloadShareCard(){
     html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true}).then(async rawCanvas=>{
       tempWrap.parentNode.insertBefore(card, tempWrap);
       tempWrap.parentNode.removeChild(tempWrap);
-      // ── Stamp onto 1080×1350 (4:5 IG portrait) — mobile + desktop ─────────
-      var OUT_W = 1080, OUT_H = 1350;
-      var finalCanvas = document.createElement('canvas');
-      finalCanvas.width  = OUT_W;
-      finalCanvas.height = OUT_H;
-      var ctx = finalCanvas.getContext('2d');
-      ctx.fillStyle = borderCol;
-      ctx.fillRect(0, 0, OUT_W, OUT_H);
-      // Scale to fit width, crop symmetrically top/bottom if taller than OUT_H
-      var scale   = OUT_W / rawCanvas.width;
-      var scaledW = OUT_W;
-      var scaledH = Math.round(rawCanvas.height * scale);
-      if(scaledH <= OUT_H){
-        var dstY = Math.round((OUT_H - scaledH) / 2);
-        ctx.drawImage(rawCanvas, 0, dstY, scaledW, scaledH);
+      // ── Desktop: stamp onto 1080×1350 (4:5 IG portrait) ──────────────────
+      // Card is scaled uniformly to fit height — same trading card design,
+      // just sized to fit IG. Small border-color bands on sides. Mobile untouched.
+      var finalCanvas;
+      if(!isMobile){
+        var OUT_W = 1080, OUT_H = 1350;
+        finalCanvas = document.createElement('canvas');
+        finalCanvas.width  = OUT_W;
+        finalCanvas.height = OUT_H;
+        var ctx = finalCanvas.getContext('2d');
+        ctx.fillStyle = borderCol;
+        ctx.fillRect(0, 0, OUT_W, OUT_H);
+        // Scale to fit width, crop symmetrically top/bottom if taller than OUT_H
+        var scale   = OUT_W / rawCanvas.width;
+        var scaledW = OUT_W;
+        var scaledH = Math.round(rawCanvas.height * scale);
+        if(scaledH <= OUT_H){
+          var dstY = Math.round((OUT_H - scaledH) / 2);
+          ctx.drawImage(rawCanvas, 0, dstY, scaledW, scaledH);
+        } else {
+          var srcCropY = Math.round(((scaledH - OUT_H) / 2) / scale);
+          var srcH     = Math.round(OUT_H / scale);
+          ctx.drawImage(rawCanvas, 0, srcCropY, rawCanvas.width, srcH, 0, 0, scaledW, OUT_H);
+        }
       } else {
-        var srcCropY = Math.round(((scaledH - OUT_H) / 2) / scale);
-        var srcH     = Math.round(OUT_H / scale);
-        ctx.drawImage(rawCanvas, 0, srcCropY, rawCanvas.width, srcH, 0, 0, scaledW, OUT_H);
+        finalCanvas = rawCanvas;
       }
       const dataUrl = finalCanvas.toDataURL('image/png');
       if(btn){
