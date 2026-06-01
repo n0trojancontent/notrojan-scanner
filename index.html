@@ -3392,12 +3392,12 @@ function downloadShareCard(){
         var ctx = finalCanvas.getContext('2d');
         ctx.fillStyle = borderCol;
         ctx.fillRect(0, 0, OUT_W, OUT_H);
-        // Scale to fit height, center horizontally
-        var scale  = OUT_H / rawCanvas.height;
-        var scaledW = Math.round(rawCanvas.width * scale);
-        var scaledH = OUT_H;
-        var offsetX = Math.round((OUT_W - scaledW) / 2);
-        ctx.drawImage(rawCanvas, offsetX, 0, scaledW, scaledH);
+        // Scale to fit width — card fills frame like mobile, center vertically
+        var scale   = OUT_W / rawCanvas.width;
+        var scaledW = OUT_W;
+        var scaledH = Math.round(rawCanvas.height * scale);
+        var offsetY = Math.max(0, Math.round((OUT_H - scaledH) / 2));
+        ctx.drawImage(rawCanvas, 0, offsetY, scaledW, scaledH);
       } else {
         finalCanvas = rawCanvas;
       }
