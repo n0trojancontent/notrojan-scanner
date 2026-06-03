@@ -3371,28 +3371,60 @@ function downloadShareCard(){
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     var isMobile = window.innerWidth <= 600;
-    var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-    // ── Wrap and capture ─────────────────────────────────────────────────────
-    var tempWrap = document.createElement('div');
-    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-    card.parentNode.insertBefore(tempWrap, card);
-    tempWrap.appendChild(card);
-    html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true}).then(async rawCanvas=>{
-      tempWrap.parentNode.insertBefore(card, tempWrap);
-      tempWrap.parentNode.removeChild(tempWrap);
-      // ── Desktop: stamp onto 1080×1350 (4:5 IG portrait) ──────────────────
-      // Card is scaled uniformly to fit height — same trading card design,
-      // just sized to fit IG. Small border-color bands on sides. Mobile untouched.
-      var finalCanvas;
-      if(!isMobile){
+
+    if(isMobile){
+      // ── MOBILE: from mobilescgooddesktopscmessedup — scale:3, raw canvas, navigator.share ──
+      var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
+      var tempWrap = document.createElement('div');
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+      card.parentNode.insertBefore(tempWrap, card);
+      tempWrap.appendChild(card);
+      html2canvas(tempWrap,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true}).then(async canvas=>{
+        tempWrap.parentNode.insertBefore(card, tempWrap);
+        tempWrap.parentNode.removeChild(tempWrap);
+        const dataUrl=canvas.toDataURL('image/png');
+        if(btn){
+          btn.textContent='\u2b07\ufe0f Save Score Card';
+          btn.disabled=false;
+          btn.style.opacity='1';
+          btn.onclick=function(){
+            var byteString=atob(dataUrl.split(',')[1]);
+            var ab=new ArrayBuffer(byteString.length);
+            var ia=new Uint8Array(ab);
+            for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
+            var blob=new Blob([ab],{type:'image/png'});
+            var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
+            if(navigator.canShare && navigator.canShare({files:[file]})){
+              navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
+                btn.textContent='\u2705 SAVED!';
+                btn.style.color='var(--green)';
+                setTimeout(function(){ finish(); },1500);
+              }).catch(function(){finish();});
+            } else {
+              finish();
+            }
+            btn.onclick=downloadShareCard;
+          };
+        }
+      }).catch(()=>{ if(tempWrap&&tempWrap.parentNode){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
+
+    } else {
+      // ── DESKTOP: from index.html — untouched ──────────────────────────────
+      var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
+      var tempWrap = document.createElement('div');
+      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+      card.parentNode.insertBefore(tempWrap, card);
+      tempWrap.appendChild(card);
+      html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true}).then(async rawCanvas=>{
+        tempWrap.parentNode.insertBefore(card, tempWrap);
+        tempWrap.parentNode.removeChild(tempWrap);
         var OUT_W = 1080, OUT_H = 1350;
-        finalCanvas = document.createElement('canvas');
+        var finalCanvas = document.createElement('canvas');
         finalCanvas.width  = OUT_W;
         finalCanvas.height = OUT_H;
         var ctx = finalCanvas.getContext('2d');
         ctx.fillStyle = borderCol;
         ctx.fillRect(0, 0, OUT_W, OUT_H);
-        // Scale to fit width, crop symmetrically top/bottom if taller than OUT_H
         var scale   = OUT_W / rawCanvas.width;
         var scaledW = OUT_W;
         var scaledH = Math.round(rawCanvas.height * scale);
@@ -3404,49 +3436,18 @@ function downloadShareCard(){
           var srcH     = Math.round(OUT_H / scale);
           ctx.drawImage(rawCanvas, 0, srcCropY, rawCanvas.width, srcH, 0, 0, scaledW, OUT_H);
         }
-      } else {
-        // Mobile: same 1080×1350 stamp as desktop — identical border/card ratio on IG wall
-        var OUT_W = 1080, OUT_H = 1350;
-        finalCanvas = document.createElement('canvas');
-        finalCanvas.width  = OUT_W;
-        finalCanvas.height = OUT_H;
-        var mCtx = finalCanvas.getContext('2d');
-        mCtx.fillStyle = borderCol;
-        mCtx.fillRect(0, 0, OUT_W, OUT_H);
-        var mScale   = OUT_W / rawCanvas.width;
-        var mScaledW = OUT_W;
-        var mScaledH = Math.round(rawCanvas.height * mScale);
-        if(mScaledH <= OUT_H){
-          var mDstY = Math.round((OUT_H - mScaledH) / 2);
-          mCtx.drawImage(rawCanvas, 0, mDstY, mScaledW, mScaledH);
-        } else {
-          var mSrcCropY = Math.round(((mScaledH - OUT_H) / 2) / mScale);
-          var mSrcH     = Math.round(OUT_H / mScale);
-          mCtx.drawImage(rawCanvas, 0, mSrcCropY, rawCanvas.width, mSrcH, 0, 0, mScaledW, OUT_H);
-        }
-      }
-      const dataUrl = finalCanvas.toDataURL('image/png');
-      if(btn){
-        btn.textContent='\u2b07\ufe0f Save Score Card';
-        btn.disabled=false;
-        btn.style.opacity='1';
-        btn.onclick=function(){
-          var byteString=atob(dataUrl.split(',')[1]);
-          var ab=new ArrayBuffer(byteString.length);
-          var ia=new Uint8Array(ab);
-          for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
-          var blob=new Blob([ab],{type:'image/png'});
-          var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-          if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
-            // Mobile: native share sheet saves to Photos
-            navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
-              btn.textContent='\u2705 SAVED!';
-              btn.style.color='var(--green)';
-              setTimeout(function(){ finish(); },1500);
-            }).catch(function(){finish();});
-          } else {
-            // Desktop: use the exact same captured Score Card image as mobile.
-            // Do NOT re-canvas into a square post, resize, crop, or auto-save.
+        const dataUrl = finalCanvas.toDataURL('image/png');
+        if(btn){
+          btn.textContent='\u2b07\ufe0f Save Score Card';
+          btn.disabled=false;
+          btn.style.opacity='1';
+          btn.onclick=function(){
+            var byteString=atob(dataUrl.split(',')[1]);
+            var ab=new ArrayBuffer(byteString.length);
+            var ia=new Uint8Array(ab);
+            for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
+            var blob=new Blob([ab],{type:'image/png'});
+            var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
             var desktopUrl=URL.createObjectURL(blob);
             var pd=document.createElement('div');
             pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
@@ -3472,16 +3473,16 @@ function downloadShareCard(){
               URL.revokeObjectURL(desktopUrl);
               document.body.removeChild(pd);
               if(btn){
-                btn.textContent='📲 Share to Social Media';
+                btn.textContent='\ud83d\udcf2 Share to Social Media';
                 btn.disabled=false;
                 btn.style.opacity='1';
               }
             };
-          }
-          btn.onclick=downloadShareCard;
-        };
-      }
-    }).catch(()=>{ if(tempWrap&&tempWrap.parentNode){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
+            btn.onclick=downloadShareCard;
+          };
+        }
+      }).catch(()=>{ if(tempWrap&&tempWrap.parentNode){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
+    }
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
