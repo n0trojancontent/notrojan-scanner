@@ -3405,7 +3405,25 @@ function downloadShareCard(){
           ctx.drawImage(rawCanvas, 0, srcCropY, rawCanvas.width, srcH, 0, 0, scaledW, OUT_H);
         }
       } else {
-        finalCanvas = rawCanvas;
+        // Mobile: same 1080×1350 stamp as desktop — identical border/card ratio on IG wall
+        var OUT_W = 1080, OUT_H = 1350;
+        finalCanvas = document.createElement('canvas');
+        finalCanvas.width  = OUT_W;
+        finalCanvas.height = OUT_H;
+        var mCtx = finalCanvas.getContext('2d');
+        mCtx.fillStyle = borderCol;
+        mCtx.fillRect(0, 0, OUT_W, OUT_H);
+        var mScale   = OUT_W / rawCanvas.width;
+        var mScaledW = OUT_W;
+        var mScaledH = Math.round(rawCanvas.height * mScale);
+        if(mScaledH <= OUT_H){
+          var mDstY = Math.round((OUT_H - mScaledH) / 2);
+          mCtx.drawImage(rawCanvas, 0, mDstY, mScaledW, mScaledH);
+        } else {
+          var mSrcCropY = Math.round(((mScaledH - OUT_H) / 2) / mScale);
+          var mSrcH     = Math.round(OUT_H / mScale);
+          mCtx.drawImage(rawCanvas, 0, mSrcCropY, rawCanvas.width, mSrcH, 0, 0, mScaledW, OUT_H);
+        }
       }
       const dataUrl = finalCanvas.toDataURL('image/png');
       if(btn){
