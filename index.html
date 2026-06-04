@@ -3154,7 +3154,7 @@ function handleShare(){
 
   modal.innerHTML=`
   <div id="shareCardWrapper" style="max-width:390px;width:390px;">
-    <div id="notShareCard" style="background:#020c06;border-left:22px solid ${col};border-right:22px solid ${col};border-top:6px solid ${col};border-bottom:4px solid ${col};padding:10px 14px;font-family:'Barlow CoCondensed',sans-serif;">
+    <div id="notShareCard" style="background:#020c06;border-left:22px solid ${col};border-right:22px solid ${col};border-top:6px solid ${col};border-bottom:4px solid ${col};padding:10px 14px;font-family:'Barlow Condensed',sans-serif;">
       <!-- Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;border-bottom:1px solid ${col}33;padding-bottom:8px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;color:${col};">N<span style="text-transform:lowercase;">o</span>T™ Cultural Influence Score Card™</div>
@@ -3176,7 +3176,7 @@ function handleShare(){
       </div>
       <!-- Score row + Wikipedia image — side by side -->
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">
-        <div style="flex:1;">
+        <div style="flex:1;min-width:0;overflow:hidden;">
           <div style="display:flex;align-items:flex-end;gap:10px;">
             <div style="font-size:4rem;font-weight:900;color:${col};line-height:1;">${score}</div>
             <div style="padding-bottom:6px;">
@@ -3371,60 +3371,29 @@ function downloadShareCard(){
     const r=window._lastResult;
     const title=(r?.content_id?.title||r?.title||r?.query||'notrojan').replace(/\s+/g,'-').toLowerCase();
     var isMobile = window.innerWidth <= 600;
-
-    if(isMobile){
-      // ── MOBILE: from mobilescgooddesktopscmessedup — scale:3, raw canvas, navigator.share ──
-      var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-      var tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-      card.parentNode.insertBefore(tempWrap, card);
-      tempWrap.appendChild(card);
-      html2canvas(tempWrap,{backgroundColor:'#020c06',scale:3,useCORS:true,allowTaint:true}).then(async canvas=>{
-        tempWrap.parentNode.insertBefore(card, tempWrap);
-        tempWrap.parentNode.removeChild(tempWrap);
-        const dataUrl=canvas.toDataURL('image/png');
-        if(btn){
-          btn.textContent='\u2b07\ufe0f Save Score Card';
-          btn.disabled=false;
-          btn.style.opacity='1';
-          btn.onclick=function(){
-            var byteString=atob(dataUrl.split(',')[1]);
-            var ab=new ArrayBuffer(byteString.length);
-            var ia=new Uint8Array(ab);
-            for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
-            var blob=new Blob([ab],{type:'image/png'});
-            var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
-            if(navigator.canShare && navigator.canShare({files:[file]})){
-              navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
-                btn.textContent='\u2705 SAVED!';
-                btn.style.color='var(--green)';
-                setTimeout(function(){ finish(); },1500);
-              }).catch(function(){finish();});
-            } else {
-              finish();
-            }
-            btn.onclick=downloadShareCard;
-          };
-        }
-      }).catch(()=>{ if(tempWrap&&tempWrap.parentNode){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
-
-    } else {
-      // ── DESKTOP: from index.html — untouched ──────────────────────────────
-      var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
-      var tempWrap = document.createElement('div');
-      tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
-      card.parentNode.insertBefore(tempWrap, card);
-      tempWrap.appendChild(card);
-      html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true}).then(async rawCanvas=>{
-        tempWrap.parentNode.insertBefore(card, tempWrap);
-        tempWrap.parentNode.removeChild(tempWrap);
+    var borderCol = card.style.borderLeftColor || getComputedStyle(card).borderLeftColor || '#00ff6a';
+    // ── Wrap and capture ─────────────────────────────────────────────────────
+    var tempWrap = document.createElement('div');
+    tempWrap.style.cssText = 'background:'+borderCol+';padding:28px 0;display:inline-block;';
+    card.parentNode.insertBefore(tempWrap, card);
+    tempWrap.appendChild(card);
+    document.fonts.ready.then(function(){
+    html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true}).then(async rawCanvas=>{
+      tempWrap.parentNode.insertBefore(card, tempWrap);
+      tempWrap.parentNode.removeChild(tempWrap);
+      // ── Desktop: stamp onto 1080×1350 (4:5 IG portrait) ──────────────────
+      // Card is scaled uniformly to fit height — same trading card design,
+      // just sized to fit IG. Small border-color bands on sides. Mobile untouched.
+      var finalCanvas;
+      if(!isMobile){
         var OUT_W = 1080, OUT_H = 1350;
-        var finalCanvas = document.createElement('canvas');
+        finalCanvas = document.createElement('canvas');
         finalCanvas.width  = OUT_W;
         finalCanvas.height = OUT_H;
         var ctx = finalCanvas.getContext('2d');
         ctx.fillStyle = borderCol;
         ctx.fillRect(0, 0, OUT_W, OUT_H);
+        // Scale to fit width, crop symmetrically top/bottom if taller than OUT_H
         var scale   = OUT_W / rawCanvas.width;
         var scaledW = OUT_W;
         var scaledH = Math.round(rawCanvas.height * scale);
@@ -3436,18 +3405,31 @@ function downloadShareCard(){
           var srcH     = Math.round(OUT_H / scale);
           ctx.drawImage(rawCanvas, 0, srcCropY, rawCanvas.width, srcH, 0, 0, scaledW, OUT_H);
         }
-        const dataUrl = finalCanvas.toDataURL('image/png');
-        if(btn){
-          btn.textContent='\u2b07\ufe0f Save Score Card';
-          btn.disabled=false;
-          btn.style.opacity='1';
-          btn.onclick=function(){
-            var byteString=atob(dataUrl.split(',')[1]);
-            var ab=new ArrayBuffer(byteString.length);
-            var ia=new Uint8Array(ab);
-            for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
-            var blob=new Blob([ab],{type:'image/png'});
-            var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
+      } else {
+        finalCanvas = rawCanvas;
+      }
+      const dataUrl = finalCanvas.toDataURL('image/png');
+      if(btn){
+        btn.textContent='\u2b07\ufe0f Save Score Card';
+        btn.disabled=false;
+        btn.style.opacity='1';
+        btn.onclick=function(){
+          var byteString=atob(dataUrl.split(',')[1]);
+          var ab=new ArrayBuffer(byteString.length);
+          var ia=new Uint8Array(ab);
+          for(var i=0;i<byteString.length;i++){ia[i]=byteString.charCodeAt(i);}
+          var blob=new Blob([ab],{type:'image/png'});
+          var file=new File([blob],`notrojan-${title}-score-card.png`,{type:'image/png'});
+          if(isMobile && navigator.canShare && navigator.canShare({files:[file]})){
+            // Mobile: native share sheet saves to Photos
+            navigator.share({files:[file],title:'NoTrojan Score Card'}).then(function(){
+              btn.textContent='\u2705 SAVED!';
+              btn.style.color='var(--green)';
+              setTimeout(function(){ finish(); },1500);
+            }).catch(function(){finish();});
+          } else {
+            // Desktop: use the exact same captured Score Card image as mobile.
+            // Do NOT re-canvas into a square post, resize, crop, or auto-save.
             var desktopUrl=URL.createObjectURL(blob);
             var pd=document.createElement('div');
             pd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
@@ -3473,16 +3455,17 @@ function downloadShareCard(){
               URL.revokeObjectURL(desktopUrl);
               document.body.removeChild(pd);
               if(btn){
-                btn.textContent='\ud83d\udcf2 Share to Social Media';
+                btn.textContent='📲 Share to Social Media';
                 btn.disabled=false;
                 btn.style.opacity='1';
               }
             };
-            btn.onclick=downloadShareCard;
-          };
-        }
-      }).catch(()=>{ if(tempWrap&&tempWrap.parentNode){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
-    }
+          }
+          btn.onclick=downloadShareCard;
+        };
+      }
+    }).catch(()=>{ if(tempWrap&&tempWrap.parentNode){ tempWrap.parentNode.insertBefore(card,tempWrap); tempWrap.parentNode.removeChild(tempWrap); } finish(); });
+    }).catch(()=>{ finish(); });
   };
   if(typeof html2canvas!=='undefined'){go();}
   else{
