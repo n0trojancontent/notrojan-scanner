@@ -2948,27 +2948,71 @@ function fetchReportImage(r, col){
     u=(u||'').toLowerCase();
     return u.includes('logo')||u.includes('icon')||u.includes('flag')||u.includes('.svg');
   };
-  var trySummary=function(term){return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(term)).then(function(r){return r.json();}).then(function(d){var u=d&&(d.originalimage||d.thumbnail);return u&&u.source&&!isLogoUrl(u.source)?u.source:null;}).catch(function(){return null;});};
-  var trySearch=function(term){return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(term)+'&srlimit=1&format=json&origin=*').then(function(r){return r.json();}).then(function(d){var t=d&&d.query&&d.query.search&&d.query.search[0]&&d.query.search[0].title;return t?trySummary(t):null;}).catch(function(){return null;});};
+  // Validation: confirm returned Wikipedia page title matches creator or title name
+  // Extracts meaningful words (3+ chars) and checks at least one appears in the wiki page title
+  var nameWords=function(str){ return (str||'').toLowerCase().split(/\s+/).filter(function(w){return w.length>=3;}); };
+  var isValidMatch=function(wikiTitle, matchAgainst){
+    if(!wikiTitle||!matchAgainst) return false;
+    var wt=wikiTitle.toLowerCase();
+    var words=nameWords(matchAgainst);
+    return words.some(function(w){ return wt.includes(w); });
+  };
+
+  var trySummary=function(term, validateAgainst){return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(term)).then(function(resp){return resp.json();}).then(function(d){
+    if(validateAgainst && !isValidMatch(d.title, validateAgainst)) return null;
+    var u=d&&(d.originalimage||d.thumbnail);return u&&u.source&&!isLogoUrl(u.source)?u.source:null;
+  }).catch(function(){return null;});};
+
+  var trySearch=function(term, validateAgainst){return fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(term)+'&srlimit=1&format=json&origin=*').then(function(resp){return resp.json();}).then(function(d){
+    var t=d&&d.query&&d.query.search&&d.query.search[0]&&d.query.search[0].title;
+    if(!t) return null;
+    if(validateAgainst && !isValidMatch(t, validateAgainst)) return null;
+    return trySummary(t, validateAgainst);
+  }).catch(function(){return null;});};
+
+  // Render tint + scanned term text when no valid image found
+  function renderNoImage(){
+    box.innerHTML='';
+    box.style.cssText='width:120px;height:120px;min-width:120px;max-width:120px;max-height:120px;flex-shrink:0;background:var(--bg2);overflow:hidden;position:relative;display:block;';
+    const td=document.createElement('div');
+    td.style.cssText='position:absolute;inset:0;background:'+tint+';display:flex;align-items:center;justify-content:center;padding:8px;';
+    const label=document.createElement('div');
+    const displayTerm=(creator||title||'').toUpperCase();
+    label.style.cssText='font-family:"Share Tech Mono",monospace;font-size:0.52rem;color:rgba(255,255,255,0.75);text-align:center;line-height:1.4;letter-spacing:0.06em;word-break:break-word;';
+    label.textContent=displayTerm;
+    td.appendChild(label);
+    box.appendChild(td);
+    if(horse){
+      const hd=document.createElement('div');
+      hd.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+      const hi=document.createElement('img');
+      hi.src=horse;
+      hi.style.cssText='width:55%;height:55%;object-fit:contain;opacity:0.9;';
+      hd.appendChild(hi);
+      box.appendChild(hd);
+    }
+  }
 
   if(!creator&&!title) return;
   (async function(){
     var img=null;
     var query=r?.query||'';
     var label=r?.content_id?.label||'';
+    // Always validate against creator name for person/creator types — prevents wrong-person images
+    var validate=creator||title;
     // Try full AI title first
-    if(!img&&title) img=await trySummary(title);
-    if(!img&&title) img=await trySearch(title);
+    if(!img&&title) img=await trySummary(title, validate);
+    if(!img&&title) img=await trySearch(title, validate);
     // For fictional characters, try the franchise/show title for poster
-    if(!img&&label&&label!==title) img=await trySearch(label);
+    if(!img&&label&&label!==title) img=await trySearch(label, validate);
     // Try query + label combo for disambiguation
     var combined=query&&label?query+' '+label:'';
-    if(!img&&combined) img=await trySearch(combined);
-    if(!img&&query&&query!==title) img=await trySummary(query);
-    if(!img&&creator) img=await trySummary(creator);
-    if(!img&&creator) img=await trySearch(creator);
-    if(!img&&query) img=await trySearch(query);
-    if(img) render(img);
+    if(!img&&combined) img=await trySearch(combined, validate);
+    if(!img&&query&&query!==title) img=await trySummary(query, validate);
+    if(!img&&creator) img=await trySummary(creator, validate);
+    if(!img&&creator) img=await trySearch(creator, validate);
+    if(!img&&query) img=await trySearch(query, validate);
+    if(img){ render(img); } else { renderNoImage(); }
   })();
 }
 
