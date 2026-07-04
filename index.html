@@ -313,10 +313,11 @@ header{background:#000;border-bottom:2px solid var(--red);position:relative;z-in
 .vrow-num{font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;color:var(--red3);line-height:0.9;white-space:nowrap;flex-shrink:0;}
 .mdl-line{background:var(--bg2);border:1px solid var(--border);border-left:2px solid var(--red3);padding:11px 13px;font-size:0.8rem;color:var(--white2);line-height:1.55;margin-top:2px;}
 .funnel{display:flex;flex-direction:column;gap:11px;}
-.frow{display:flex;align-items:center;gap:14px;}
-.fbar{height:44px;min-width:52px;display:flex;align-items:center;justify-content:flex-end;padding-right:12px;flex-shrink:0;}
+.frow{display:flex;align-items:center;gap:10px;}
+.fbar-wrap{width:38%;flex-shrink:0;height:44px;background:rgba(255,255,255,0.04);}
+.fbar{height:44px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;box-sizing:border-box;}
 .fbar-n{font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--bg);}
-.fbar-lbl{font-size:0.86rem;color:var(--white2);line-height:1.4;}
+.fbar-lbl{font-size:0.86rem;color:var(--white2);line-height:1.4;flex:1;min-width:0;}
 .why-response{background:var(--surface2);border:1px solid var(--green3);border-left:4px solid var(--green);padding:20px 22px;}
 .why-response .rlbl{font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.16em;color:var(--green);text-transform:uppercase;margin-bottom:10px;}
 .why-response .rhead{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;letter-spacing:0.01em;color:var(--green);line-height:1.15;margin-bottom:10px;}
@@ -850,10 +851,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
       <p style="font-size:0.9rem;color:var(--white2);line-height:1.7;margin:0 0 18px;">Global and national education systems increasingly recognize the importance of media and information literacy (MIL) for fostering critical thinking, combating misinformation, and promoting democratic participation. However, <strong style="color:var(--white);">a significant gap remains between this recognition and the systematic teaching, support, and integration of MIL into education and policy.</strong></p>
       <div style="font-size:1.05rem;color:var(--white);line-height:1.6;margin-bottom:16px;font-family:'Barlow Condensed',sans-serif;font-weight:800;letter-spacing:0.02em;">Of the world's <span style="color:var(--orange);">194 countries</span>:</div>
       <div class="funnel">
-        <div class="frow"><div class="fbar" style="width:100%;background:var(--white);opacity:0.9;"><span class="fbar-n">171</span></div><div class="fbar-lbl"><strong style="color:var(--white);">say</strong> media literacy matters in national policy</div></div>
-        <div class="frow"><div class="fbar" style="width:48%;background:var(--yellow);"><span class="fbar-n">83</span></div><div class="fbar-lbl">teach <strong style="color:var(--yellow);">some form of it</strong> in schools</div></div>
-        <div class="frow"><div class="fbar" style="width:16%;background:var(--yellow);"><span class="fbar-n">28</span></div><div class="fbar-lbl">of those <strong style="color:var(--yellow);">water it down</strong> to basic computer skills, not real media literacy</div></div>
-        <div class="frow"><div class="fbar" style="width:10%;background:var(--green);"><span class="fbar-n">17</span></div><div class="fbar-lbl">have a <strong style="color:var(--green);">real, standalone</strong> media literacy policy</div></div>
+        <div class="frow"><div class="fbar-wrap"><div class="fbar" style="width:100%;background:var(--white);opacity:0.9;"><span class="fbar-n">171</span></div></div><div class="fbar-lbl"><strong style="color:var(--white);">say</strong> media literacy matters in national policy</div></div>
+        <div class="frow"><div class="fbar-wrap"><div class="fbar" style="width:48%;background:var(--yellow);"><span class="fbar-n">83</span></div></div><div class="fbar-lbl">teach <strong style="color:var(--yellow);">some form of it</strong> in schools</div></div>
+        <div class="frow"><div class="fbar-wrap"><div class="fbar" style="width:16%;background:var(--yellow);"><span class="fbar-n">28</span></div></div><div class="fbar-lbl">of those <strong style="color:var(--yellow);">water it down</strong> to basic computer skills, not real media literacy</div></div>
+        <div class="frow"><div class="fbar-wrap"><div class="fbar" style="width:10%;background:var(--green);"><span class="fbar-n">17</span></div></div><div class="fbar-lbl">have a <strong style="color:var(--green);">real, standalone</strong> media literacy policy</div></div>
       </div>
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.56rem;color:var(--muted);letter-spacing:0.05em;margin-top:12px;">Source: UNESCO 2025 · Media and Information Literacy for All: Closing the Gaps</div>
     </div>
