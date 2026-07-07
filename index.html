@@ -3325,7 +3325,7 @@ function downloadShareCard(){
     card.parentNode.insertBefore(tempWrap, card);
     tempWrap.appendChild(card);
     document.fonts.ready.then(function(){
-    html2canvas(tempWrap,{backgroundColor:borderCol,scale:2,useCORS:true,allowTaint:true}).then(async rawCanvas=>{
+    html2canvas(tempWrap,{backgroundColor:borderCol,scale:isMobile?2:3,useCORS:true,allowTaint:true}).then(async rawCanvas=>{
       tempWrap.parentNode.insertBefore(card, tempWrap);
       tempWrap.parentNode.removeChild(tempWrap);
       // ── Desktop: stamp onto 1080×1350 (4:5 IG portrait) ──────────────────
