@@ -611,11 +611,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 <div id="tab-scanner" class="tab-panel active">
   <div class="scan-hdr">
     <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:600;letter-spacing:0.15em;color:var(--white);">NoT™ Cultural Influence Decoder™</h2><div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;color:var(--green3);text-transform:uppercase;margin-bottom:8px;">Cultural Influence Intelligence System™</div>
-    <p class="scanner-neon">Enter details of your favorite creator, song, brand, movie, or campaign below. Check the score!</p>
+    <p class="scanner-neon" data-en="Enter details of your favorite creator, song, brand, movie, or campaign below. Check the score!" data-es="Ingresa los datos de tu creador, canción, marca, película o campaña favorita a continuación. ¡Verifica la puntuación!">Enter details of your favorite creator, song, brand, movie, or campaign below. Check the score!</p>
   </div>
 
   <div class="input-box">
-    <div class="inp-lbl">// Target — URL · Artist · Song · Platform · Trend · Creator · Brand · Campaign</div> 
+    <div class="inp-lbl" data-en="// Target — URL · Artist · Song · Platform · Trend · Creator · Brand · Campaign" data-es="// Objetivo — URL · Artista · Canción · Plataforma · Tendencia · Creador · Marca · Campaña">// Target — URL · Artist · Song · Platform · Trend · Creator · Brand · Campaign</div> 
     <style>
       .lang-switch{display:flex;align-items:center;gap:8px;margin:0 0 10px 0;flex-wrap:wrap;}
       .lang-switch-lbl{font-family:'Share Tech Mono',monospace;font-size:0.56rem;letter-spacing:0.16em;color:var(--green3);text-transform:uppercase;animation:langPulse 1.6s ease-in-out infinite;}
@@ -624,15 +624,15 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
       .lang-opt.active{border-color:var(--green);color:var(--green);box-shadow:0 0 8px rgba(0,255,106,0.25);}
     </style>
     <div class="lang-switch" role="group" aria-label="Report language">
-      <span class="lang-switch-lbl">SELECT LANGUAGE</span>
-      <button type="button" id="langBtnEN" class="lang-opt active" onclick="window.scanLang='en';this.classList.add('active');document.getElementById('langBtnES').classList.remove('active');">English</button>
-      <button type="button" id="langBtnES" class="lang-opt" onclick="window.scanLang='es';this.classList.add('active');document.getElementById('langBtnEN').classList.remove('active');">Spanish</button>
+      <span class="lang-switch-lbl" data-en="SELECT LANGUAGE" data-es="SELECCIONA IDIOMA">SELECT LANGUAGE</span>
+      <button type="button" id="langBtnEN" class="lang-opt active" onclick="window.scanLang='en';this.classList.add('active');document.getElementById('langBtnES').classList.remove('active');applyScanLang('en');">English</button>
+      <button type="button" id="langBtnES" class="lang-opt" onclick="window.scanLang='es';this.classList.add('active');document.getElementById('langBtnEN').classList.remove('active');applyScanLang('es');">Spanish</button>
     </div>
     <div class="inp-row">
-<div class="cursor-wrap" id="cursorWrap"><div class="fake-cursor" id="fakeCursor"></div><input type="text" class="url-inp" id="urlInput" placeholder="Enter: any artist, song, brand, trend, or URL..." onkeydown="if(event.key==='Enter')runScan()" onfocus="document.getElementById('cursorWrap').classList.add('hide-cursor')" onblur="if(!this.value)document.getElementById('cursorWrap').classList.remove('hide-cursor')"></div>      <button class="scan-btn" id="scanBtn" onclick="runScan()">⚡ PRESS to SCAN</button>       <button class="scan-btn" id="clearBtn" onclick="clearScan()" style="display:none;background:transparent;border-color:var(--muted);color:var(--muted);min-width:120px;">✕ New Scan</button>
+<div class="cursor-wrap" id="cursorWrap"><div class="fake-cursor" id="fakeCursor"></div><input type="text" class="url-inp" id="urlInput" placeholder="Enter: any artist, song, brand, trend, or URL..." onkeydown="if(event.key==='Enter')runScan()" onfocus="document.getElementById('cursorWrap').classList.add('hide-cursor')" onblur="if(!this.value)document.getElementById('cursorWrap').classList.remove('hide-cursor')"></div>      <button class="scan-btn" id="scanBtn" onclick="runScan()" data-en="⚡ PRESS to SCAN" data-es="⚡ PRESIONA para ESCANEAR">⚡ PRESS to SCAN</button>       <button class="scan-btn" id="clearBtn" onclick="clearScan()" style="display:none;background:transparent;border-color:var(--muted);color:var(--muted);min-width:120px;" data-en="✕ New Scan" data-es="✕ Nuevo Escaneo">✕ New Scan</button>
     </div>
     <div class="prog-row" id="progRow">
-      <span class="prog-lbl">SCANNING...</span>
+      <span class="prog-lbl" data-en="SCANNING..." data-es="ESCANEANDO...">SCANNING...</span>
       <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
     </div>
     <div class="err-bar" id="errBar"></div>
@@ -1314,9 +1314,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 
 <footer>
   <div class="ftlogo" style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;letter-spacing:0.12em;color:#C41E1E;text-shadow:0 0 10px rgba(196,30,30,0.3);">NO TROJAN® <span style="font-size:0.7rem;vertical-align:middle;letter-spacing:0.05em;color:rgba(196,30,30,0.6);">© 2024</span></div>
-  <div class="ftsub">Civility · Sustainable Communities · Healthy Public Discourse</div>
-  <div class="ftsdg"><a href="https://sdgs.un.org/goals/goal3" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 3</a> · <a href="https://sdgs.un.org/goals/goal4" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 4</a> · <a href="https://sdgs.un.org/goals/goal10" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 10</a> · <a href="https://sdgs.un.org/goals/goal11" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 11</a> · <a href="https://sdgs.un.org/goals/goal16" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 16</a> · <a href="https://sdgs.un.org/goals/goal17" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 17</a> — Good Citizenship Is Green · NoT™ Content Is Green Content</div>
-  <div class="ftq">"For those who have ears..."</div><div class="ftsdg" style="text-align:center;padding:6px 0;border-top:1px solid #1a3a22;margin-top:6px;font-size:0.58rem;color:#3a6a4a;font-family:'Share Tech Mono',monospace;letter-spacing:0.08em;">All rights reserved © 2024 <a onclick="openContact()" style="color:#3a6a4a;text-decoration:underline;cursor:pointer;">No Trojan®</a> · Reg. No. 7,269,437 · All commercial, organizational, and institutional use is strictly prohibited without prior written consent.</div><div class="ftsdg" style="text-align:center;padding:6px 0;border-top:1px solid #1a3a22;margin-top:6px;"><a onclick="goToTab('scanner')" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">⚡ SCANNER</a><a onclick="goToTab('whatNOT')" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">🛡️ WHAT NoT™?</a><a onclick="goToTab('whyNOT')" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">🔬 WHY NoT™?</a><a onclick="goToTab('howNOT')" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">📡 HOW NoT™?</a><a onclick="goToTab('certify')" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">🏆 CERTIFY & TRAIN</a><a href="https://no-trojan-content.myshopify.com" target="_blank" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;">🧢 NoT™ FASHION</a><a onclick="openContact()" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">📬 CONTACT</a></div>
+  <div class="ftsub" data-en="Civility · Sustainable Communities · Healthy Public Discourse" data-es="Civismo · Comunidades Sostenibles · Discurso Público Saludable">Civility · Sustainable Communities · Healthy Public Discourse</div>
+  <div class="ftsdg"><a href="https://sdgs.un.org/goals/goal3" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 3</a> · <a href="https://sdgs.un.org/goals/goal4" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 4</a> · <a href="https://sdgs.un.org/goals/goal10" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 10</a> · <a href="https://sdgs.un.org/goals/goal11" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 11</a> · <a href="https://sdgs.un.org/goals/goal16" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 16</a> · <a href="https://sdgs.un.org/goals/goal17" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">SDG 17</a> — <span data-en="Good Citizenship Is Green" data-es="Good Citizenship es Verde">Good Citizenship Is Green</span> · <span data-en="NoT™ Content Is Green Content" data-es="El Contenido NoT™ es Verde">NoT™ Content Is Green Content</span></div>
+  <div class="ftq" data-es="&quot;Para los que tienen oídos...&quot;">"For those who have ears..."</div><div class="ftsdg" style="text-align:center;padding:6px 0;border-top:1px solid #1a3a22;margin-top:6px;font-size:0.58rem;color:#3a6a4a;font-family:'Share Tech Mono',monospace;letter-spacing:0.08em;"><span data-en="All rights reserved" data-es="Todos los derechos reservados">All rights reserved</span> © 2024 <a onclick="openContact()" style="color:#3a6a4a;text-decoration:underline;cursor:pointer;">No Trojan®</a> · Reg. No. 7,269,437 · <span data-en="All commercial, organizational, and institutional use is strictly prohibited without prior written consent." data-es="Todo uso comercial, organizacional e institucional está estrictamente prohibido sin consentimiento previo por escrito.">All commercial, organizational, and institutional use is strictly prohibited without prior written consent.</span></div><div class="ftsdg" style="text-align:center;padding:6px 0;border-top:1px solid #1a3a22;margin-top:6px;"><a onclick="goToTab('scanner')" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">⚡ SCANNER</a><a onclick="goToTab('whatNOT')" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">🛡️ WHAT NoT™?</a><a onclick="goToTab('whyNOT')" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">🔬 WHY NoT™?</a><a onclick="goToTab('howNOT')" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">📡 HOW NoT™?</a><a onclick="goToTab('certify')" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">🏆 CERTIFY & TRAIN</a><a href="https://no-trojan-content.myshopify.com" target="_blank" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;">🧢 NoT™ FASHION</a><a onclick="openContact()" style="color:#3a6a4a;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-decoration:none;margin:0 6px;cursor:pointer;">📬 CONTACT</a></div>
 </footer>
 
 <script>
@@ -1590,29 +1590,29 @@ async function submitMemberEmail(){
 }
 
 
-// ── ANIMATED PLACEHOLDER ──
+// ── ANIMATED PLACEHOLDER (language-aware) ──
 (function(){
-  const suffixes = [
-    'song','movie','artist','influencer','URL','platform','brand','trend','creator',
-    'Nicki Minaj, rapper',
-    'Happy by Pharrell Williams',
-    'Mickey Mouse, Disney character',
-    'Hennessy, cognac brand',
-    'Ariel, The Little Mermaid',
-    'Drake, rapper',
-    'SpongeBob SquarePants, cartoon',
-    'Mask Off by Future',
-    'Cardi B, influencer',
-    'The Fresh Prince of Bel-Air, TV show',
-  ];
+  const suffixes = {
+    en: ['song','movie','artist','influencer','URL','platform','brand','trend','creator',
+      'Nicki Minaj, rapper','Happy by Pharrell Williams','Mickey Mouse, Disney character',
+      'Hennessy, cognac brand','Ariel, The Little Mermaid','Drake, rapper',
+      'SpongeBob SquarePants, cartoon','Mask Off by Future','Cardi B, influencer',
+      'The Fresh Prince of Bel-Air, TV show'],
+    es: ['canción','película','artista','influencer','URL','plataforma','marca','tendencia','creador',
+      'Nicki Minaj, rapera','Happy de Pharrell Williams','Mickey Mouse, personaje de Disney',
+      'Hennessy, marca de coñac','Ariel, La Sirenita','Drake, rapero',
+      'SpongeBob SquarePants, caricatura','Mask Off de Future','Cardi B, influencer',
+      'The Fresh Prince of Bel-Air, programa de TV']
+  };
+  const prefix = { en:'Enter: ', es:'Ingresa: ' };
   const inp = document.getElementById('urlInput');
   if(!inp) return;
   let i = 0;
-  inp.placeholder = 'Enter: ' + suffixes[0];
-  setInterval(function(){
-    i = (i + 1) % suffixes.length;
-    inp.placeholder = 'Enter: ' + suffixes[i];
-  }, 2000);
+  function L(){ return window.scanLang==='es' ? 'es' : 'en'; }
+  function render(){ const l=L(), arr=suffixes[l]; inp.placeholder = prefix[l] + arr[i % arr.length]; }
+  window.renderScanPlaceholder = render;
+  render();
+  setInterval(function(){ i = i + 1; render(); }, 2000);
 })();
 
 function switchNav(id,btn){
@@ -1673,6 +1673,14 @@ document.addEventListener('DOMContentLoaded', function(){
     restoreLastScan();
   }
 });
+
+function applyScanLang(lang){
+  document.querySelectorAll('[data-es]').forEach(function(el){
+    if(el.getAttribute('data-en')===null){ el.setAttribute('data-en', el.textContent); }
+    el.textContent = (lang==='es') ? el.getAttribute('data-es') : el.getAttribute('data-en');
+  });
+  if(window.renderScanPlaceholder){ window.renderScanPlaceholder(); }
+}
 
 async function runScan(){
   const input=document.getElementById('urlInput').value.trim();
