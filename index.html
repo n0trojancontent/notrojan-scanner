@@ -616,6 +616,18 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:16px 24p
 
   <div class="input-box">
     <div class="inp-lbl">// Target — URL · Artist · Song · Platform · Trend · Creator · Brand · Campaign</div> 
+    <style>
+      .lang-switch{display:flex;align-items:center;gap:8px;margin:0 0 10px 0;flex-wrap:wrap;}
+      .lang-switch-lbl{font-family:'Share Tech Mono',monospace;font-size:0.56rem;letter-spacing:0.16em;color:var(--green3);text-transform:uppercase;animation:langPulse 1.6s ease-in-out infinite;}
+      @keyframes langPulse{0%,100%{opacity:0.7;text-shadow:0 0 2px rgba(0,255,106,0.35);}50%{opacity:1;text-shadow:0 0 10px rgba(0,255,106,0.9),0 0 18px rgba(0,255,106,0.5);}}
+      .lang-opt{font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;padding:4px 12px;background:transparent;border:1px solid var(--border2);color:var(--muted);cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
+      .lang-opt.active{border-color:var(--green);color:var(--green);box-shadow:0 0 8px rgba(0,255,106,0.25);}
+    </style>
+    <div class="lang-switch" role="group" aria-label="Report language">
+      <span class="lang-switch-lbl">SELECT LANGUAGE</span>
+      <button type="button" id="langBtnEN" class="lang-opt active" onclick="window.scanLang='en';this.classList.add('active');document.getElementById('langBtnES').classList.remove('active');">English</button>
+      <button type="button" id="langBtnES" class="lang-opt" onclick="window.scanLang='es';this.classList.add('active');document.getElementById('langBtnEN').classList.remove('active');">Spanish</button>
+    </div>
     <div class="inp-row">
 <div class="cursor-wrap" id="cursorWrap"><div class="fake-cursor" id="fakeCursor"></div><input type="text" class="url-inp" id="urlInput" placeholder="Enter: any artist, song, brand, trend, or URL..." onkeydown="if(event.key==='Enter')runScan()" onfocus="document.getElementById('cursorWrap').classList.add('hide-cursor')" onblur="if(!this.value)document.getElementById('cursorWrap').classList.remove('hide-cursor')"></div>      <button class="scan-btn" id="scanBtn" onclick="runScan()">⚡ PRESS to SCAN</button>       <button class="scan-btn" id="clearBtn" onclick="clearScan()" style="display:none;background:transparent;border-color:var(--muted);color:var(--muted);min-width:120px;">✕ New Scan</button>
     </div>
@@ -1870,7 +1882,7 @@ Return ONLY valid JSON, no markdown, no backticks:
       body:JSON.stringify({
         model:"claude-sonnet-4-6",
         max_tokens:3000,
-        system:SYS,
+        system:SYS+(window.scanLang==='es'?"\n\nOUTPUT LANGUAGE — SPANISH: Write every human-readable text VALUE in natural, fluent Spanish (content description, verdictMeaning, all indicator text, malware definition and observed, ieos_impact, community_impact, realWorldCase title and content, diagnosis, all mediaLiteracy q/a/finding, strengths title and description, certificationVerdict, certificationPathway, constructiveAssessment). KEEP EXACTLY IN ENGLISH: all JSON keys; status values (pass, warn, fail); pillar codes (EOS, SI, GC); rubric keys; threatCategories values; malware type values; content_id title and creator. Do not change any numbers or scores.":""),
         messages:[{role:"user",content:"No Trojan scan: "+input}]
       })
     });
